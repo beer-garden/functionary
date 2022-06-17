@@ -1,11 +1,11 @@
 import importlib
 import pathlib
-import requests
 import tarfile
 from typing import Tuple
-import yaml
 
 import click
+import requests
+import yaml
 
 ParamTuple = Tuple[str, str, str]
 param_types = ["string", "int", "float", "bool"]
@@ -68,6 +68,11 @@ def package_cmd(ctx):
 @click.argument("name", type=str)
 @click.pass_context
 def create_cmd(ctx, simple, language, name, output_directory):
+    '''
+    Generate a function.
+
+    Create an example function in the specified language.
+    '''
     params = []
     body = None
     if simple:
@@ -88,14 +93,19 @@ def create_cmd(ctx, simple, language, name, output_directory):
 
 
 @package_cmd.command()
-@click.option(
-    "--token",
-    "-t",
-)
+@click.option("--token", "-t", envvar="BG_TOKEN")
 @click.argument("path", type=click.Path(exists=True))
 @click.argument("host")
 @click.pass_context
 def publish(ctx, token, path, host):
+    '''
+    Create an archive from the project and publish to the build server.
+
+    This will create an archive of the files at the given path and
+    then publish them to the build server for image creation.
+    Use the -t option to specify a token or set the BG_TOKEN
+    environment variable after logging in to *eerGarden.
+    '''
     full_path = pathlib.Path(path).resolve()
     tarfile_name = full_path.joinpath(f"{full_path.name}.tar.gz")
 
@@ -108,22 +118,25 @@ def publish(ctx, token, path, host):
     upload_file = open(tarfile_name, "rb")
     upload_response = None
     headers = {"Authentication": f"Bearer {token}"}
+    print(f"Headers: {headers!r}")
 
     try:
         upload_response = requests.post(
             host, headers=headers, files={"build_file": upload_file}
         )
     except requests.ConnectionError:
-        ctx.fail(f"Unable to connect to {host}")
+        click.echo(f"Unable to connect to {host}")
+        ctx.exit(2)
     except requests.Timeout:
-        ctx.fail("Timeout occurred waiting for build")
+        click.echo("Timeout occurred waiting for build")
+        ctx.exit(2)
 
     # check status code/message on return then exit
     if upload_response.ok:
         click.echo("Build succeeded")
     else:
-        click.secho(
-            f"Failed to build image: {upload_response.status_code}\n\tResponse: {upload_response.text}",
-            fg="red",
+        click.echo(
+            f"Failed to build image: {upload_response.status_code}\n"
+            f"\tResponse: {upload_response.text}",
         )
         ctx.exit(1)
