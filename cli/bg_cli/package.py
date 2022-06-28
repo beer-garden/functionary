@@ -7,6 +7,8 @@ import click
 import requests
 import yaml
 
+from .tokens import TokenError, getTokens
+
 ParamTuple = Tuple[str, str, str]
 param_types = ["string", "int", "float", "bool"]
 
@@ -68,11 +70,11 @@ def package_cmd(ctx):
 @click.argument("name", type=str)
 @click.pass_context
 def create_cmd(ctx, simple, language, name, output_directory):
-    '''
+    """
     Generate a function.
 
     Create an example function in the specified language.
-    '''
+    """
     params = []
     body = None
     if simple:
@@ -93,36 +95,39 @@ def create_cmd(ctx, simple, language, name, output_directory):
 
 
 @package_cmd.command()
-@click.option("--token", "-t", envvar="BG_TOKEN")
 @click.argument("path", type=click.Path(exists=True))
 @click.argument("host")
 @click.pass_context
-def publish(ctx, token, path, host):
-    '''
+def publish(ctx, path, host):
+    """
     Create an archive from the project and publish to the build server.
 
     This will create an archive of the files at the given path and
     then publish them to the build server for image creation.
     Use the -t option to specify a token or set the BG_TOKEN
     environment variable after logging in to *eerGarden.
-    '''
+    """
+    try:
+        token = getTokens()["access"]
+    except TokenError as t:
+        click.secho(t.message, err=True, fg="red")
+
     full_path = pathlib.Path(path).resolve()
     tarfile_name = full_path.joinpath(f"{full_path.name}.tar.gz")
 
     with tarfile.open(str(tarfile_name), "w:gz") as tar:
-        tar.add(str(full_path))
+        tar.add(str(full_path), arcname=".")
 
-    click.echo(f"Publish {str(tarfile_name)} Package at {path} to {host}")
+    click.echo(f"Publishing {str(tarfile_name)} package to {host}")
 
     # publish should http the tar to a server, wait for return
     upload_file = open(tarfile_name, "rb")
     upload_response = None
-    headers = {"Authentication": f"Bearer {token}"}
-    print(f"Headers: {headers!r}")
+    headers = {"Authorization": f"Bearer {token}"}
 
     try:
         upload_response = requests.post(
-            host, headers=headers, files={"build_file": upload_file}
+            host, headers=headers, files={"file": upload_file}
         )
     except requests.ConnectionError:
         click.echo(f"Unable to connect to {host}")

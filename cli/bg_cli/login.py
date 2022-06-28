@@ -1,5 +1,6 @@
 import click
-import requests
+
+from .tokens import login
 
 
 @click.command("login")
@@ -8,33 +9,21 @@ import requests
 @click.argument("host", type=str)
 @click.pass_context
 def login_cmd(ctx, user, password, host):
-    '''
+    """
     Login to *eerGarden.
 
     Set the output of this command to the BG_TOKEN environment variable
     for other bg-cli commands to use to communicate with the server.
-    '''
-    login_url = f"{host}/login"
-    login_response = None
-    headers = {"user": user, "password": password}
-    click.echo(f"Headers: {headers!r}", err=True)
-
-    try:
-        login_response = requests.post(f"{login_url}", headers=headers)
-    except requests.ConnectionError:
-        click.echo(f"Unable to connect to {login_url}", err=True)
-        ctx.exit(2)
-    except requests.Timeout:
-        click.echo("Timeout occurred waiting for build", err=True)
-        ctx.exit(2)
+    """
+    login_url = f"{host}/api/token/"
+    login_response = login(login_url, user, password)
 
     # check status code/message on return then exit
-    if login_response.ok:
-        click.echo(login_response.text)
+    if login_response["success"]:
+        click.echo("Login successful!")
     else:
         click.secho(
-            f"Failed to build image: {login_response.status_code}\n"
-            f"\tResponse: {login_response.text}",
+            login["message"],
             err=True,
             fg="red",
         )

@@ -9,6 +9,7 @@ setup(
         'Click>=8.0.0',
         'requests>=2.0.0',
         'pyyaml>=6.0',
+        'python-dotenv>=0.20.0',
     ],
     entry_points={
         'console_scripts': [
