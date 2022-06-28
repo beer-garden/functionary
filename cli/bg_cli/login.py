@@ -16,14 +16,14 @@ def login_cmd(ctx, user, password, host):
     for other bg-cli commands to use to communicate with the server.
     """
     login_url = f"{host}/api/token/"
-    login_response = login(login_url, user, password)
+    success, message = login(login_url, user, password)
 
     # check status code/message on return then exit
-    if login_response["success"]:
+    if success:
         click.echo("Login successful!")
     else:
         click.secho(
-            login["message"],
+            message,
             err=True,
             fg="red",
         )

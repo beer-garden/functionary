@@ -108,9 +108,11 @@ def publish(ctx, path, host):
     environment variable after logging in to *eerGarden.
     """
     try:
-        token = getTokens()["access"]
+        access_token, _ = getTokens()
     except TokenError as t:
-        click.secho(t.message, err=True, fg="red")
+        click.secho(str(t), err=True, fg="red")
+        click.echo("Try log in again")
+        ctx.exit(2)
 
     full_path = pathlib.Path(path).resolve()
     tarfile_name = full_path.joinpath(f"{full_path.name}.tar.gz")
@@ -123,7 +125,7 @@ def publish(ctx, path, host):
     # publish should http the tar to a server, wait for return
     upload_file = open(tarfile_name, "rb")
     upload_response = None
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     try:
         upload_response = requests.post(

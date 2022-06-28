@@ -34,7 +34,7 @@ def login(login_url: str, user: str, password: str):
     except requests.Timeout:
         message = "Timeout occurred waiting for login"
 
-    return {"success": success, "message": message}
+    return success, message
 
 
 def refreshAccessToken(login_url: str, tokens):
@@ -61,7 +61,7 @@ def refreshAccessToken(login_url: str, tokens):
     except requests.Timeout:
         message = "Timeout occurred waiting for login"
 
-    return {"success": success, "message": message, "access": tokens["access"]}
+    return success, message, tokens["access"]
 
 
 def verifyToken(login_url: str, token: str):
@@ -69,9 +69,7 @@ def verifyToken(login_url: str, token: str):
     success = False
 
     try:
-        verify_response = requests.post(
-            f"{login_url}verify/", data={"token": token}
-        )
+        verify_response = requests.post(f"{login_url}verify/", data={"token": token})
 
         # check status code/message on return then exit
         if verify_response.ok:
@@ -86,7 +84,7 @@ def verifyToken(login_url: str, token: str):
     except requests.Timeout:
         message = "Timeout occurred waiting for verify"
 
-    return {"success": success, "message": message}
+    return success, message
 
 
 def saveTokens(tokens):
@@ -114,15 +112,15 @@ def getTokens():
     }
 
     login_url = config["login_url"]
-    if not verifyToken(login_url, config["access"])["success"]:
-        if verifyToken(login_url, config["refresh"])["success"]:
-            refreshResult = refreshAccessToken(login_url, config)
-            if not refreshResult["success"]:
+    if not verifyToken(login_url, config["access"])[0]:
+        if verifyToken(login_url, config["refresh"])[0]:
+            success, _, token = refreshAccessToken(login_url, config)
+            if not success:
                 raise TokenError("Unable to refresh token")
 
-            config["access"] = refreshResult["access"]
+            config["access"] = token
             saveTokens(config)
         else:
             raise TokenError("Tokens have expired")
 
-    return {"access": config["access"], "refresh": config["refresh"]}
+    return config["access"], config["refresh"]
