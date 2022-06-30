@@ -1,16 +1,12 @@
 import importlib
 import pathlib
 import tarfile
-from typing import Tuple
 
 import click
 import requests
 import yaml
 
-from .tokens import TokenError, getTokens
-
-ParamTuple = Tuple[str, str, str]
-param_types = ["string", "int", "float", "bool"]
+from .tokens import TokenError, getToken
 
 
 def create_languages() -> list[str]:
@@ -24,27 +20,11 @@ def create_languages() -> list[str]:
     return langs
 
 
-def enterParams() -> ParamTuple:
-    click.echo()
-    click.echo("Enter Parameter:")
-    name = click.prompt("Name")
-    type = click.prompt("Type", type=click.Choice(param_types), show_default=False)
-    value = click.prompt("Default Value")
-
-    click.echo()
-    return (name, type, value)
-
-
-def formatParams(params: list[ParamTuple]) -> list:
-    return [{"name": x[0], "type": x[1], "defaultValue": x[2]} for x in params]
-
-
-def generateYaml(output_dir: str, name: str, language: str, params: list[ParamTuple]):
+def generateYaml(output_dir: str, name: str, language: str):
     metadata = {
         "name": name,
         "version": "1.0",
         "language": language,
-        "parameters": formatParams(params),
     }
 
     path = pathlib.Path(output_dir).resolve() / name / f"{name}.yaml"
@@ -66,32 +46,18 @@ def package_cmd(ctx):
     default="python",
 )
 @click.option("--output-directory", "-o", type=click.Path(exists=True), default=".")
-@click.option("--simple", "-s", is_flag=True, default=False)
 @click.argument("name", type=str)
 @click.pass_context
-def create_cmd(ctx, simple, language, name, output_directory):
+def create_cmd(ctx, language, name, output_directory):
     """
     Generate a function.
 
     Create an example function in the specified language.
     """
-    params = []
-    body = None
-    if simple:
-        while click.confirm(
-            f"Enter a{'nother' if len(params) > 0 else ''} function parameter?"
-        ):
-            params.append(enterParams())
-
-        click.echo()
-        body = None
-        if click.confirm("Enter the function body?", default=True):
-            body = click.prompt("Enter Body:\n", prompt_suffix="")
-
     click.echo()
     create = importlib.import_module(f".{language}", "bg_cli.create")
-    if create.generate(output_directory, name, params, body):
-        generateYaml(output_directory, name, language, params)
+    if create.generate(output_directory, name):
+        generateYaml(output_directory, name, language)
 
 
 @package_cmd.command()
@@ -108,7 +74,7 @@ def publish(ctx, path, host):
     environment variable after logging in to *eerGarden.
     """
     try:
-        access_token, _ = getTokens()
+        token = getToken()
     except TokenError as t:
         click.secho(str(t), err=True, fg="red")
         click.echo("Try log in again")
@@ -125,7 +91,7 @@ def publish(ctx, path, host):
     # publish should http the tar to a server, wait for return
     upload_file = open(tarfile_name, "rb")
     upload_response = None
-    headers = {"Authorization": f"Bearer {access_token}"}
+    headers = {"Authorization": f"Bearer {token}"}
 
     try:
         upload_response = requests.post(
@@ -144,6 +110,8 @@ def publish(ctx, path, host):
     else:
         click.echo(
             f"Failed to build image: {upload_response.status_code}\n"
-            f"\tResponse: {upload_response.text}",
+            f"\tResponse: {upload_response.text}"
         )
+        if upload_response.status_code == 401:
+            click.echo("\n\nTry log in again.")
         ctx.exit(1)

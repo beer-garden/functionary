@@ -11,8 +11,6 @@ RUN addgroup --gid 1001 --system app && \
 
 USER app
 
-#COPY package.json .
-
 COPY package.json *.js ./
 
 RUN npm install || true

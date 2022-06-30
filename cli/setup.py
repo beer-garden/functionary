@@ -4,6 +4,11 @@ setup(
     name='bg_cli',
     version='0.1.0',
     packages=find_packages(),
+    package_dir={'bg_cli': 'bg_cli'},
+    package_data={'bg_cli': [
+        'create/templates/python/*',
+        'create/templates/javascript/*',
+    ]},
     include_package_data=True,
     install_requires=[
         'Click>=8.0.0',
