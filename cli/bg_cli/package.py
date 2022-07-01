@@ -1,5 +1,5 @@
-import importlib
 import pathlib
+import shutil
 import tarfile
 
 import click
@@ -10,21 +10,15 @@ from .tokens import TokenError, getToken
 
 
 def create_languages() -> list[str]:
-    spec = importlib.util.find_spec("bg_cli.create")
-    langs = [
-        pkg.name[:-3]
-        for loc in spec.submodule_search_locations
-        for pkg in pathlib.Path(loc).glob(r"[a-zA-Z]*.py")
-    ]
-
-    return langs
+    spec = pathlib.Path(__file__).parent.resolve() / "templates"
+    return [str(loc.name) for loc in spec.glob("*")]
 
 
 def generateYaml(output_dir: str, name: str, language: str):
     metadata = {
         "name": name,
         "version": "1.0",
-        "language": language,
+        "x-language": language,
     }
 
     path = pathlib.Path(output_dir).resolve() / name / f"{name}.yaml"
@@ -55,9 +49,15 @@ def create_cmd(ctx, language, name, output_directory):
     Create an example function in the specified language.
     """
     click.echo()
-    create = importlib.import_module(f".{language}", "bg_cli.create")
-    if create.generate(output_directory, name):
-        generateYaml(output_directory, name, language)
+    click.echo(f"Generating {language} function named {name}")
+    dir = pathlib.Path(output_directory) / name
+    if not dir.exists():
+        dir.mkdir()
+
+    basepath = pathlib.Path(__file__).parent.resolve() / "templates" / language
+
+    shutil.copytree(str(basepath), str(dir), dirs_exist_ok=True)
+    generateYaml(output_directory, name, language)
 
 
 @package_cmd.command()
