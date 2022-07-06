@@ -1,0 +1,6 @@
+django
+
+# drf and optional dependencies
+djangorestframework
+drf_spectacular
+drf-spectacular[sidecar]
