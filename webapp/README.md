@@ -7,7 +7,7 @@ Webapp desperately wishes for a proper name.
 Install the requirements like so:
 
 ```shell
-pip install -r requrements.txt
+pip install -r requirements.txt
 ```
 
 Generate the migrations:
