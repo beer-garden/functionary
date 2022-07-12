@@ -1,0 +1,27 @@
+# (required): schema version for the package portion of the yaml. This would inform which serializer / parser
+# to use in the event that we needed to make breaking changes to the way packages are defined.
+version: 1.0
+package:
+  # (required) human-friendly unique identifier (team + package name must be unique)
+  name: calculator
+
+  # (optional) Detailed description
+  description: Simple calculator example package
+
+  # (required) Language that the functions are written in
+  language: python
+
+  # (required)
+  functions:
+    # Similar to package level fields, but for the function
+    - name: add
+      description: add two ints
+
+      # (required) Parameters that the function takes
+      parameters:
+        - name: a
+          default: 1
+          required: true
+        - name: b
+          default: 1
+          required: true

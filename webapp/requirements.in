@@ -1,6 +1,7 @@
 django
+pyyaml
 
 # drf and optional dependencies
 djangorestframework
-drf_spectacular
+drf-spectacular
 drf-spectacular[sidecar]

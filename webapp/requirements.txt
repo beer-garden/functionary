@@ -31,7 +31,9 @@ pyrsistent==0.18.1
 pytz==2022.1
     # via djangorestframework
 pyyaml==6.0
-    # via drf-spectacular
+    # via
+    #   -r requirements.in
+    #   drf-spectacular
 sqlparse==0.4.2
     # via django
 uritemplate==4.1.1

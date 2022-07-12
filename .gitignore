@@ -89,4 +89,4 @@ env.bak/
 venv.bak/
 
 # vim
-.swp
+*.swp

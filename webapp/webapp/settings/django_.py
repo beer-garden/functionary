@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "drf_spectacular_sidecar",
     "core",
     "scheduler",
+    "builder",
 ]
 
 MIDDLEWARE = [
