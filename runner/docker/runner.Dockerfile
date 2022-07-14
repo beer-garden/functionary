@@ -1,7 +1,7 @@
-# plugin_runner dockerfile
+# package_runner dockerfile
 FROM python:3.10-slim
 
-ENV INSTALL_DIR /opt/plugin_runner
+ENV INSTALL_DIR /opt/package_runner
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -16,7 +16,7 @@ RUN python -m venv $INSTALL_DIR/venv && \
     bash -c "source $INSTALL_DIR/venv/bin/activate && pip install -r $INSTALL_DIR/requirements.txt"
 
 COPY main.py $INSTALL_DIR/app/
-COPY plugin_runner $INSTALL_DIR/app/plugin_runner
+COPY package_runner $INSTALL_DIR/app/package_runner
 
 COPY docker/docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]

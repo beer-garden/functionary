@@ -1,7 +1,9 @@
 from celery import Celery
 
 app = Celery(
-    "plugin_runner", broker="redis://redis", include=["plugin_runner.handlers"]
+    "runner",
+    broker="redis://redis",
+    include=["runner.handlers"],
 )
 
 
