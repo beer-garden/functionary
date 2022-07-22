@@ -23,6 +23,7 @@ class Build(models.Model):
     ERROR = "ERROR"
 
     STATUS_CHOICES = [
+        (PENDING, "Pending"),
         (IN_PROGRESS, "In Progress"),
         (COMPLETE, "Complete"),
         (ERROR, "Error"),
@@ -32,7 +33,7 @@ class Build(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now_add=True, db_index=True)
     creator = models.ForeignKey(to=User, on_delete=models.CASCADE, db_index=True)
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default="PENDING")
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)
     package = models.ForeignKey(
         to=Package, on_delete=models.CASCADE, blank=True, null=True
     )
