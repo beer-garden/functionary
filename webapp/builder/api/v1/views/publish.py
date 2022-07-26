@@ -6,7 +6,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from builder.utils import initiate_build
+from builder.utils import extract_package_definition, initiate_build
 from core.models import Team
 
 from ..serializers import BuildSerializer, PackageDefinitionSerializer
@@ -32,11 +32,6 @@ class PublishView(APIView):
                         "format": "binary",
                         "description": "gzipped tarball containing the package files",
                     },
-                    "package_definition": {
-                        "type": "string",
-                        "format": "binary",
-                        "description": "YAML file containing package description.",
-                    },
                 },
             }
         },
@@ -56,10 +51,9 @@ class PublishView(APIView):
         self._validate_publish_input(request)
 
         package_contents_blob = request.FILES.get("package_contents").read()
-        package_definition_blob = request.FILES.get("package_definition").read()
+        package_yaml = extract_package_definition(package_contents_blob)
 
-        package_yaml = yaml.safe_load(package_definition_blob)
-        package_definition = package_yaml.get("package")
+        package_definition = package_yaml["package"]
 
         # If the package definition schema changes at any point, this would need to
         # identify the correct serializer based on the package_definition_version
@@ -84,9 +78,5 @@ class PublishView(APIView):
 
     def _validate_publish_input(self, request):
         """Validates that the request includes all required data"""
-        for parameter_name in ["package_contents", "package_definition"]:
-            parameter = request.FILES.get(parameter_name)
-            if parameter is None:
-                raise ParseError(
-                    detail=f"{parameter_name} is required and must be a file"
-                )
+        if request.FILES.get("package_contents") is None:
+            raise ParseError(detail="package_contents is required and must be a file")

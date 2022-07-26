@@ -1,6 +1,7 @@
 """ Package model """
 import uuid
 
+from django.conf import settings
 from django.db import models
 
 
@@ -27,6 +28,8 @@ class Package(models.Model):
     # TODO: Restrict to list of choices?
     language = models.CharField(max_length=64)
 
+    image_name = models.CharField(max_length=256)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -36,3 +39,7 @@ class Package(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def full_image_name(self):
+        return f"{settings.REGISTRY}/{self.image_name}"

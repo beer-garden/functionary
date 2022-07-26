@@ -6,6 +6,8 @@ import tarfile
 from uuid import UUID
 
 import docker
+import yaml
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.db import transaction
 from django.template import Context, Engine
@@ -21,8 +23,37 @@ _docker_client = docker.from_env()
 #       project BASE_DIR?
 _dockerfile_home = f"{settings.BASE_DIR}/../builder/resources/docker"
 
+logger = get_task_logger(__name__)
+logger.setLevel(getattr(logging, settings.LOG_LEVEL))
 
-logger = logging.getLogger(__name__)
+
+def extract_package_definition(package_contents: bytes) -> dict:
+    """Extracts the package.yaml from a package tarball
+
+    Args:
+        package_contents: gzipped tarball of a package
+
+    Returns:
+        The package definition yaml loaded as a dict
+    """
+    package_contents_io = io.BytesIO(package_contents)
+    tarball = tarfile.open(fileobj=package_contents_io, mode="r")
+
+    try:
+        package_definition_io = tarball.extractfile("./package.yaml")
+    except KeyError:
+        # TODO: Raise custom, useful exception
+        raise Exception("package.yaml is missing or malformed")
+
+    if package_definition_io is None:
+        # TODO: Raise custom, useful exception
+        raise Exception("package.yaml is missing or malformed")
+
+    package_definition = yaml.safe_load(package_definition_io.read())
+    package_contents_io.close()
+    tarball.close()
+
+    return package_definition
 
 
 def initiate_build(
@@ -82,31 +113,39 @@ def build_package(build_id: UUID, team_id: UUID):
     name = package_definition["name"]
     language = package_definition["language"]
     dockerfile = f"{language}.Dockerfile"
-    tag = f"{settings.BUILDER_REGISTRY}/{team_id}/{name}:latest"
+    image_name = f"{team_id}/{name}:{build_id}"
+    full_image_name = f"{settings.REGISTRY}/{image_name}"
 
-    packagedir = _extract_package_contents(package_contents, workdir)
-    _load_dockerfile_template(dockerfile, packagedir)
+    _extract_package_contents(package_contents, workdir)
+    _load_dockerfile_template(dockerfile, workdir)
 
-    _docker_client.images.build(
-        path=packagedir,
+    image, build_log = _docker_client.images.build(
+        path=workdir,
         pull=True,
-        tag=tag,
+        tag=full_image_name,
     )
-    _docker_client.images.push(tag)
 
+    _docker_client.images.push(full_image_name)
+
+    logger.debug(f"Cleaning up remnants of build {build_id}")
+    _docker_client.images.remove(image.id)
     shutil.rmtree(workdir)
 
     with transaction.atomic():
-        package = _create_package_from_definition(package_definition, team_id)
+        package = _create_package_from_definition(
+            package_definition, team_id, image_name
+        )
         build.status = Build.COMPLETE
         build.package = package
         build.save()
+
+        # TODO: The Build model should just clean its own resources with post_save hook
         build.resources.delete()
 
     logger.info(f"Build {build_id} COMPLETE")
 
 
-def _extract_package_contents(package_contents: bytes, workdir: str) -> str:
+def _extract_package_contents(package_contents: bytes, workdir: str) -> None:
     """Extract the package tarball"""
     package_contents_io = io.BytesIO(package_contents)
     tarball = tarfile.open(fileobj=package_contents_io, mode="r")
@@ -114,26 +153,19 @@ def _extract_package_contents(package_contents: bytes, workdir: str) -> str:
     tarball.close()
     package_contents_io.close()
 
-    # TODO: We should just be able to make assumptions about what the untarred file
-    #       structure looks like. Because the directory that the package files live in
-    #       is not known, we crawl the unpacked files looking for them for now.
-    for root, dirs, files in os.walk(workdir):
-        if "package.yaml" in files:
-            return root
-
-    raise Exception("Invalid package contents. Could not find package.yaml")
-
 
 def _load_dockerfile_template(dockerfile_template: str, workdir: str) -> None:
     """Render the dockfile template and write it to the working directory"""
     template = Engine(dirs=[_dockerfile_home]).get_template(dockerfile_template)
-    context = Context({"registry": settings.BUILDER_REGISTRY})
+    context = Context({"registry": settings.REGISTRY})
 
     with open(f"{workdir}/Dockerfile", "w") as dockerfile:
         dockerfile.write(template.render(context=context))
 
 
-def _create_package_from_definition(package_definition: dict, team_id: UUID) -> Package:
+def _create_package_from_definition(
+    package_definition: dict, team_id: UUID, image_name: str
+) -> Package:
     """Create a package and functions from definition file"""
     # TODO: Manually parsing for now, but this should be codified somewhere, with
     #       the parsing informed by package_definition_version.
@@ -151,6 +183,7 @@ def _create_package_from_definition(package_definition: dict, team_id: UUID) -> 
     package_obj.display_name = package_definition.get("display_name")
     package_obj.description = package_definition.get("description")
     package_obj.language = package_definition.get("language")
+    package_obj.image_name = image_name
 
     # TODO: In the same transaction, create the functions for the package
     package_obj.save()
