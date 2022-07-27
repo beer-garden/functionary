@@ -43,7 +43,7 @@ class PublishView(APIView):
         ],
     )
     def post(self, request, *args, **kwargs):
-        """Receives the package contents and pacakge definition files. The definition
+        """Receives the package contents and package definition files. The definition
         file is validated and then a new Build is created
         """
         # BinaryField is not supported by drf serializers, so we must validate the

@@ -16,6 +16,10 @@ class ParameterSerializer(serializers.Serializer):
     name = serializers.CharField()
     display_name = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
+
+    # TODO: This should likely be limited to known choices
+    type = serializers.CharField(required=True)
+
     required = serializers.BooleanField(default=False)
     options = ParameterOptionSerializer(many=True, required=False)
 

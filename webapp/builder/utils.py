@@ -39,19 +39,24 @@ def extract_package_definition(package_contents: bytes) -> dict:
     package_contents_io = io.BytesIO(package_contents)
     tarball = tarfile.open(fileobj=package_contents_io, mode="r")
 
+    def close_files():
+        package_contents_io.close()
+        tarball.close()
+
     try:
         package_definition_io = tarball.extractfile("./package.yaml")
     except KeyError:
         # TODO: Raise custom, useful exception
-        raise Exception("package.yaml is missing or malformed")
+        close_files()
+        raise Exception("package.yaml not found")
 
     if package_definition_io is None:
         # TODO: Raise custom, useful exception
-        raise Exception("package.yaml is missing or malformed")
+        close_files()
+        raise Exception("package.yaml found, but is not a regular file")
 
     package_definition = yaml.safe_load(package_definition_io.read())
-    package_contents_io.close()
-    tarball.close()
+    close_files()
 
     return package_definition
 
@@ -122,6 +127,7 @@ def build_package(build_id: UUID, team_id: UUID):
     image, build_log = _docker_client.images.build(
         path=workdir,
         pull=True,
+        forcerm=True,
         tag=full_image_name,
     )
 
