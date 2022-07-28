@@ -1,6 +1,4 @@
-# Webapp
-
-Webapp desperately wishes for a proper name.
+# Functionary
 
 ## Setup:
 

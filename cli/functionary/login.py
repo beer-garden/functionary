@@ -10,10 +10,10 @@ from .tokens import login
 @click.pass_context
 def login_cmd(ctx, user, password, host):
     """
-    Login to *eerGarden.
+    Login to Functionary.
 
-    Set the output of this command to the BG_TOKEN environment variable
-    for other bg-cli commands to use to communicate with the server.
+    Set the output of this command to the FUNCTIONARY_TOKEN environment variable
+    for other functionary commands to use to communicate with the server.
     """
     login_url = f"{host}/api/token/"
     success, message = login(login_url, user, password)

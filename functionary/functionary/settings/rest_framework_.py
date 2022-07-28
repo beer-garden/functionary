@@ -21,7 +21,7 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
-    "TITLE": "Webapp - API",
-    "DESCRIPTION": "OpenAPI documentation for the Webapp API",
+    "TITLE": "Functionary - API",
+    "DESCRIPTION": "OpenAPI documentation for the Functionary API",
     "VERSION": "0.0.1",
 }

@@ -70,8 +70,8 @@ def publish(ctx, path, host):
 
     This will create an archive of the files at the given path and
     then publish them to the build server for image creation.
-    Use the -t option to specify a token or set the BG_TOKEN
-    environment variable after logging in to *eerGarden.
+    Use the -t option to specify a token or set the FUNCTIONARY_TOKEN
+    environment variable after logging in to Functionary.
     """
     try:
         token = getToken()

@@ -42,11 +42,11 @@ def saveTokens(tokens):
     if not tokens or len(tokens) == 0:
         raise ValueError("No tokens to save")
 
-    bgDir = Path.home() / ".bg"
-    if not bgDir.exists():
-        bgDir.mkdir()
+    functionaryDir = Path.home() / ".functionary"
+    if not functionaryDir.exists():
+        functionaryDir.mkdir()
 
-    tokensFile = bgDir / "tokens"
+    tokensFile = functionaryDir / "tokens"
     with tokensFile.open("wt"):
         tokensFile.write_text(
             f"token={tokens['token']}\n"
@@ -55,7 +55,7 @@ def saveTokens(tokens):
 
 
 def getToken():
-    tokensFile = Path.home() / ".bg" / "tokens"
+    tokensFile = Path.home() / ".functionary" / "tokens"
 
     config = {
         **dotenv_values(str(tokensFile)),
