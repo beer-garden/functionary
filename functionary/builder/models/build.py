@@ -1,9 +1,10 @@
 """ Build model """
 import uuid
 
+from django.conf import settings
 from django.db import models
 
-from core.models import Package, User
+from core.models import Package
 
 
 class Build(models.Model):
@@ -32,7 +33,9 @@ class Build(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    creator = models.ForeignKey(to=User, on_delete=models.CASCADE, db_index=True)
+    creator = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True
+    )
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)
     package = models.ForeignKey(
         to=Package, on_delete=models.CASCADE, blank=True, null=True

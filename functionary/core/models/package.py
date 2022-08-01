@@ -4,6 +4,8 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from core.models import Environment
+
 
 class Package(models.Model):
     """A Package is a grouping of functions made available for tasking
@@ -17,7 +19,7 @@ class Package(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    team = models.ForeignKey(to="Team", on_delete=models.CASCADE)
+    environment = models.ForeignKey(to=Environment, on_delete=models.CASCADE)
 
     # TODO: This shouldn't be changeable after creation
     name = models.CharField(max_length=64, blank=False)
@@ -33,7 +35,7 @@ class Package(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["team", "name"], name="team_name_unique_together"
+                fields=["environment", "name"], name="environment_name_unique_together"
             )
         ]
 

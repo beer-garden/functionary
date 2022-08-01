@@ -12,7 +12,7 @@ from django.conf import settings
 from django.db import transaction
 from django.template import Context, Engine
 
-from core.models import Package, Team, User
+from core.models import Environment, Package, User
 
 from .celery import app
 from .models import Build, BuildResource
@@ -63,7 +63,7 @@ def extract_package_definition(package_contents: bytes) -> dict:
 
 def initiate_build(
     creator: User,
-    team: Team,
+    environment: Environment,
     package_contents: bytes,
     package_definition: dict,
     package_definition_version: str,
@@ -73,7 +73,7 @@ def initiate_build(
 
     Args:
         creator: The User initiating the build
-        team: The team that the package should be published under
+        environment: The environment that the package should be published under
         package_contents: A gzipped file containing the package to be built
         package_definition: dict containing the package definition
     """
@@ -88,19 +88,20 @@ def initiate_build(
             package_definition_version=package_definition_version,
         ).save()
 
-    build_package.delay(build_id=build.id, team_id=team.id)
+    build_package.delay(build_id=build.id, environment_id=environment.id)
 
     return build
 
 
 @app.task
-def build_package(build_id: UUID, team_id: UUID):
+def build_package(build_id: UUID, environment_id: UUID):
     """Retrieve the resources for Build and use them to build and push the package
     docker image
 
     Args:
         build_id: ID of the build being executed
-        team_id: The UUID of the Team that the resultant package will be assigned to
+        environment_id: The UUID of the Environment that the resultant package will be
+                        assigned to
     """
     # TODO: Catch exceptions and record failures. Also, what happens to the image we
     #       pushed? Should it be deleted?
@@ -118,7 +119,7 @@ def build_package(build_id: UUID, team_id: UUID):
     name = package_definition["name"]
     language = package_definition["language"]
     dockerfile = f"{language}.Dockerfile"
-    image_name = f"{team_id}/{name}:{build_id}"
+    image_name = f"{environment_id}/{name}:{build_id}"
     full_image_name = f"{settings.REGISTRY}/{image_name}"
 
     _extract_package_contents(package_contents, workdir)
@@ -139,7 +140,7 @@ def build_package(build_id: UUID, team_id: UUID):
 
     with transaction.atomic():
         package = _create_package_from_definition(
-            package_definition, team_id, image_name
+            package_definition, environment_id, image_name
         )
         build.status = Build.COMPLETE
         build.package = package
@@ -170,19 +171,19 @@ def _load_dockerfile_template(dockerfile_template: str, workdir: str) -> None:
 
 
 def _create_package_from_definition(
-    package_definition: dict, team_id: UUID, image_name: str
+    package_definition: dict, environment_id: UUID, image_name: str
 ) -> Package:
     """Create a package and functions from definition file"""
     # TODO: Manually parsing for now, but this should be codified somewhere, with
     #       the parsing informed by package_definition_version.
-    team = Team.objects.get(id=team_id)
+    environment = Environment.objects.get(id=environment_id)
     name = package_definition.get("name")
 
     try:
-        package_obj = Package.objects.get(team=team, name=name)
+        package_obj = Package.objects.get(environment=environment, name=name)
     except Package.DoesNotExist:
         package_obj = Package(
-            team=team,
+            environment=environment,
             name=name,
         )
 

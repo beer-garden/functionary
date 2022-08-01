@@ -2,6 +2,7 @@ celery
 django
 docker
 pyyaml
+redis
 
 # drf and optional dependencies
 djangorestframework

@@ -1,4 +1,3 @@
-import yaml
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import permissions
 from rest_framework.exceptions import ParseError
@@ -7,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from builder.utils import extract_package_definition, initiate_build
-from core.models import Team
+from core.models import Environment
 
 from ..serializers import BuildSerializer, PackageDefinitionSerializer
 
@@ -39,7 +38,10 @@ class PublishView(APIView):
         parameters=[
             OpenApiParameter(
                 name="X-Team-Id", type=str, location=OpenApiParameter.HEADER
-            )
+            ),
+            OpenApiParameter(
+                name="X-Environment-Id", type=str, location=OpenApiParameter.HEADER
+            ),
         ],
     )
     def post(self, request, *args, **kwargs):
@@ -61,14 +63,20 @@ class PublishView(APIView):
             raise_exception=True
         )
 
-        # TODO: request.team should be set automatically on every request via a mixin
-        #       or similar solution
-        team_id = request.headers.get("X-Team-Id")
-        request.team = Team.objects.get(id=team_id)
+        # TODO: request.team and request.environment should be set automatically on
+        #       every request via a mixin or similar solution
+        environment_id = request.headers.get("X-Environment-Id")
+        if environment_id is None:
+            team_id = request.headers.get("X-Team-Id")
+            request.environment = Environment.objects.get(
+                team__id=team_id, default=True
+            )
+        else:
+            request.environment = Environment.objects.get(id=environment_id)
 
         build = initiate_build(
             creator=request.user,
-            team=request.team,
+            environment=request.environment,
             package_contents=package_contents_blob,
             package_definition=package_definition,
             package_definition_version=package_yaml.get("version", "1.0"),

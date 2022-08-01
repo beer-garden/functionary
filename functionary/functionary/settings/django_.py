@@ -26,9 +26,12 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(util.strtobool(os.environ.get("DEBUG", "false")))
 
-
-ALLOWED_HOSTS = []
-
+# Required if DEBUG is False
+ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS")
+if ALLOWED_HOSTS_ENV is None:
+    ALLOWED_HOSTS = []
+else:
+    ALLOWED_HOSTS = list(map(lambda host: host.strip(), ALLOWED_HOSTS_ENV.split(",")))
 
 # Application definition
 INSTALLED_APPS = [

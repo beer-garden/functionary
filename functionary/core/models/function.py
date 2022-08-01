@@ -14,8 +14,6 @@ class Function(models.Model):
         display_name: optional display name
         description: more details about the function
         schema: the function's OpenAPI definition
-        active: whether this function is the one that is taskable. False indicates that
-                this is a historical entry.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -28,21 +26,10 @@ class Function(models.Model):
     description = models.TextField(null=True)
     schema = models.JSONField()
 
-    # TODO: Add validation so that only one entry sharing a package and name can be
-    #       active
-    active = models.BooleanField(default=True, blank=False, null=False)
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["package", "name"], name="package_name_unique_together"
-            )
-        ]
-        indexes = [
-            models.Index(
-                fields=["package", "active"],
-                condition=models.Q(active=True),
-                name="package_active_true_index",
             )
         ]
 

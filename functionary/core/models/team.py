@@ -1,7 +1,8 @@
 """ Team model """
 import uuid
 
-from django.db import models
+from django.apps import apps
+from django.db import models, transaction
 
 
 class Team(models.Model):
@@ -17,3 +18,18 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    def _post_save(self, creating):
+        """Post save hooks"""
+        if creating:
+            Environment = apps.get_model("core", "Environment")
+            Environment.create_default(self)
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+
+        with transaction.atomic():
+            team = super().save(*args, **kwargs)
+            self._post_save(creating)
+
+        return team
