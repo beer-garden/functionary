@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.db import models
 
+# Avoid circular import when import is needed only for type checking
 if TYPE_CHECKING:
     from core.models import Team
 
