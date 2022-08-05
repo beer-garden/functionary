@@ -200,6 +200,7 @@ def _create_package_from_definition(
 
 
 def _create_functions_from_definition(definitions, package: Package):
+    """Creates the functions in the package from the definition file"""
     for function_def in definitions:
         name = function_def.get("name")
         try:
@@ -215,7 +216,9 @@ def _create_functions_from_definition(definitions, package: Package):
         function_obj.save()
 
 
-def _generate_function_schema(name: str, parameters):
+def _generate_function_schema(name: str, parameters) -> str:
+    """Creates a pydantic model from the parameter definitions and returns the schema
+    as a JSON string"""
     type_map = {"int": int, "str": str}
     params_dict = {}
 

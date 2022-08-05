@@ -1,60 +1,64 @@
 import logging
 
 import jsonschema
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.api.mixins import EnvironmentViewMixin
 from core.models.function import Function
 from core.models.package import Package
-from core.models.team import Team
 
+from ...exceptions import BadRequest
 from ..serializers.execute import ExecuteSerializer
 
 logger = logging.getLogger(__name__)
 
 
-class ExecuteView(APIView):
+class ExecuteView(APIView, EnvironmentViewMixin):
+    """View for executing a function with specified parameters."""
+
     serializer_class = ExecuteSerializer
     # TODO: Proper permissions
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(
+        description=("Execute a Function"),
+        request=ExecuteSerializer,
+        responses={200: None},
+        parameters=EnvironmentViewMixin.header_parameters,
+    )
     def post(self, request: Request) -> Response:
+        """Accepts a package and function name and executes it with the passed
+        parameters. The parameters are validated against the schema stored with the
+        function prior to execution."""
         serial = ExecuteSerializer(data=request.data)
         serial.is_valid(raise_exception=True)
+
         package = serial.validated_data["package"]
         function = serial.validated_data["function"]
 
         logger.info("Received request to call %s in %s", function, package)
 
-        team = Team.objects.get(name="users")
-        # dir(team)
+        environment = self.get_environment()
         try:
-            env_id = "036d0e9d-bbc3-4277-9f8a-28a3861564aa"
-            pack = Package.objects.get(environment_id=env_id, name=package)
-            # pack = Package.objects.get(environment_id=team.id, name=package)
+            pack = Package.objects.get(environment_id=environment.id, name=package)
         except Package.DoesNotExist:
-            stat = status.HTTP_400_BAD_REQUEST
-            data = {"message": "Package not found"}
-            return Response(data, stat)
+            raise BadRequest(f"Package not found: {package}")
 
-        logger.debug("Looking for %s", function)
         try:
             func = Function.objects.get(package=pack.id, name=function)
         except Function.DoesNotExist:
-            stat = status.HTTP_400_BAD_REQUEST
-            data = {"message": "Function not found"}
-            return Response(data, stat)
+            raise BadRequest(f"Function not found: {function}")
 
         try:
             jsonschema.validate(
                 instance=serial.validated_data["parameters"], schema=func.schema
             )
         except jsonschema.exceptions.ValidationError as ve:
-            stat = status.HTTP_400_BAD_REQUEST
-            data = {"message": ve.message}
-            return Response(data, stat)
+            raise BadRequest(ve.message)
 
         logger.info(f"Validation passed, executing {func.name}")
 

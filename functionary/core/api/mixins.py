@@ -1,15 +1,9 @@
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import OpenApiParameter
-from rest_framework.exceptions import APIException
 
 from core.models import Environment, Team
 
-
-# TODO: Move to some central exceptions module
-class InvalidHeader(APIException):
-    status_code = 400
-    default_detail = "Required header is missing or invalid"
-    default_code = "bad_request"
+from .exceptions import BadRequest
 
 
 class EnvironmentViewMixin:
@@ -54,21 +48,21 @@ class EnvironmentViewMixin:
             try:
                 environment_obj = Environment.objects.get(id=environment_id)
             except (Environment.DoesNotExist, ValidationError):
-                raise InvalidHeader(f"No environment found with id {environment_id}")
+                raise BadRequest(f"No environment found with id {environment_id}")
         elif team_id:
             try:
                 team_obj = Team.objects.get(id=team_id)
             except (Team.DoesNotExist, ValidationError):
-                raise InvalidHeader(f"No team found with id {team_id}")
+                raise BadRequest(f"No team found with id {team_id}")
 
             try:
                 environment_obj = team_obj.environments.get(default=True)
             except Environment.DoesNotExist:
-                raise InvalidHeader(
+                raise BadRequest(
                     f"No default environment for team {team_id}. "
                     "X-Environment-Id header is required."
                 )
         else:
-            raise InvalidHeader("X-Environment-Id or X-Team-Id header must be set")
+            raise BadRequest("X-Environment-Id or X-Team-Id header must be set")
 
         return environment_obj
