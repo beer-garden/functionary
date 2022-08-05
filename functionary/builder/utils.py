@@ -1,5 +1,4 @@
 import io
-import json
 import logging
 import os
 import shutil
@@ -210,8 +209,8 @@ def _create_functions_from_definition(definitions, package: Package):
 
         function_obj.display_name = function_def.get("display_name")
         function_obj.description = function_def.get("description")
-        function_obj.schema = json.loads(
-            _generate_function_schema(name, function_def.get("parameters"))
+        function_obj.schema = _generate_function_schema(
+            name, function_def.get("parameters")
         )
         function_obj.save()
 
@@ -219,6 +218,7 @@ def _create_functions_from_definition(definitions, package: Package):
 def _generate_function_schema(name: str, parameters) -> str:
     """Creates a pydantic model from the parameter definitions and returns the schema
     as a JSON string"""
+    # TODO - Update this map to add lists and whatever other pieces we want to support
     type_map = {"int": int, "str": str}
     params_dict = {}
 
@@ -234,4 +234,4 @@ def _generate_function_schema(name: str, parameters) -> str:
 
     model = create_model(name, **params_dict)
 
-    return model.schema_json(indent=2)
+    return model.schema()
