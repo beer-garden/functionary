@@ -1,6 +1,13 @@
+from typing import TYPE_CHECKING, Set
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+
+from core.auth import ROLE_PERMISSION_MAP
+
+if TYPE_CHECKING:
+    from core.models import Environment, Team
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -43,3 +50,47 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
+
+    def team_permissions(self, team: "Team") -> Set[str]:
+        """Retrieves the set of permissions a user has for a given Team
+
+        Args:
+            team: Team object to check against
+
+        Returns:
+            A set of strings representing the user's permissions.
+        """
+        roles = self.teamuserroles.filter(team=team).values_list("role", flat=True)
+        permissions = set()
+
+        for role in roles:
+            permissions.update(ROLE_PERMISSION_MAP[role])
+
+        return permissions
+
+    def environment_permissions(
+        self, environment: "Environment", inherited: bool = False
+    ) -> Set[str]:
+        """Retrieves the set of permissions a user has for a given Envrionment
+
+        Args:
+            environment: Environment object to check against
+            inherited: Whether or not to include permissions inherited from a role on
+                       Environment's Team.
+
+        Returns:
+            A set of strings representing the user's permissions.
+        """
+        roles = self.environmentuserroles.filter(environment=environment).values_list(
+            "role", flat=True
+        )
+
+        permissions = set()
+
+        for role in roles:
+            permissions.update(ROLE_PERMISSION_MAP[role])
+
+        if inherited:
+            permissions.update(self.team_permissions(environment.team))
+
+        return permissions

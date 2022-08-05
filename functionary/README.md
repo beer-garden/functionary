@@ -1,11 +1,11 @@
 # Functionary
 
-## Setup:
+## Setup
 
 Install the requirements like so:
 
 ```shell
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 Generate the migrations:
@@ -36,6 +36,15 @@ DEBUG=TRUE DJANGO_SECRET_KEY=supersecret ./manage.py runserver 8000
 
 The `DJANGO_SECRET_KEY` is arbitrary and the `8000` at the end is the port
 number to listen on. It can freely be changed to anything.
+
+## Start the build worker
+
+When a package is published, the actual work of building the image is handed off
+to a separate builder process. To start that process:
+
+```shell
+LOG_LEVEL=INFO ./manage.py run_build_worker
+```
 
 ## Access the Server
 
