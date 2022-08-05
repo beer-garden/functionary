@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 import os
 import shutil
@@ -8,20 +9,20 @@ from uuid import UUID
 import docker
 import yaml
 from celery.utils.log import get_task_logger
+from django.apps import apps
 from django.conf import settings
 from django.db import transaction
 from django.template import Context, Engine
+from pydantic import Field, create_model
 
-from core.models import Environment, Package, User
+from core.models import Environment, Function, Package, User
 
 from .celery import app
 from .models import Build, BuildResource
 
 _docker_client = docker.from_env()
 
-# TODO: Is there a way to direct access the app dir rather than going through the
-#       project BASE_DIR?
-_dockerfile_home = f"{settings.BASE_DIR}/../builder/resources/docker"
+_dockerfile_home = f"{apps.get_app_config('builder').path}/resources/docker"
 
 logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
@@ -192,7 +193,42 @@ def _create_package_from_definition(
     package_obj.language = package_definition.get("language")
     package_obj.image_name = image_name
 
-    # TODO: In the same transaction, create the functions for the package
+    _create_functions_from_definition(package_definition.get("functions"), package_obj)
     package_obj.save()
 
     return package_obj
+
+
+def _create_functions_from_definition(definitions, package: Package):
+    for function_def in definitions:
+        name = function_def.get("name")
+        try:
+            function_obj = Function.objects.get(package=package, name=name)
+        except Function.DoesNotExist:
+            function_obj = Function(package=package, name=name)
+
+        function_obj.display_name = function_def.get("display_name")
+        function_obj.description = function_def.get("description")
+        function_obj.schema = json.loads(
+            _generate_function_schema(name, function_def.get("parameters"))
+        )
+        function_obj.save()
+
+
+def _generate_function_schema(name: str, parameters):
+    type_map = {"int": int, "str": str}
+    params_dict = {}
+
+    for parameter in parameters:
+        field = Field()
+        field.alias = parameter.get("name")
+        field.title = parameter.get("display_name", field.alias)
+        field.description = parameter.get("description")
+        field.default = parameter.get("default", ...)
+        type_ = type_map[parameter["type"]]
+
+        params_dict[field.alias] = (type_, field)
+
+    model = create_model(name, **params_dict)
+
+    return model.schema_json(indent=2)
