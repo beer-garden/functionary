@@ -1,12 +1,12 @@
 from rest_framework import permissions
-from rest_framework.viewsets import ModelViewSet
 
 from builder.models import Build
+from core.api.viewsets import EnvironmentReadOnlyModelViewSet
 
 from ..serializers import BuildSerializer
 
 
-class BuildViewSet(ModelViewSet):
+class BuildViewSet(EnvironmentReadOnlyModelViewSet):
     queryset = Build.objects.all()
     serializer_class = BuildSerializer
 

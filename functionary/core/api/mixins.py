@@ -1,3 +1,5 @@
+from functools import cache
+
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import OpenApiParameter
 
@@ -29,6 +31,7 @@ class EnvironmentViewMixin:
         ),
     ]
 
+    @cache
     def get_environment(self) -> Environment:
         """Retrieve the Environment object that corresponds to either the environment
         with id X-Environment-Id or the default environment for the team with id
