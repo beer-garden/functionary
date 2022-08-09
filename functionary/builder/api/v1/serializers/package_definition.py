@@ -47,3 +47,10 @@ class PackageDefinitionSerializer(serializers.Serializer):
     filename = serializers.CharField(required=False)
     environment = serializers.DictField(child=serializers.CharField(), required=False)
     functions = FunctionSerializer(many=True)
+
+
+class PackageDefinitionWithVersionSerializer(serializers.Serializer):
+    """Serializer for full package.yaml"""
+
+    version = serializers.CharField()
+    package = PackageDefinitionSerializer()

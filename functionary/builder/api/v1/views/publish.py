@@ -5,10 +5,12 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from builder.exceptions import InvalidPackage
 from builder.utils import extract_package_definition, initiate_build
+from core.api.exceptions import BadRequest
 from core.api.mixins import EnvironmentViewMixin
 
-from ..serializers import BuildSerializer, PackageDefinitionSerializer
+from ..serializers import BuildSerializer, PackageDefinitionWithVersionSerializer
 
 
 class PublishView(APIView, EnvironmentViewMixin):
@@ -47,15 +49,20 @@ class PublishView(APIView, EnvironmentViewMixin):
 
         environment = self.get_environment()
         package_contents_blob = request.FILES.get("package_contents").read()
-        package_yaml = extract_package_definition(package_contents_blob)
 
-        package_definition = package_yaml["package"]
+        try:
+            package_yaml = extract_package_definition(package_contents_blob)
+        except InvalidPackage as exc:
+            raise BadRequest(f"{exc}")
 
         # If the package definition schema changes at any point, this would need to
         # identify the correct serializer based on the package_definition_version
-        PackageDefinitionSerializer(data=package_definition).is_valid(
-            raise_exception=True
-        )
+        serializer = PackageDefinitionWithVersionSerializer(data=package_yaml)
+        if not serializer.is_valid():
+            raise BadRequest(
+                f"Invalid package.yaml. Encountered error: {serializer.errors}"
+            )
+        package_definition = serializer.validated_data["package"]
 
         build = initiate_build(
             creator=request.user,

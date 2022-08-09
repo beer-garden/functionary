@@ -8,20 +8,18 @@ from uuid import UUID
 import docker
 import yaml
 from celery.utils.log import get_task_logger
-from django.apps import apps
 from django.conf import settings
 from django.db import transaction
-from django.template import Context, Engine
+from django.template.loader import get_template
 from pydantic import Field, create_model
 
 from core.models import Environment, Function, Package, User
 
 from .celery import app
+from .exceptions import InvalidPackage
 from .models import Build, BuildResource
 
 _docker_client = docker.from_env()
-
-_dockerfile_home = f"{apps.get_app_config('builder').path}/resources/docker"
 
 logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
@@ -37,7 +35,13 @@ def extract_package_definition(package_contents: bytes) -> dict:
         The package definition yaml loaded as a dict
     """
     package_contents_io = io.BytesIO(package_contents)
-    tarball = tarfile.open(fileobj=package_contents_io, mode="r")
+
+    try:
+        tarball = tarfile.open(fileobj=package_contents_io, mode="r")
+    except tarfile.ReadError:
+        raise InvalidPackage(
+            "Could not untar package file. Make sure it is a valid gzipped tarball."
+        )
 
     def close_files():
         package_contents_io.close()
@@ -46,14 +50,12 @@ def extract_package_definition(package_contents: bytes) -> dict:
     try:
         package_definition_io = tarball.extractfile("package.yaml")
     except KeyError:
-        # TODO: Raise custom, useful exception
         close_files()
-        raise Exception("package.yaml not found")
+        raise InvalidPackage("package.yaml not found")
 
     if package_definition_io is None:
-        # TODO: Raise custom, useful exception
         close_files()
-        raise Exception("package.yaml found, but is not a regular file")
+        raise InvalidPackage("package.yaml found, but is not a regular file")
 
     package_definition = yaml.safe_load(package_definition_io.read())
     close_files()
@@ -78,8 +80,7 @@ def initiate_build(
         package_definition: dict containing the package definition
     """
     with transaction.atomic():
-        build = Build(creator=creator)
-        build.save()
+        build = Build.objects.create(creator=creator, environment=environment)
 
         BuildResource(
             build=build,
@@ -88,20 +89,18 @@ def initiate_build(
             package_definition_version=package_definition_version,
         ).save()
 
-    build_package.delay(build_id=build.id, environment_id=environment.id)
+    build_package.delay(build_id=build.id)
 
     return build
 
 
 @app.task
-def build_package(build_id: UUID, environment_id: UUID):
+def build_package(build_id: UUID):
     """Retrieve the resources for Build and use them to build and push the package
     docker image
 
     Args:
         build_id: ID of the build being executed
-        environment_id: The UUID of the Environment that the resultant package will be
-                        assigned to
     """
     # TODO: Catch exceptions and record failures. Also, what happens to the image we
     #       pushed? Should it be deleted?
@@ -109,7 +108,9 @@ def build_package(build_id: UUID, environment_id: UUID):
 
     workdir = f"{settings.BUILDER_WORKDIR_BASE}/{build_id}"
     os.makedirs(workdir)
-    build = Build.objects.get(id=build_id)
+
+    build = Build.objects.select_related("environment").get(id=build_id)
+    environment = build.environment
     package_contents = build.resources.package_contents
     package_definition = build.resources.package_definition
 
@@ -118,8 +119,8 @@ def build_package(build_id: UUID, environment_id: UUID):
     #       should live in one place and we should call helpers in places like this.
     name = package_definition["name"]
     language = package_definition["language"]
-    dockerfile = f"{language}.Dockerfile"
-    image_name = f"{environment_id}/{name}:{build_id}"
+    dockerfile = f"builder/docker/{language}.Dockerfile"
+    image_name = f"{environment.id}/{name}:{build_id}"
     full_image_name = f"{settings.REGISTRY}/{image_name}"
 
     _extract_package_contents(package_contents, workdir)
@@ -140,7 +141,7 @@ def build_package(build_id: UUID, environment_id: UUID):
 
     with transaction.atomic():
         package = _create_package_from_definition(
-            package_definition, environment_id, image_name
+            package_definition, environment, image_name
         )
         build.status = Build.COMPLETE
         build.package = package
@@ -163,20 +164,19 @@ def _extract_package_contents(package_contents: bytes, workdir: str) -> None:
 
 def _load_dockerfile_template(dockerfile_template: str, workdir: str) -> None:
     """Render the dockfile template and write it to the working directory"""
-    template = Engine(dirs=[_dockerfile_home]).get_template(dockerfile_template)
-    context = Context({"registry": settings.REGISTRY})
+    template = get_template(dockerfile_template)
+    context = {"registry": settings.REGISTRY}
 
     with open(f"{workdir}/Dockerfile", "w") as dockerfile:
         dockerfile.write(template.render(context=context))
 
 
 def _create_package_from_definition(
-    package_definition: dict, environment_id: UUID, image_name: str
+    package_definition: dict, environment: Environment, image_name: str
 ) -> Package:
     """Create a package and functions from definition file"""
     # TODO: Manually parsing for now, but this should be codified somewhere, with
     #       the parsing informed by package_definition_version.
-    environment = Environment.objects.get(id=environment_id)
     name = package_definition.get("name")
 
     try:

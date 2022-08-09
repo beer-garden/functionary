@@ -4,7 +4,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 
-from core.models import Package
+from core.models import Environment, Package
 
 
 class Build(models.Model):
@@ -37,6 +37,7 @@ class Build(models.Model):
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True
     )
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)
+    environment = models.ForeignKey(to=Environment, on_delete=models.CASCADE)
     package = models.ForeignKey(
         to=Package, on_delete=models.CASCADE, blank=True, null=True
     )
