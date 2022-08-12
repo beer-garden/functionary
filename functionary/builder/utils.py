@@ -5,6 +5,7 @@ import shutil
 import tarfile
 from uuid import UUID
 
+import docker
 import yaml
 from celery.utils.log import get_task_logger
 from django.apps import apps
@@ -13,7 +14,6 @@ from django.db import transaction
 from django.template import Context, Engine
 from pydantic import Field, create_model
 
-import docker
 from core.models import Environment, Function, Package, User
 
 from .celery import app
