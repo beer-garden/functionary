@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Permissions(Enum):
+class Permission(Enum):
     """Enum containing permissions, which consist of one for each of the CRUD
     operations per model. Examples:
 
@@ -14,8 +14,8 @@ class Permissions(Enum):
     as either the enum or its value:
 
         # both of these are valid
-        user.has_perm(Permissions.FUNCTION_READ, environment)
-        user.has_perm(Permissions.FUNCTION_READ.value, environment)
+        user.has_perm(Permission.FUNCTION_READ, environment)
+        user.has_perm(Permission.FUNCTION_READ.value, environment)
     """
 
     ENVIRONMENT_CREATE = "environment:create"
@@ -49,7 +49,7 @@ class Permissions(Enum):
     USERROLE_DELETE = "userrole:delete"
 
 
-class Roles(Enum):
+class Role(Enum):
     """Enum containing assignable roles"""
 
     ADMIN = "admin"
@@ -59,17 +59,17 @@ class Roles(Enum):
 
 
 # ADMIN gets all permissions
-_ADMIN_PERMISSIONS = [permission.value for permission in Permissions]
+_ADMIN_PERMISSIONS = [permission.value for permission in Permission]
 
 # READ_ONLY gets read access to all models
 _READ_ONLY_PERMISSIONS = [
-    permission.value for permission in Permissions if ":read" in permission.value
+    permission.value for permission in Permission if ":read" in permission.value
 ]
 
 # Other roles get build on READ_ONLY
 _DEVELOPER_PERMISSIONS = _READ_ONLY_PERMISSIONS + [
-    Permissions.PACKAGE_CREATE.value,
-    Permissions.PACKAGE_UPDATE.value,
+    Permission.PACKAGE_CREATE.value,
+    Permission.PACKAGE_UPDATE.value,
 ]
 
 # TODO: Add permissions once Task model exists
@@ -77,8 +77,8 @@ _OPERATOR_PERMISSIONS = _READ_ONLY_PERMISSIONS + []
 
 
 ROLE_PERMISSION_MAP = {
-    Roles.ADMIN.name: _ADMIN_PERMISSIONS,
-    Roles.DEVELOPER.name: _DEVELOPER_PERMISSIONS,
-    Roles.READ_ONLY.name: _READ_ONLY_PERMISSIONS,
-    Roles.OPERATOR.name: _OPERATOR_PERMISSIONS,
+    Role.ADMIN.name: _ADMIN_PERMISSIONS,
+    Role.DEVELOPER.name: _DEVELOPER_PERMISSIONS,
+    Role.READ_ONLY.name: _READ_ONLY_PERMISSIONS,
+    Role.OPERATOR.name: _OPERATOR_PERMISSIONS,
 }

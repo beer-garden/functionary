@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import BaseBackend
 
-from core.auth import Permissions
+from core.auth import Permission
 from core.models import Environment, Team
 
 
@@ -22,7 +22,7 @@ class CoreBackend(BaseBackend):
 
         Args:
             user: User object
-            perm: A string or Permissions enum representing the permission to check
+            perm: A string or Permission enum representing the permission to check
             obj: A Team or Environment object. Any other type will return False.
 
         Returns:
@@ -38,7 +38,7 @@ class CoreBackend(BaseBackend):
             return True
         else:
             # Allow the perm to be either the enum or its value
-            if isinstance(perm, Permissions):
+            if isinstance(perm, Permission):
                 perm = perm.value
 
             return perm in self._user_permissions_for_object(user, obj)

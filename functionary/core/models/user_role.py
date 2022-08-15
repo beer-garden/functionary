@@ -2,9 +2,9 @@
 from django.conf import settings
 from django.db import models
 
-from core.auth import Roles
+from core.auth import Role
 
-ROLE_CHOICES = [(role.name, role.value) for role in Roles]
+ROLE_CHOICES = [(role.name, role.value) for role in Role]
 
 
 class UserRole(models.Model):
