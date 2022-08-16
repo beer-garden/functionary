@@ -1,5 +1,4 @@
-from rest_framework import permissions
-
+from core.api.permissions import HasEnvironmentPermissionForAction
 from core.api.viewsets import EnvironmentModelViewSet
 from core.models import Package
 
@@ -7,6 +6,8 @@ from ..serializers import PackageSerializer
 
 
 class PackageViewSet(EnvironmentModelViewSet):
+    """View for retrieving and updating packages"""
+
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [HasEnvironmentPermissionForAction]

@@ -1,8 +1,11 @@
 from functools import cache
+from typing import Union
 
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import OpenApiParameter
+from rest_framework.exceptions import PermissionDenied
 
+from core.auth import Permission
 from core.models import Environment, Team
 
 from .exceptions import BadRequest
@@ -69,3 +72,20 @@ class EnvironmentViewMixin:
             raise BadRequest("X-Environment-Id or X-Team-Id header must be set")
 
         return environment_obj
+
+    def verify_user_permission(self, permission: Union[Permission, str]) -> None:
+        """Checks that request.user has the supplied permission for the environment
+        that the request pertains to.
+
+        Args:
+            permission: The permission required to pass this check. Can be a Permission
+                        enum or a str.
+
+        Returns:
+            None: The user has the supplied permission
+
+        Raises:
+            PermissionDenied: The user does not have the supplied permission
+        """
+        if not self.request.user.has_perm(permission, self.get_environment()):
+            raise PermissionDenied

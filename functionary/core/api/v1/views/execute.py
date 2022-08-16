@@ -2,7 +2,7 @@ import logging
 
 import jsonschema
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,8 +21,6 @@ class ExecuteView(APIView, EnvironmentViewMixin):
     """View for executing a function with specified parameters."""
 
     serializer_class = ExecuteSerializer
-    # TODO: Proper permissions
-    permission_classes = [permissions.IsAuthenticated]
 
     @extend_schema(
         description=("Execute a Function"),

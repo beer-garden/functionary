@@ -1,5 +1,4 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ from builder.exceptions import InvalidPackage
 from builder.utils import extract_package_definition, initiate_build
 from core.api.exceptions import BadRequest
 from core.api.mixins import EnvironmentViewMixin
+from core.api.permissions import HasEnvironmentPermissionForAction
 
 from ..serializers import BuildSerializer, PackageDefinitionWithVersionSerializer
 
@@ -16,10 +16,9 @@ from ..serializers import BuildSerializer, PackageDefinitionWithVersionSerialize
 class PublishView(APIView, EnvironmentViewMixin):
     """View for submitting a package to be built and published."""
 
-    # TODO: Authentication and permissions
-    permission_classes = [permissions.IsAuthenticated]
-
     parser_classes = [MultiPartParser]
+    permission_classes = [HasEnvironmentPermissionForAction]
+    permissioned_model = "Package"
 
     # TODO: Add reference to package description YAML documentation once it exists
     @extend_schema(
