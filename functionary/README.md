@@ -53,6 +53,15 @@ location using the environment variables described earlier.
 started working on Functionary. Instructions for general users will be added as
 the project matures.
 
+### Python Requirements
+
+Functionary is being developed with containers being the primary target for
+deployment. As such, the intention is to officially support only the latest
+minor version of python (e.g. The latest 3.X). Be sure to keep this in mind if
+you are intending to run the application locally while developing.
+
+### Django Setup
+
 Install the requirements like so:
 
 ```shell
