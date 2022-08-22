@@ -86,7 +86,7 @@ def publish(ctx, path):
     # publish should http the tar to a server, wait for return
     upload_file = open(tarfile_name, "rb")
     upload_response = None
-    environment_id = json.loads(get_config_value("current_environment")).get("id")
+    environment_id = get_config_value("current_environment_id")
     headers = {
         "Authorization": f"Token {token}",
         "X-Environment-ID": f"{environment_id}",
