@@ -12,7 +12,7 @@ class Package(models.Model):
 
     Attributes:
         id: unique identifier (UUID)
-        team: the team that this package belongs to
+        environment: the environment that this package belongs to
         name: internal name that published package definition keys off of
         display_name: optional display name
         description: more details about the function

@@ -4,7 +4,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 
-from .mixins import EnvironmentViewMixin
+from core.api import HEADER_PARAMETERS
+from core.api.mixins import EnvironmentViewMixin
 
 
 class EnvironmentGenericViewSet(EnvironmentViewMixin, GenericViewSet):
@@ -38,13 +39,14 @@ class EnvironmentGenericViewSet(EnvironmentViewMixin, GenericViewSet):
 
 
 @extend_schema_view(
-    create=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
-    retrieve=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
-    list=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
-    update=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
-    destroy=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
+    create=extend_schema(parameters=HEADER_PARAMETERS),
+    retrieve=extend_schema(parameters=HEADER_PARAMETERS),
+    list=extend_schema(parameters=HEADER_PARAMETERS),
+    update=extend_schema(parameters=HEADER_PARAMETERS),
+    destroy=extend_schema(parameters=HEADER_PARAMETERS),
 )
 class EnvironmentModelViewSet(
+    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
@@ -65,8 +67,8 @@ class EnvironmentModelViewSet(
 
 
 @extend_schema_view(
-    list=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
-    retrieve=extend_schema(parameters=EnvironmentViewMixin.header_parameters),
+    list=extend_schema(parameters=HEADER_PARAMETERS),
+    retrieve=extend_schema(parameters=HEADER_PARAMETERS),
 )
 class EnvironmentReadOnlyModelViewSet(
     mixins.RetrieveModelMixin,

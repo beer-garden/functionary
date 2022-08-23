@@ -2,7 +2,6 @@ from functools import cache
 from typing import Union
 
 from django.core.exceptions import ValidationError
-from drf_spectacular.utils import OpenApiParameter
 from rest_framework.exceptions import PermissionDenied
 
 from core.auth import Permission
@@ -14,25 +13,6 @@ from .exceptions import BadRequest
 class EnvironmentViewMixin:
     """Provides handling of the X-Environment-Id and X-Team-Id headers to determine
     the environment context of the request."""
-
-    header_parameters = [
-        OpenApiParameter(
-            name="X-Team-Id",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description=(
-                "ID for the Team to which this request corresponds. If set, the "
-                "default environment for the team will be used. This is ignored if "
-                "X-Environment-Id is set."
-            ),
-        ),
-        OpenApiParameter(
-            name="X-Environment-Id",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description=("ID for the Environment to which this request corresponds"),
-        ),
-    ]
 
     @cache
     def get_environment(self) -> Environment:

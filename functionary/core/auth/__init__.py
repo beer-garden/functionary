@@ -33,6 +33,11 @@ class Permission(Enum):
     PACKAGE_UPDATE = "package:update"
     PACKAGE_DELETE = "package:delete"
 
+    TASK_CREATE = "task:create"
+    TASK_READ = "task:read"
+    TASK_UPDATE = "task:update"
+    TASK_DELETE = "task:delete"
+
     TEAM_CREATE = "team:create"
     TEAM_READ = "team:read"
     TEAM_UPDATE = "team:update"

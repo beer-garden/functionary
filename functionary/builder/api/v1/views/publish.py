@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from builder.exceptions import InvalidPackage
 from builder.utils import extract_package_definition, initiate_build
+from core.api import HEADER_PARAMETERS
 from core.api.exceptions import BadRequest
 from core.api.mixins import EnvironmentViewMixin
 from core.api.permissions import HasEnvironmentPermissionForAction
@@ -36,7 +37,7 @@ class PublishView(APIView, EnvironmentViewMixin):
             }
         },
         responses={200: BuildSerializer},
-        parameters=EnvironmentViewMixin.header_parameters,
+        parameters=HEADER_PARAMETERS,
     )
     def post(self, request, *args, **kwargs):
         """Receives the package contents and package definition files. The definition
