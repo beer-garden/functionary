@@ -15,6 +15,7 @@ setup(
     install_requires=[
         "Click>=8.0.0",
         "requests>=2.0.0",
+        "rich>=12.5.0",
         "pyyaml>=6.0",
         "python-dotenv>=0.20.0",
     ],
