@@ -4,11 +4,9 @@ import os
 import ssl
 
 import pika
+from pika.exceptions import UnroutableError
 
 logger = logging.getLogger(__name__)
-
-host = os.getenv("RABBITMQ_HOST", "localhost")
-port = os.getenv("RABBITMQ_PORT", 5672)
 
 
 def build_connection(ca=None, cert=None, key=None, open_callback=None):
@@ -29,6 +27,8 @@ def build_connection(ca=None, cert=None, key=None, open_callback=None):
       A pika.SelectConnection if open_callback is populated, otherwise
       a pika.BlockingConnection.
     """
+    host = os.getenv("RABBITMQ_HOST", "localhost")
+    port = os.getenv("RABBITMQ_PORT", 5672)
     credentials = None
     ssl_options = None
 
@@ -52,7 +52,7 @@ def build_connection(ca=None, cert=None, key=None, open_callback=None):
         return pika.BlockingConnection(parameters)
 
 
-def send_message(queue, msg_type, message):
+def send_message(routing_key, msg_type, message):
     """Sends a JSON message to the specified queue.
 
     Sends the given message to the queue. If msg_type is populated, it
@@ -78,21 +78,19 @@ def send_message(queue, msg_type, message):
 
     connection = build_connection()
     channel = connection.channel()
-
-    channel.queue_declare(queue=queue)
     channel.confirm_delivery()
 
     try:
         channel.basic_publish(
             exchange="",
-            routing_key=queue,
+            routing_key=routing_key,
             body=json.dumps(message),
             properties=publish_props,
             mandatory=True,
         )
-    except pika.exceptions.UnroutableError as ue:
+    except UnroutableError as ue:
         # TODO revisit this and handle exceptions better. Currently used for retry logic
         logger.error("Failed to send message")
         raise ue
-
-    connection.close()
+    finally:
+        connection.close()

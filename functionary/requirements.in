@@ -2,6 +2,7 @@ celery
 django
 docker
 jsonschema
+pika
 pydantic
 pyyaml
 redis

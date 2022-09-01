@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 def start_listening():
-    connection = build_connection(open_callback=_on_connected)
+    logger.info("Starting listener")
+    connection = build_connection(open_callback=_on_connection_open)
 
     try:
         connection.ioloop.start()
@@ -21,51 +22,43 @@ def start_listening():
         connection.ioloop.start()
 
 
-def _on_connected(connection):
+def _on_connection_open(connection):
     """Called when we are fully connected to RabbitMQ"""
-    logger.debug("connected...")
+    logger.info("Connected")
     connection.channel(on_open_callback=_on_channel_open)
 
 
 def _on_channel_open(new_channel):
     """Called when our channel has opened"""
-    logger.debug("channel opened...")
-    global channel
-    channel = new_channel
-    channel.queue_declare(
-        queue="package_runner",
-        durable=True,
-        exclusive=False,
-        auto_delete=False,
-        callback=_on_queue_declared,
-    )
+    logger.debug("Channel opened")
 
-
-def _on_queue_declared(frame):
-    """Called when RabbitMQ has told us our Queue has been declared"""
-    logger.debug("queue declared...")
-    channel.basic_consume("package_runner", _handle_delivery)
+    # TODO: The queue to listen on here should come from config generated during
+    #       runner registration
+    new_channel.basic_consume("public", _handle_delivery)
 
 
 def _handle_delivery(channel, deliver, properties, body):
     """Called when we receive a message from RabbitMQ"""
-    logger.debug("received message!...")
 
+    # TODO: Implement handling of specific exceptions
     try:
         msg_type = properties.headers.get("x-msg-type", "__NONE__")
-        body_dict = json.loads(body.decode())
+        msg_body = json.loads(body.decode())
+
+        logger.info("Received message %s", msg_type)
 
         match msg_type:
             case "PULL_IMAGE":
-                pull_image.delay(**body_dict)
+                pull_image.delay(**msg_body)
             case "TASK_PACKAGE":
-                run_task_s = run_task.s()
-                publish_task_s = publish_result.s("task_status")
+                pull_image_s = pull_image.s(msg_body)
+                run_task_s = run_task.s(task=msg_body)
+                publish_task_s = publish_result.s()
 
-                chain(pull_image.s(body_dict), run_task_s, publish_task_s).delay()
+                chain(pull_image_s, run_task_s, publish_task_s).delay()
             case _:
-                logger.error("Unable to determine message type: %s", msg_type)
+                logger.error("Unrecognized message type: %s", msg_type)
 
         channel.basic_ack(deliver.delivery_tag)
-    except Exception:
-        logger.error("Error handling received message")
+    except Exception as exc:
+        logger.error("Error handling received message: %s", exc)

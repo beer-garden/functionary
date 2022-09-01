@@ -19,8 +19,6 @@ from .celery import app
 from .exceptions import InvalidPackage
 from .models import Build, BuildResource
 
-_docker_client = docker.from_env()
-
 logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
 
@@ -102,6 +100,8 @@ def build_package(build_id: UUID):
     Args:
         build_id: ID of the build being executed
     """
+    docker_client = docker.from_env()
+
     # TODO: Catch exceptions and record failures. Also, what happens to the image we
     #       pushed? Should it be deleted?
     logger.info(f"Starting build {build_id}")
@@ -126,17 +126,17 @@ def build_package(build_id: UUID):
     _extract_package_contents(package_contents, workdir)
     _load_dockerfile_template(dockerfile, workdir)
 
-    image, build_log = _docker_client.images.build(
+    image, build_log = docker_client.images.build(
         path=workdir,
         pull=True,
         forcerm=True,
         tag=full_image_name,
     )
 
-    _docker_client.images.push(full_image_name)
+    docker_client.images.push(full_image_name)
 
     logger.debug(f"Cleaning up remnants of build {build_id}")
-    _docker_client.images.remove(image.id)
+    docker_client.images.remove(image.id)
     shutil.rmtree(workdir)
 
     with transaction.atomic():

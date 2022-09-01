@@ -64,6 +64,8 @@ packaging==21.3
     # via
     #   docker
     #   redis
+pika==1.3.0
+    # via -r requirements.in
 prompt-toolkit==3.0.30
     # via click-repl
 pydantic==1.9.2

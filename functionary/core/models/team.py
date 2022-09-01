@@ -2,10 +2,12 @@
 import uuid
 
 from django.apps import apps
-from django.db import models, transaction
+from django.db import models
+
+from core.models import ModelSaveHookMixin
 
 
-class Team(models.Model):
+class Team(ModelSaveHookMixin, models.Model):
     """Namespace that teams of users work under
 
     Attributes:
@@ -19,17 +21,7 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
-    def _post_save(self, creating):
-        """Post save hooks"""
-        if creating:
-            Environment = apps.get_model("core", "Environment")
-            Environment.create_default(self)
-
-    def save(self, *args, **kwargs):
-        creating = self._state.adding
-
-        with transaction.atomic():
-            team = super().save(*args, **kwargs)
-            self._post_save(creating)
-
-        return team
+    def post_create(self):
+        """Post create hooks"""
+        Environment = apps.get_model("core", "Environment")
+        Environment.create_default(self)

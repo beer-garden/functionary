@@ -14,4 +14,12 @@ LOGGING = {
         "handlers": ["console"],
         "level": LOG_LEVEL,
     },
+    "loggers": {
+        "celery": {
+            "level": LOG_LEVEL,
+        },
+        "pika": {
+            "level": "WARNING",
+        },
+    },
 }

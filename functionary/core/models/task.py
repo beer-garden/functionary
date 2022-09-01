@@ -6,10 +6,10 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from core.models import Environment, Function
+from core.models import Environment, Function, ModelSaveHookMixin
 
 
-class Task(models.Model):
+class Task(ModelSaveHookMixin, models.Model):
     """A Task is an individual execution of a function
 
     This model should always be queried with environment as one of the filter
@@ -91,3 +91,9 @@ class Task(models.Model):
         """Model instance validation and attribute cleanup"""
         self._clean_environment()
         self._clean_parameters()
+
+    def post_create(self):
+        """Post create hooks"""
+        from core.utils.tasking import publish_task
+
+        publish_task.delay(self.id)

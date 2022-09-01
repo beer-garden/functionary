@@ -6,6 +6,7 @@
 
 To run the various components of Functionary you'll first need the following:
 
+- RabbitMQ
 - Redis
 - A private container registry
 
@@ -23,6 +24,8 @@ default, it will be assumed that these services are accessible via localhost on
 their default ports. If they are located elsewhere, you can configure that via
 environment variables:
 
+- RABBITMQ_HOST
+- RABBITMQ_PORT
 - REDIS_HOST
 - REDIS_PORT
 - REGISTRY_HOST
@@ -96,6 +99,26 @@ DEBUG=TRUE DJANGO_SECRET_KEY=supersecret ./manage.py runserver 8000
 
 The `DJANGO_SECRET_KEY` is arbitrary and the `8000` at the end is the port
 number to listen on. It can be freely changed to anything.
+
+## Start the main worker
+
+The worker process handles communications between the main django process and
+any external services, such as the runners. Actions such as creating a Task to
+execute a function result in a response being returned right away, but the
+actual work is scheduled to happen asynchronously via a worker process. To start
+the worker process:
+
+```shell
+LOG_LEVEL=INFO \
+RABBITMQ_USER=someuser \
+RABBITMQ_PASSWORD=greatpassword \
+./manage.py run_worker
+```
+
+Be sure to set the username and password values as appropriate for your
+environment. If you are using the included
+[docker-compose.yml](../docker/docker-compose.yml), you can use the values of
+`RABBITMQ_DEFAULT_USER` and `RABBITMQ_DEFAULTPASS`.
 
 ## Start the build worker
 

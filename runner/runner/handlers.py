@@ -1,7 +1,6 @@
 import itertools
 import json
 import logging
-import os
 
 from celery import Task
 
@@ -16,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class PackageClient(Task):
-    REGISTRY = os.environ.get("REGISTRY", "localhost:5000")
-
     def __init__(self):
         self._docker = docker.from_env()
 
@@ -33,15 +30,13 @@ class PackageClient(Task):
 )
 def pull_image(self, task) -> None:
     package = task.get("package")
-    fqi = f"{self.REGISTRY}/{package}"
-    self._docker.images.pull(fqi)
+    self._docker.images.pull(package)
 
-    logger.debug(f"Pulled {fqi}")
-    return task
+    logger.debug(f"Pulled {package}")
 
 
 @app.task(base=PackageClient, bind=True)
-def run_task(self, task):
+def run_task(self, _=None, task=None):
     exit_status, output, result = _run_task(self, task)
 
     return {
@@ -87,5 +82,5 @@ def _parse_container_logs(logs):
     },
     autoretry_for=(Exception,),
 )
-def publish_result(self, result, topic):
-    send_message(topic, "TASK_RESULT", result)
+def publish_result(self, result):
+    send_message("tasking.results", "TASK_RESULT", result)
