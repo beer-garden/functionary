@@ -83,4 +83,6 @@ def _parse_container_logs(logs):
     autoretry_for=(Exception,),
 )
 def publish_result(self, result):
+    # TODO: The routing key should come from the configuration information received
+    #       during runner registration.
     send_message("tasking.results", "TASK_RESULT", result)
