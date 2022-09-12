@@ -1,11 +1,12 @@
 import json
 import logging
 import ssl
+from time import sleep
 from typing import Tuple
 
 import pika
 from django.conf import settings
-from pika.exceptions import UnroutableError
+from pika.exceptions import AMQPConnectionError, UnroutableError
 from pika.exchange_type import ExchangeType
 
 logger = logging.getLogger(__name__)
@@ -137,3 +138,28 @@ def initialize_messaging():
 
     channel.close()
     connection.close()
+
+
+def connection_ready() -> bool:
+    """Determine if we are able to connect to the message broker
+
+    Returns:
+        bool: True if we can connect, False otherwise
+    """
+    try:
+        build_connection()
+    except AMQPConnectionError:
+        return False
+
+    return True
+
+
+def wait_for_connection():
+    """Waits for a successful connection to the message broker"""
+    logger.info("Checking message broker connection")
+
+    while not connection_ready():
+        logger.info("Unable to connect to message broker. Retry in 5s.")
+        sleep(5)
+
+    logger.info("Connected to message broker")

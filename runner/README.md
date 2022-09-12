@@ -15,11 +15,13 @@ environment variables be set for connecting to the message broker:
 Once you have configured the environment, you can run the two process:
 
 ## Listener
+
 ```shell
-LOG_LEVEL=INFO python ./main.py
+LOG_LEVEL=INFO python ./listener.py
 ```
 
 ## Worker
+
 ```shell
-celery -A runner worker --loglevel=INFO
+LOG_LEVEL=INFO python ./worker.py
 ```

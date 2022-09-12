@@ -2,42 +2,35 @@ import itertools
 import json
 import logging
 
-from celery import Task
-
 import docker
 
 from .celery import app
-from .message_queue import send_message
+from .messaging import send_message
 
 OUTPUT_SEPARATOR = b"==== Output From Command ====\n"
 
 logger = logging.getLogger(__name__)
 
 
-class PackageClient(Task):
-    def __init__(self):
-        self._docker = docker.from_env()
-
-
 @app.task(
-    base=PackageClient,
-    bind=True,
     default_retry_delay=30,
     retry_kwargs={
         "max_retries": 3,
     },
     autoretry_for=(docker.errors.DockerException,),
 )
-def pull_image(self, task) -> None:
+def pull_image(task) -> None:
     package = task.get("package")
-    self._docker.images.pull(package)
+
+    docker_client = docker.from_env()
+    docker_client.images.pull(package)
 
     logger.debug(f"Pulled {package}")
 
 
-@app.task(base=PackageClient, bind=True)
-def run_task(self, _=None, task=None):
-    exit_status, output, result = _run_task(self, task)
+@app.task()
+def run_task(_=None, task=None):
+    exit_status, output, result = _run_task(task)
 
     return {
         "functionary_id": task["id"],
@@ -47,14 +40,15 @@ def run_task(self, _=None, task=None):
     }
 
 
-def _run_task(client, task):
+def _run_task(task):
     package = task.get("package")
     function = task.get("function")
     parameters = json.dumps(task["function_parameters"])
     run_command = ["--function", function, "--parameters", parameters]
 
-    logging.debug("Running %s from package %s", function, package)
-    container = client._docker.containers.run(
+    logging.info("Running %s from package %s", function, package)
+    docker_client = docker.from_env()
+    container = docker_client.containers.run(
         package, auto_remove=False, detach=True, command=run_command
     )
 
@@ -74,15 +68,13 @@ def _parse_container_logs(logs):
 
 
 @app.task(
-    base=PackageClient,
-    bind=True,
     default_retry_delay=30,
     retry_kwargs={
         "max_retries": 3,
     },
     autoretry_for=(Exception,),
 )
-def publish_result(self, result):
+def publish_result(result):
     # TODO: The routing key should come from the configuration information received
     #       during runner registration.
     send_message("tasking.results", "TASK_RESULT", result)

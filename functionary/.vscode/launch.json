@@ -1,0 +1,55 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "runserver",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "runserver_stop_container",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["runserver"],
+      "env": {
+        "DEBUG": "TRUE",
+        "DJANGO_SECRET_KEY": "supersecret",
+        "LOG_LEVEL": "DEBUG",
+        "RABBITMQ_USER": "bugs",
+        "RABBITMQ_PASSWORD": "wascallywabbit"
+      },
+      "django": true,
+      "justMyCode": true
+    },
+    {
+      "name": "run_worker",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "worker_stop_container",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["run_worker"],
+      "env": {
+        "DEBUG": "TRUE",
+        "LOG_LEVEL": "DEBUG",
+        "RABBITMQ_USER": "bugs",
+        "RABBITMQ_PASSWORD": "wascallywabbit"
+      },
+      "django": true,
+      "justMyCode": true
+    },
+    {
+      "name": "run_build_worker",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "build_worker_stop_container",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["run_build_worker"],
+      "env": {
+        "DEBUG": "TRUE",
+        "LOG_LEVEL": "DEBUG"
+      },
+      "django": true,
+      "justMyCode": true
+    }
+  ]
+}

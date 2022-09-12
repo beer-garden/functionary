@@ -4,7 +4,7 @@ import logging
 from celery import chain
 
 from .handlers import publish_result, pull_image, run_task
-from .message_queue import build_connection
+from .messaging import build_connection
 
 logger = logging.getLogger(__name__)
 

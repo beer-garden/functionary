@@ -1,0 +1,34 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "listener",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "listener_stop_container",
+      "program": "${workspaceFolder}/listener.py",
+      "env": {
+        "LOG_LEVEL": "DEBUG",
+        "RABBITMQ_USER": "bugs",
+        "RABBITMQ_PASSWORD": "wascallywabbit"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "worker",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "worker_stop_container",
+      "program": "${workspaceFolder}/worker.py",
+      "env": {
+        "LOG_LEVEL": "DEBUG",
+        "RABBITMQ_USER": "bugs",
+        "RABBITMQ_PASSWORD": "wascallywabbit"
+      },
+      "justMyCode": true
+    }
+  ]
+}

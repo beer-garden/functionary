@@ -1,14 +1,130 @@
 version: "3.5"
 
+x-environment:
+  &environment
+  PYTHONDONTWRITEBYTECODE: 1
+  PYTHONUNBUFFERED: 1
+  DEBUG: TRUE
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-supersecret}
+  LOG_LEVEL: DEBUG
+  RABBITMQ_USER: ${RABBITMQ_USER:-bugs}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-wascallywabbit}
+  RABBITMQ_HOST: rabbitmq
+  REDIS_HOST: redis
+
 services:
+  django:
+    build:
+      context: ../functionary
+      dockerfile: ../docker/functionary.Dockerfile
+    image: functionary_django
+    container_name: functionary-django
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5678
+      DEBUG_CMD: manage.py runserver 0.0.0.0:8000
+      WAIT_FOR_CLIENT: ${DJANGO_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 8000:8000
+      - 5678:5678
+    volumes:
+      - ../functionary:/app
+    depends_on:
+      - rabbitmq
+      - redis
+  worker:
+    build:
+      context: ../functionary
+      dockerfile: ../docker/functionary.Dockerfile
+    image: functionary_django
+    container_name: functionary-worker
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5679
+      DEBUG_CMD: "./manage.py run_worker"
+      WAIT_FOR_CLIENT: ${WORKER_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 5679:5679
+    volumes:
+      - ../functionary:/app
+    depends_on:
+      - rabbitmq
+      - redis
+  build-worker:
+    build:
+      context: ../functionary
+      dockerfile: ../docker/functionary.Dockerfile
+    image: functionary_django
+    container_name: functionary-build-worker
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5680
+      DEBUG_CMD: "./manage.py run_build_worker"
+      WAIT_FOR_CLIENT: ${BUILD_WORKER_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 5680:5680
+    volumes:
+      - ../functionary:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - rabbitmq
+      - redis
+  runner-listener:
+    build:
+      context: ../runner
+      dockerfile: ../docker/functionary.Dockerfile
+    image: functionary_runner
+    container_name: functionary-runner-listener
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5681
+      DEBUG_CMD: "./listener.py"
+      WAIT_FOR_CLIENT: ${RUNNER_LISTENER_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 5681:5681
+    volumes:
+      - ../runner:/app
+    depends_on:
+      - rabbitmq
+      - redis
+  runner-worker:
+    build:
+      context: ../runner
+      dockerfile: ../docker/functionary.Dockerfile
+    image: functionary_runner
+    container_name: functionary-runner-worker
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5682
+      DEBUG_CMD: "./worker.py"
+      WAIT_FOR_CLIENT: ${RUNNER_WORKER_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 5682:5682
+    volumes:
+      - ../runner:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - rabbitmq
+      - redis
   rabbitmq:
     image: rabbitmq:management
-    container_name: rabbitmq
+    container_name: functionary-rabbitmq
+    hostname: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-bugs}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULTPASS:-wascallywabbit}
     networks:
-      - proto-network
+      - functionary-network
     ports:
       - 5671:5671
       - 5672:5672
@@ -18,27 +134,29 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
   redis:
     image: redis:latest
-    container_name: redis
+    container_name: functionary-redis
+    hostname: redis
     networks:
-      - proto-network
+      - functionary-network
     ports:
       - 6379:6379
     volumes:
       - redis-data:/data
   registry:
     image: registry:2
-    container_name: registry
+    container_name: functionary-registry
+    hostname: registry
     networks:
-      - proto-network
+      - functionary-network
     ports:
       - 5000:5000
     volumes:
       - registry-data:/var/lib/registry
 
 networks:
-  proto-network:
+  functionary-network:
     driver: bridge
-    name: proto-network
+    name: functionary-network
 
 volumes:
   rabbitmq-data:
