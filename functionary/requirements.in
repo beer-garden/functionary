@@ -1,5 +1,6 @@
 celery
 django
+django-unicorn
 docker
 jsonschema
 pika
