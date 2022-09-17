@@ -2,8 +2,6 @@ version: "3.5"
 
 x-environment:
   &environment
-  PYTHONDONTWRITEBYTECODE: 1
-  PYTHONUNBUFFERED: 1
   DEBUG: TRUE
   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-supersecret}
   LOG_LEVEL: DEBUG
@@ -16,7 +14,7 @@ services:
   django:
     build:
       context: ../functionary
-      dockerfile: ../docker/functionary.Dockerfile
+      dockerfile: ../docker/debug.Dockerfile
     image: functionary_django
     container_name: functionary-django
     environment:
@@ -37,7 +35,7 @@ services:
   worker:
     build:
       context: ../functionary
-      dockerfile: ../docker/functionary.Dockerfile
+      dockerfile: ../docker/debug.Dockerfile
     image: functionary_django
     container_name: functionary-worker
     environment:
@@ -57,7 +55,7 @@ services:
   build-worker:
     build:
       context: ../functionary
-      dockerfile: ../docker/functionary.Dockerfile
+      dockerfile: ../docker/debug.Dockerfile
     image: functionary_django
     container_name: functionary-build-worker
     environment:
@@ -78,7 +76,7 @@ services:
   runner-listener:
     build:
       context: ../runner
-      dockerfile: ../docker/functionary.Dockerfile
+      dockerfile: ../docker/debug.Dockerfile
     image: functionary_runner
     container_name: functionary-runner-listener
     environment:
@@ -98,7 +96,7 @@ services:
   runner-worker:
     build:
       context: ../runner
-      dockerfile: ../docker/functionary.Dockerfile
+      dockerfile: ../docker/debug.Dockerfile
     image: functionary_runner
     container_name: functionary-runner-worker
     environment:

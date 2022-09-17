@@ -3,15 +3,17 @@
 For users of VSCode, a variety of tooling is provided in the functionary
 repository to help ease the development workflow.
 
-## Workspaces
+## Workspace
 
-For organization purposes, treat each directory at the root of the repository as
-its own workspace. That is, rather than opening the root folder in VSCode, open
-one of the folders at that root level. For example:
+A workspace file, `functionary.code-workspace`, is provided that includes
+settings, tasks, and debug launch configuration for the following components:
 
+- cli
 - functionary
 - runner
-- cli
+
+Open this workspace file to take advantage of the features described in
+throughout the remainder of this readme.
 
 ## Extensions
 
@@ -28,7 +30,7 @@ extensions.
 As alluded to above, various settings are predefined for the workspaces. These
 mostly include autoformatting settings, including format on save to ensure that
 code always adheres to those standards. You can see the various settings in the
-`.vscode/settings.json` folder of the workspace.
+`functionary.code-worspace` file.
 
 ## Docker Compose
 
@@ -47,26 +49,29 @@ Run those as needed to start or stop the entire suite of containers.
 
 ## Debugging
 
-To debug, a set of launch commands a provided. Specifically:
+To debug, a set of launch commands is provided:
 
-- For functionary folder
-  - runserver
-  - run_worker
-  - build_worker
-- For the runner folder
-  - listener
-  - worker
+- runserver (functionary)
+- run_worker (functionary)
+- build_worker (functionary)
+- listener (runner)
+- worker (runner)
 
-These will be available from the "RUN AND DEBUG" dropdown when you are in the
-respective workspaces. When launching any of these, if there was already a
-container running for that component it will be stopped. Then the process will
-be run natively in debug mode through VSCode instead.
+These will be available from the dropdown in the "Run and Debug" panel
+(`Ctrl+Shift+D`). When launching any of these, if there was already a container
+running for that component it will be stopped. Then the process will be run
+natively in debug mode through VSCode instead.
 
 You can start more than one of the debug processes at a time, allowing you to
-set breakpoints in code for the different processes as needed. To do this for
-processes that run in separate workspaces (e.g. functionary and runner), you
-will need to launch a separate instance of VSCode for each workspace.
+set breakpoints in code for the different processes as needed.
 
-**IMPORTANT NOTE**: When you exit debug mode, the container that was stopped is
-not automatically restarted. If you wish to restart it, you can do so easily via
-the docker extension tab in VSCode.
+**IMPORTANT NOTES**
+
+- Be sure to have the correct python interpreter / virtual environment selected
+  before you start debugging. When you have a python file open in VSCode, a menu
+  item will appear on the far right of the bottom status bar that lets you
+  choose which python to use.
+- When you exit debug mode, the container that was stopped is not automatically
+  restarted. If you wish to restart it, you can do so easily via the docker
+  extension tab in VSCode or by re-running the "functionary: docker compose up"
+  task.

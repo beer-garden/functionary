@@ -1,0 +1,76 @@
+{
+  "folders": [
+    {
+      "path": "cli"
+    },
+    {
+      "path": "functionary"
+    },
+    {
+      "path": "runner"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "markdownlint.config": {
+      "MD013": true
+    },
+    "prettier.proseWrap": "always",
+    "python.analysis.autoImportCompletions": false,
+    "[django-html]": {
+      "editor.defaultFormatter": "monosans.djlint"
+    },
+    "[html]": {
+      "editor.defaultFormatter": "monosans.djlint"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      },
+      "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "[dockercompose]": {
+      "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "functionary: docker compose up",
+        "type": "shell",
+        "command": "docker compose -f ../docker/docker-compose.yml up --build -d",
+        "problemMatcher": []
+      },
+      {
+        "label": "functionary: docker compose down",
+        "type": "shell",
+        "command": "docker compose -f ../docker/docker-compose.yml down",
+        "problemMatcher": []
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "DavidAnson.vscode-markdownlint",
+      "esbenp.prettier-vscode",
+      "monosans.djlint",
+      "ms-azuretools.vscode-docker",
+      "ms-python.black-formatter",
+      "ms-python.isort",
+      "ms-python.python",
+      "ms-vscode-remote.remote-containers",
+      "ms-vscode-remote.remote-ssh",
+      "ms-vscode-remote.vscode-remote-extensionpack"
+    ]
+  }
+}

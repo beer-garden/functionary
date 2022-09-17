@@ -4,18 +4,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "functionary: docker compose up",
-      "type": "shell",
-      "command": "docker compose -f ../docker/docker-compose.yml up --build -d",
-      "problemMatcher": []
-    },
-    {
-      "label": "functionary: docker compose down",
-      "type": "shell",
-      "command": "docker compose -f ../docker/docker-compose.yml down",
-      "problemMatcher": []
-    },
-    {
       "label": "runserver_stop_container",
       "type": "shell",
       "command": "docker stop functionary-django",
