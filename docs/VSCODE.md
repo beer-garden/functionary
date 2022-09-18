@@ -30,7 +30,7 @@ extensions.
 As alluded to above, various settings are predefined for the workspaces. These
 mostly include autoformatting settings, including format on save to ensure that
 code always adheres to those standards. You can see the various settings in the
-`functionary.code-worspace` file.
+`functionary.code-workspace` file.
 
 ## Docker Compose
 
@@ -65,7 +65,7 @@ natively in debug mode through VSCode instead.
 You can start more than one of the debug processes at a time, allowing you to
 set breakpoints in code for the different processes as needed.
 
-**IMPORTANT NOTES**
+### IMPORTANT NOTES
 
 - Be sure to have the correct python interpreter / virtual environment selected
   before you start debugging. When you have a python file open in VSCode, a menu

@@ -4,6 +4,9 @@
       "path": "cli"
     },
     {
+      "path": "docs"
+    },
+    {
       "path": "functionary"
     },
     {

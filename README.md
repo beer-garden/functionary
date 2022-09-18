@@ -14,4 +14,4 @@ See the following guides to get started working on functionary:
 
 - [functionary](./functionary/README.md) - The main application, built on django
 - [runner](./runner/README.md) - Runners handle actual function execution
-- [VSCode](./VSCODE.md) - A guide to using VSCode for functionary development
+- [VSCode](./docs/VSCODE.md) - A guide to using VSCode for functionary development
