@@ -1,9 +1,12 @@
+from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import (
     PolymorphicProxySerializer,
     extend_schema,
     extend_schema_view,
 )
 from rest_framework import mixins, status
+from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from core.api import HEADER_PARAMETERS
@@ -12,6 +15,8 @@ from core.api.v1.serializers import (
     TaskCreateByIdSerializer,
     TaskCreateByNameSerializer,
     TaskCreateResponseSerializer,
+    TaskLogSerializer,
+    TaskResultSerializer,
     TaskSerializer,
 )
 from core.api.viewsets import EnvironmentGenericViewSet
@@ -77,3 +82,35 @@ class TaskViewSet(
         return Response(
             response_serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    @extend_schema(
+        description="Retrieve the task results",
+        parameters=HEADER_PARAMETERS,
+        responses={status.HTTP_200_OK: TaskResultSerializer},
+    )
+    @action(methods=["get"], detail=True)
+    def result(self, request, pk=None):
+        task = self.get_object()
+
+        try:
+            serializer = TaskResultSerializer(task.taskresult)
+        except ObjectDoesNotExist:
+            raise NotFound(f"No result found for task {pk}.")
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        description="Retrieve the task log output",
+        parameters=HEADER_PARAMETERS,
+        responses={status.HTTP_200_OK: TaskLogSerializer},
+    )
+    @action(methods=["get"], detail=True)
+    def log(self, request, pk=None):
+        task = self.get_object()
+
+        try:
+            serializer = TaskLogSerializer(task.tasklog)
+        except ObjectDoesNotExist:
+            raise NotFound(f"No log found for task {pk}.")
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

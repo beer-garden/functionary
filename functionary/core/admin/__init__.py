@@ -7,6 +7,8 @@ from core.models import (
     Function,
     Package,
     Task,
+    TaskLog,
+    TaskResult,
     Team,
     TeamUserRole,
     User,
@@ -19,6 +21,8 @@ admin.site.register(EnvironmentUserRole, admin.ModelAdmin)
 admin.site.register(Function, admin.ModelAdmin)
 admin.site.register(Package, admin.ModelAdmin)
 admin.site.register(Task, admin.ModelAdmin)
+admin.site.register(TaskLog, admin.ModelAdmin)
+admin.site.register(TaskResult, admin.ModelAdmin)
 admin.site.register(Team, admin.ModelAdmin)
 admin.site.register(TeamUserRole, admin.ModelAdmin)
 admin.site.register(User, UserAdmin)

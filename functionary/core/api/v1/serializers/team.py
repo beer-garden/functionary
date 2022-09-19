@@ -1,4 +1,5 @@
 """ Team serializers """
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import Environment, Team
@@ -21,6 +22,7 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = ["id", "name", "environments"]
 
+    @extend_schema_field(TeamEnvironmentSerializer(many=True))
     def get_environments(self, team):
         """In the context of a request, filters the list of environments down to
         those of the requesting user."""

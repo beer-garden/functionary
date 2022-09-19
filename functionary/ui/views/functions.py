@@ -46,7 +46,7 @@ def execute(request) -> HttpResponse:
 
         if form.is_valid():
             # Create the new Task, the validated parameters are in form.cleaned_data
-            Task.objects.create(
+            task = Task.objects.create(
                 environment=env,
                 creator=request.user,
                 function=func,
@@ -54,6 +54,6 @@ def execute(request) -> HttpResponse:
             )
 
             # redirect to a new URL:
-            return HttpResponseRedirect(reverse("ui:task-list"))
+            return HttpResponseRedirect(reverse("ui:task-detail", args=(task.id,)))
 
     return HttpResponseForbidden()

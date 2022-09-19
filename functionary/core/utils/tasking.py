@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 
 from core.celery import app
-from core.models import Task
+from core.models import Task, TaskLog, TaskResult
 from core.utils.messaging import get_route, send_message
 
 logger = get_task_logger(__name__)
@@ -42,3 +42,32 @@ def publish_task(task_id: UUID) -> None:
 
     exchange, routing_key = get_route(task)
     send_message(exchange, routing_key, "TASK_PACKAGE", _generate_task_message(task))
+
+
+@app.task()
+def record_task_result(task_result_message: dict) -> None:
+    """Parses the task result message and generates a TaskResult entry for it
+
+    Args:
+        task_result_message: The message body from a TASK_RESULT message.
+    """
+    task_id = task_result_message["task_id"]
+    status = task_result_message["status"]
+    output = task_result_message["output"]
+    result = task_result_message["result"]
+
+    try:
+        task = Task.objects.get(id=task_id)
+    except Task.DoesNotExist:
+        logger.error("Unable to record results for task %s: task not found", task_id)
+        return
+
+    TaskLog.objects.create(task=task, log=output)
+    TaskResult.objects.create(task=task, result=result)
+
+    # TODO: This status determination feels like it belongs in the runner. This should
+    #       be reworked so that there are explicitly known statuses that could come
+    #       back from the runner, rather than passing through the command exit status
+    #       as is happening now.
+    task.status = "COMPLETE" if status == 0 else "ERROR"
+    task.save()

@@ -1,12 +1,13 @@
 """ Task model """
 import uuid
+from typing import Optional
 
 import jsonschema
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 
-from core.models import Environment, Function, ModelSaveHookMixin
+from core.models import ModelSaveHookMixin
 
 
 class Task(ModelSaveHookMixin, models.Model):
@@ -41,8 +42,8 @@ class Task(ModelSaveHookMixin, models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    function = models.ForeignKey(to=Function, on_delete=models.CASCADE)
-    environment = models.ForeignKey(to=Environment, on_delete=models.CASCADE)
+    function = models.ForeignKey(to="Function", on_delete=models.CASCADE)
+    environment = models.ForeignKey(to="Environment", on_delete=models.CASCADE)
     parameters = models.JSONField()
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -68,6 +69,9 @@ class Task(ModelSaveHookMixin, models.Model):
             ),
         ]
 
+    def __str__(self):
+        return str(self.id)
+
     def _clean_environment(self):
         """Ensures that the environment is correctly set to that of the function"""
         if self.environment is None:
@@ -84,7 +88,7 @@ class Task(ModelSaveHookMixin, models.Model):
                 instance=self.parameters,
                 schema=self.function.schema,
             )
-        except jsonschema.exceptions.ValidationError as exc:
+        except jsonschema.ValidationError as exc:
             raise ValidationError(exc.message)
 
     def clean(self):
@@ -97,3 +101,19 @@ class Task(ModelSaveHookMixin, models.Model):
         from core.utils.tasking import publish_task
 
         publish_task.delay(self.id)
+
+    @property
+    def result(self) -> Optional[str]:
+        """Convenience property for accessing the result output"""
+        try:
+            return self.taskresult.result
+        except ObjectDoesNotExist:
+            return None
+
+    @property
+    def log(self) -> Optional[str]:
+        """Convenience property for accessing the log output"""
+        try:
+            return self.tasklog.log
+        except ObjectDoesNotExist:
+            return None

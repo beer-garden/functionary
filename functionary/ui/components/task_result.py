@@ -1,16 +1,16 @@
 from django_unicorn.components import PollUpdate, UnicornView
 
 
-class TaskTitleView(UnicornView):
-    status = None
+class TaskResultView(UnicornView):
+    result = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.status = self.task.status
+        self.result = self.task.result or ""
 
-    def get_status(self):
+    def get_result(self):
         self.task.refresh_from_db()
-        self.status = self.task.status
 
-        if self.status in ["COMPLETE", "ERROR"]:
+        if (task_result := self.task.result) is not None:
+            self.result = task_result
             return PollUpdate(disable=True, method="get_status")

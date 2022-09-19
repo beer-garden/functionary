@@ -33,7 +33,7 @@ def run_task(_=None, task=None):
     exit_status, output, result = _run_task(task)
 
     return {
-        "functionary_id": task["id"],
+        "task_id": task["id"],
         "status": exit_status,
         "output": output.decode(),
         "result": result.decode(),
@@ -61,8 +61,10 @@ def _run_task(task):
 
 
 def _parse_container_logs(logs):
-    output = b"".join(itertools.takewhile(lambda x: x != OUTPUT_SEPARATOR, logs))
-    result = b"".join(logs)
+    output = b"".join(
+        itertools.takewhile(lambda x: x != OUTPUT_SEPARATOR, logs)
+    ).rstrip()
+    result = b"".join(logs).rstrip()
 
     return output, result
 

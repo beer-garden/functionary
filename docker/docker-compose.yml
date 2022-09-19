@@ -32,6 +32,26 @@ services:
     depends_on:
       - rabbitmq
       - redis
+  listener:
+    build:
+      context: ../functionary
+      dockerfile: ../docker/debug.Dockerfile
+    image: functionary_django
+    container_name: functionary-listener
+    environment:
+      <<: *environment
+      DEBUG_PORT: 5683
+      DEBUG_CMD: "./manage.py run_listener"
+      WAIT_FOR_CLIENT: ${WORKER_WAIT_FOR_CLIENT:-}
+    networks:
+      - functionary-network
+    ports:
+      - 5683:5683
+    volumes:
+      - ../functionary:/app
+    depends_on:
+      - rabbitmq
+      - redis
   worker:
     build:
       context: ../functionary
