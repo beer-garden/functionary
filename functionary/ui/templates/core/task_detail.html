@@ -13,43 +13,5 @@
             </ul>
         </nav>
     </div>
-    <div class="column">
-        {% unicorn 'task_title' task=task %}
-        <div class="column has-addons">
-            <div class="field">
-                <label class="label">
-                    <i class="fa fa-building"></i>&nbsp;{{ task.environment.name }}
-                </label>
-                <label class="label" for="users">
-                    <i class="fa fa-user"></i>&nbsp;Creator:
-                </label>
-                <ul id="users">
-                    <li class="block ml-4">
-                        <p>
-                            {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="has-text-grey-light">({{ task.creator.username }})</span>
-                            at {{ task.created_at }}
-                        </p>
-                    </li>
-                </ul>
-            </div>
-            <div class="field">
-                <label class="label" for="params">
-                    <i class="fa fa-list"></i>&nbsp;Parameters:
-                </label>
-                <ul id="params">
-                    <li class="block ml-4">
-                        <p class="is-font-monospace">{{ task.parameters }}</p>
-                    </li>
-                </ul>
-            </div>
-            <div class="field">
-                <label class="label" for="result">
-                    <i class="fa fa-clipboard-check"></i>&nbsp;Result:
-                </label>
-                <ul id="result">
-                    <li class="block ml-4">{% unicorn 'task_result' task=task %}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    {% unicorn 'task_detail' task=task %}
 {% endblock content %}
