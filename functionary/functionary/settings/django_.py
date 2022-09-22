@@ -13,6 +13,8 @@ import os
 from distutils import util
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -86,11 +88,30 @@ WSGI_APPLICATION = "functionary.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
+DATABASE_CONFIGS = {
+    "sqlite": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
+    "postgresql": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "functionary"),
+        "USER": os.environ.get("DB_USER", "admin"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "password"),
+        "HOST": os.environ.get("DB_HOST", "postgresql"),
+        "PORT": int(os.environ.get("DB_PORT", 5432)),
+    },
+}
+
+if DATABASE_CONFIGS.get(os.environ.get("DB_ENGINE", "postgresql").lower()) is None:
+    err_msg = (
+        f'Invalid DB_ENGINE: {os.environ.get("DB_ENGINE")}. '
+        f'Valid choices are: {", ".join(DATABASE_CONFIGS.keys())}'
+    )
+    raise ImproperlyConfigured(err_msg)
+
+DATABASES = {
+    "default": DATABASE_CONFIGS[os.environ.get("DB_ENGINE", "postgresql").lower()]
 }
 
 # User model override

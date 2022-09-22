@@ -68,6 +68,11 @@ you are intending to run the application locally while developing.
 Install the requirements like so:
 
 ```shell
+# Necessary for compiling psycopg2
+sudo apt install -y python3-dev libpq-dev
+```
+
+```shell
 pip install -r requirements.txt -r requirements-dev.txt
 ```
 

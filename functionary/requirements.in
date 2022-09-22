@@ -4,6 +4,7 @@ django-unicorn
 docker
 jsonschema
 pika
+psycopg2
 pydantic
 pyyaml
 redis
