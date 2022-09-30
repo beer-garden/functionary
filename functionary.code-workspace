@@ -70,7 +70,13 @@
         "type": "shell",
         "command": "docker compose -f ../docker/docker-compose.yml down",
         "problemMatcher": []
-      }
+      },
+      {
+        "label": "functionary: apply migrations and load fixtures",
+        "type": "shell",
+        "command": "docker exec functionary-django ./init.sh",
+        "problemMatcher": []
+      },
     ]
   },
   "extensions": {
