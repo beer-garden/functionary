@@ -9,6 +9,12 @@ x-environment:
   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-wascallywabbit}
   RABBITMQ_HOST: rabbitmq
   REDIS_HOST: redis
+  DB_ENGINE: POSTGRESQL
+  DB_HOST: postgresql
+  DB_NAME: functionary
+  DB_USER: admin
+  DB_PASSWORD: password
+  DB_PORT: 5432
 
 services:
   django:
@@ -32,6 +38,23 @@ services:
     depends_on:
       - rabbitmq
       - redis
+      - database
+  database:
+    image: postgres:latest
+    container_name: functionary-database
+    restart: always
+    hostname: postgresql
+    environment:
+      <<: *environment
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: functionary
+    networks:
+      - functionary-network
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
   listener:
     build:
       context: ../functionary
@@ -180,3 +203,4 @@ volumes:
   rabbitmq-data:
   redis-data:
   registry-data:
+  postgresql-data:
