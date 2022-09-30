@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 # initial setup
 RUN apt-get -y update && \
-    apt-get install -y git make procps curl && \
+    apt-get install -y git make procps curl gcc python3-dev libpq-dev && \
     curl -fsSL https://get.docker.com -o /tmp/get-docker.sh && \
     sh /tmp/get-docker.sh && \
     rm /tmp/get-docker.sh
