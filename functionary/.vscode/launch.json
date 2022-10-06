@@ -11,13 +11,7 @@
       "preLaunchTask": "runserver_stop_container",
       "program": "${workspaceFolder}/manage.py",
       "args": ["runserver"],
-      "env": {
-        "DEBUG": "TRUE",
-        "DJANGO_SECRET_KEY": "supersecret",
-        "LOG_LEVEL": "DEBUG",
-        "RABBITMQ_USER": "bugs",
-        "RABBITMQ_PASSWORD": "wascallywabbit"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true
     },
@@ -28,12 +22,7 @@
       "preLaunchTask": "listener_stop_container",
       "program": "${workspaceFolder}/manage.py",
       "args": ["run_listener"],
-      "env": {
-        "DEBUG": "TRUE",
-        "LOG_LEVEL": "DEBUG",
-        "RABBITMQ_USER": "bugs",
-        "RABBITMQ_PASSWORD": "wascallywabbit"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true
     },
@@ -44,12 +33,7 @@
       "preLaunchTask": "worker_stop_container",
       "program": "${workspaceFolder}/manage.py",
       "args": ["run_worker"],
-      "env": {
-        "DEBUG": "TRUE",
-        "LOG_LEVEL": "DEBUG",
-        "RABBITMQ_USER": "bugs",
-        "RABBITMQ_PASSWORD": "wascallywabbit"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true
     },
@@ -60,10 +44,7 @@
       "preLaunchTask": "build_worker_stop_container",
       "program": "${workspaceFolder}/manage.py",
       "args": ["run_build_worker"],
-      "env": {
-        "DEBUG": "TRUE",
-        "LOG_LEVEL": "DEBUG"
-      },
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true
     }
