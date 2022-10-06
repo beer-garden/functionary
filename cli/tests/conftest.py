@@ -5,7 +5,7 @@ from functionary.config import config_file
 
 @pytest.fixture
 def fakefs(fs):
-    """Wrapper around the pyfakefs fs fixture. This is provided slightly increased
+    """Wrapper around the pyfakefs fs fixture. This is provided for slightly increased
     clarity. Using this (or fs directly) results in all file access being done against
     a fake filesystem, avoiding reads and writes to the actual disk."""
     return fs

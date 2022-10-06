@@ -47,7 +47,7 @@ def test_create(admin_client, function, request_headers):
 
     assert response.status_code == 201
     assert task_id is not None
-    assert Task.objects.filter(id=response.data["id"]).exists()
+    assert Task.objects.filter(id=task_id).exists()
 
 
 def test_create_returns_400_for_invalid_parameters(
