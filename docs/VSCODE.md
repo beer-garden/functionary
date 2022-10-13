@@ -32,7 +32,9 @@ mostly include autoformatting settings, including format on save to ensure that
 code always adheres to those standards. You can see the various settings in the
 `functionary.code-workspace` file.
 
-## Docker Compose
+## Workspace Tasks
+
+### Docker Compose
 
 There are several processes and dependent services that are required to run in
 order to use functionary. A docker-compose.yml is provided to start and stop all
@@ -46,6 +48,21 @@ listed:
 - "functionary: docker compose down"
 
 Run those as needed to start or stop the entire suite of containers.
+
+### Seed Database
+
+A task is also provided for running migrations and seeding the database with
+some initial data such as teams, environments, and users. This task is listed
+as:
+
+- "functionary: apply migrations and load fixtures"
+
+Once this task is run, a superuser will be available with the username and
+password both set to "admin". Some initial teams, environments, and users with
+various roles are also created. For details on these, view the data in the
+django admin pages, or see the
+[bootstrap.yaml](../functionary/core/fixtures/bootstrap.yaml) containing the
+seed data.
 
 ## Debugging
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Init script to execute follow on configurations after the functionary-django container has been launched
+# Init script to execute follow on configurations after the functionary-django
+# container has been launched. Intended for use in the VSCode-enabled dev
+# workflow.
 
 
 activate_python_venv() {
