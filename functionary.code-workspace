@@ -7,6 +7,12 @@
       "path": "docs"
     },
     {
+      "path": "docker"
+    },
+    {
+      "path": "examples"
+    },
+    {
       "path": "functionary"
     },
     {
@@ -36,9 +42,9 @@
     "python.analysis.autoImportCompletions": false,
     "python.testing.pytestEnabled": true,
     "terminal.integrated.env.linux": {
+      "DB_ENGINE": "postgresql",
       "DB_HOST": "localhost",
       "DEBUG": "TRUE",
-      "DJANGO_SETTINGS_MODULE": "functionary.settings.debug",
       "DJANGO_SECRET_KEY": "supersecret",
       "LOG_LEVEL": "DEBUG",
       "RABBITMQ_USER": "bugs",
@@ -83,20 +89,6 @@
         "type": "shell",
         "command": "docker compose -f ../docker/docker-compose.yml down",
         "problemMatcher": []
-      },
-      {
-        "label": "functionary: apply migrations and load fixtures",
-        "type": "shell",
-        "command": "docker exec functionary-django ./init.sh",
-        "problemMatcher": [],
-        "dependsOn": "functionary: django up"
-      },
-      {
-        "label": "functionary: django up",
-        "type": "shell",
-        "command": "docker compose -f ../docker/docker-compose.yml up --build -d django",
-        "problemMatcher": [],
-        "hide": true
       }
     ]
   },

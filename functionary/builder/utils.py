@@ -127,13 +127,14 @@ def build_package(build_id: UUID):
     build.save()
 
     environment = build.environment
+    package = build.package
     package_contents = build.resources.package_contents
     package_definition = build.resources.package_definition
 
     image_name, dockerfile = build.resources.image_details
     full_image_name = f"{settings.REGISTRY}/{image_name}"
 
-    if not build.package:
+    if not package:
         with transaction.atomic():
             package = _create_package_from_definition(
                 package_definition, environment, image_name

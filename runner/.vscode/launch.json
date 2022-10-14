@@ -5,20 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "listener",
+      "name": "runner",
       "type": "python",
       "request": "launch",
-      "preLaunchTask": "listener_stop_container",
-      "program": "${workspaceFolder}/listener.py",
-      "envFile": "${workspaceFolder}/.vscode/.debug.env",
-      "justMyCode": true
-    },
-    {
-      "name": "worker",
-      "type": "python",
-      "request": "launch",
-      "preLaunchTask": "worker_stop_container",
-      "program": "${workspaceFolder}/worker.py",
+      "preLaunchTask": "runner_stop_container",
+      "program": "${workspaceFolder}/runner.py",
       "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "justMyCode": true
     }

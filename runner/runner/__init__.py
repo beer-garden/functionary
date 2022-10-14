@@ -1,5 +1,7 @@
 from multiprocessing import Process
 
+from setproctitle import setproctitle
+
 from runner.celery import app
 from runner.listener import start_listening
 from runner.messaging import wait_for_connection
@@ -16,7 +18,7 @@ class Worker(Process):
         app: Celery App used to create Celery Workers
     """
 
-    def __init__(self, name: str = "functionary_worker") -> None:
+    def __init__(self, name: str = "functionary: runner worker") -> None:
         super().__init__(name=name)
         self.app = app
 
@@ -40,6 +42,10 @@ class Worker(Process):
             Exception: catch all exception
 
         """
+        # This will get overridden by celery, but set it anyway so that the process
+        # name is correct if anything happens prior to celery forking the workers
+        setproctitle(self.name)
+
         wait_for_connection()
         worker = self.app.Worker()
         worker.start()
@@ -55,7 +61,7 @@ class Listener(Process):
 
     """
 
-    def __init__(self, name: str = "functionary_listener") -> None:
+    def __init__(self, name: str = "functionary: runner listener") -> None:
         super().__init__(name=name)
 
     def run(self) -> None:
@@ -76,5 +82,6 @@ class Listener(Process):
             Exception: catch all exception
 
         """
+        setproctitle(self.name)
         wait_for_connection()
         start_listening()

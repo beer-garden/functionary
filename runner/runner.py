@@ -12,14 +12,23 @@ def spawn_listener():
     listener = Listener()
     listener.start()
 
+    return listener
+
 
 def spawn_worker():
     worker = Worker()
     worker.start()
 
+    return worker
+
 
 if __name__ == "__main__":
-    spawn_listener()
-    spawn_worker()
+    listener = spawn_listener()
+    worker = spawn_worker()
 
     logging.debug("Started worker and listener processes")
+
+    # Explicitly wait on the processes, otherwise when debugging the main process will
+    # immediately exit.
+    listener.join()
+    worker.join()

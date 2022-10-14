@@ -26,10 +26,10 @@ package:
       # (required) Parameters that the function takes
       parameters:
         - name: a
-          type: int
+          type: integer
           default: 1
           required: true
         - name: b
-          type: int
+          type: integer
           default: 1
           required: true

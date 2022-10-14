@@ -21,14 +21,14 @@ services:
   django:
     build:
       context: ../functionary
-      dockerfile: ../docker/debug.Dockerfile
+      dockerfile: ../docker/dev.Dockerfile
+      args:
+        uid: ${UID:-1000}
     image: functionary_django
     container_name: functionary-django
+    command: runserver
     environment:
       <<: *environment
-      DEBUG_PORT: 5678
-      DEBUG_CMD: manage.py runserver 0.0.0.0:8000
-      WAIT_FOR_CLIENT: ${DJANGO_WAIT_FOR_CLIENT:-}
     networks:
       - functionary-network
     ports:
@@ -40,33 +40,17 @@ services:
       - rabbitmq
       - redis
       - database
-  database:
-    image: postgres:latest
-    container_name: functionary-database
-    restart: always
-    hostname: postgresql
-    environment:
-      <<: *environment
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: functionary
-    networks:
-      - functionary-network
-    ports:
-      - 5432:5432
-    volumes:
-      - postgresql-data:/var/lib/postgresql/data
   listener:
     build:
       context: ../functionary
-      dockerfile: ../docker/debug.Dockerfile
+      dockerfile: ../docker/dev.Dockerfile
+      args:
+        uid: ${UID:-1000}
     image: functionary_django
     container_name: functionary-listener
+    command: run_listener
     environment:
       <<: *environment
-      DEBUG_PORT: 5683
-      DEBUG_CMD: "./manage.py run_listener"
-      WAIT_FOR_CLIENT: ${WORKER_WAIT_FOR_CLIENT:-}
     networks:
       - functionary-network
     ports:
@@ -79,14 +63,14 @@ services:
   worker:
     build:
       context: ../functionary
-      dockerfile: ../docker/debug.Dockerfile
+      dockerfile: ../docker/dev.Dockerfile
+      args:
+        uid: ${UID:-1000}
     image: functionary_django
     container_name: functionary-worker
+    command: run_worker
     environment:
       <<: *environment
-      DEBUG_PORT: 5679
-      DEBUG_CMD: "./manage.py run_worker"
-      WAIT_FOR_CLIENT: ${WORKER_WAIT_FOR_CLIENT:-}
     networks:
       - functionary-network
     ports:
@@ -99,14 +83,12 @@ services:
   build-worker:
     build:
       context: ../functionary
-      dockerfile: ../docker/debug.Dockerfile
-    image: functionary_django
+      dockerfile: ../docker/dev_docker.Dockerfile
+    image: functionary_django_docker
     container_name: functionary-build-worker
+    command: run_build_worker
     environment:
       <<: *environment
-      DEBUG_PORT: 5680
-      DEBUG_CMD: "./manage.py run_build_worker"
-      WAIT_FOR_CLIENT: ${BUILD_WORKER_WAIT_FOR_CLIENT:-}
     networks:
       - functionary-network
     ports:
@@ -120,14 +102,13 @@ services:
   runner:
     build:
       context: ../runner
-      dockerfile: ../docker/debug.Dockerfile
+      dockerfile: ../docker/dev_docker.Dockerfile
+      args:
+        uid: ${UID:-1000}
     image: functionary_runner
     container_name: functionary-runner
     environment:
       <<: *environment
-      DEBUG_PORT: 5681
-      DEBUG_CMD: "./runner.py"
-      WAIT_FOR_CLIENT: ${RUNNER_LISTENER_WAIT_FOR_CLIENT:-}
     networks:
       - functionary-network
     ports:
@@ -138,6 +119,21 @@ services:
     depends_on:
       - rabbitmq
       - redis
+  database:
+    image: postgres:latest
+    container_name: functionary-database
+    hostname: postgresql
+    environment:
+      <<: *environment
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: functionary
+    networks:
+      - functionary-network
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
   rabbitmq:
     image: rabbitmq:management
     container_name: functionary-rabbitmq

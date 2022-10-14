@@ -1,3 +1,4 @@
 celery[redis]
 docker
 pika
+setproctitle
