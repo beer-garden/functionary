@@ -16,8 +16,9 @@ def setup_broker_dir() -> None:
             os.makedirs(os.path.join(broker_workdir_path))
     except PermissionError:
         raise PermissionError(
-            f'You do not have permission to create {broker_workdir_path}'
+            f"You do not have permission to create {broker_workdir_path}"
         )
+
 
 def spawn_listener() -> Listener:
     listener = Listener()
