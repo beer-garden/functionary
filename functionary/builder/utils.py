@@ -235,7 +235,6 @@ def _create_functions_from_definition(definitions, package: Package):
         function_obj.display_name = function_def.get("display_name")
         function_obj.summary = function_def.get("summary")
         function_obj.return_type = function_def.get("return_type")
-        function_obj.output_format = function_def.get("output_format")
         function_obj.description = function_def.get("description")
         function_obj.schema = _generate_function_schema(
             name, function_def.get("parameters")
