@@ -46,19 +46,17 @@
                 <span class="ml-4">{{ function.description }}</span>
             </div>
         {% endif %}
-        {% if form %}
-            <form id="djangoForm"
-                  method="post"
-                  action="{% url 'ui:function-execute' %}">
-                {% csrf_token %}
-                <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                <div class="column has-addons">
-                    {{ form.non_field_errors }}
-                    {{ form }}
-                    <input class="button is-link" type="submit" value="Execute"/>
-                </div>
-            </form>
-        {% endif %}
+        <form id="djangoForm"
+              method="post"
+              action="{% url 'ui:function-execute' %}">
+            {% csrf_token %}
+            <input type="hidden" name="function_id" value="{{ function.id }}"/>
+            <div class="column has-addons">
+                {{ form.non_field_errors }}
+                {{ form }}
+                <input class="button is-link" type="submit" value="Execute"/>
+            </div>
+        </form>
         {% if function.return_type %}
             <div class="field ml-4">
                 <label class="label" for="desc">Return Type:</label>

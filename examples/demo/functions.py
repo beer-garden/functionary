@@ -18,7 +18,7 @@ def long_running_process(duration: int = 60):
     time.sleep(duration)
 
 
-def variables(dummy):
+def variables():
     """Print environment variables that got passed through"""
     vars = []
     for name, value in os.environ.items():

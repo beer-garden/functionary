@@ -49,9 +49,7 @@ package:
       description:
         Displays all the environment variables that are available to the
         function at runtime
-      variables: [HOME, USER]
-      parameters:
-        - name: dummy
-          summary: Not used
-          type: string
-          required: false
+      variables:
+        - HOME
+        - USER
+      parameters: []
