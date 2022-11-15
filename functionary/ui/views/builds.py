@@ -10,7 +10,8 @@ from .view_base import (
 
 class BuildListView(PermissionedEnvironmentListView):
     model = Build
-    order_by_fields = ["created_at"]
+    order_by_fields = ["-created_at"]
+    queryset = Build.objects.select_related("creator", "package").all()
 
 
 class BuildDetailView(PermissionedEnvironmentDetailView):
