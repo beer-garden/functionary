@@ -16,6 +16,7 @@ class BuildListView(PermissionedEnvironmentListView):
 
 class BuildDetailView(PermissionedEnvironmentDetailView):
     model = Build
+    queryset = Build.objects.select_related("creator", "package").all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
