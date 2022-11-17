@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 
 from core.celery import app
-from core.models import ScheduledTask, Task, TaskLog, TaskResult
+from core.models import ScheduledTask, Task, TaskLog, TaskResult, WorkflowRun
 from core.utils.messaging import get_route, send_message
 
 logger = get_task_logger(__name__)
@@ -91,6 +91,10 @@ def record_task_result(task_result_message: dict) -> None:
     #       as is happening now.
     _update_task_status(task, status)
 
+    # If this task is part of a WorkflowRun continue it or update its status
+    if workflow_run := WorkflowRun.find_by_task(task):
+        _handle_workflow_run(workflow_run, task)
+
 
 @app.task
 def run_scheduled_task(scheduled_task_id: str) -> None:
@@ -132,3 +136,14 @@ def _update_task_status(task: Task, status: int) -> None:
 
     if task.scheduled_task is not None and status == "ERROR":
         task.scheduled_task.error()
+
+
+def _handle_workflow_run(workflow_run: WorkflowRun, task: Task) -> None:
+    """Start the next task for a WorkflowRun or update its status as appropriate"""
+    if task.status == Task.COMPLETE:
+        next_task = workflow_run.execute_next_step()
+
+        if next_task is None:
+            workflow_run.complete()
+    elif task.status == Task.ERROR:
+        workflow_run.error()
