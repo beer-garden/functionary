@@ -3,7 +3,6 @@ import uuid
 from typing import Optional
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.template import Context
@@ -57,20 +56,6 @@ class WorkflowRun(models.Model):
             ),
         ]
 
-    @classmethod
-    def find_by_task(cls, task: Task) -> Optional["WorkflowRun"]:
-        """Retrieve the WorkflowRun that spawned a Task, if one exists
-
-        Args:
-            task: the Task for which to find the WorkflowRun
-
-        Returns:
-            WorkflowRun if the Task was spawned by one. Otherwise None."""
-        try:
-            return task.workflow_run_step.workflow_run
-        except ObjectDoesNotExist:
-            return None
-
     def get_context(self) -> Context:
         """Generates a context for resolving tasking parameters.
 
@@ -78,23 +63,18 @@ class WorkflowRun(models.Model):
             A Context containing data from all WorkflowRunSteps that have
             occurred for this WorkflowRun
         """
-
-        # Malleable object class for storing context properties
-        class Object:
-            pass
-
-        context = {"parameters": Object()}
+        context = {"parameters": {}}
 
         parameters = self.parameters or {}
         for key, value in parameters.items():
-            setattr(context["parameters"], key, json.dumps(value))
+            context["parameters"][key] = json.dumps(value)
 
         for step in self.steps.all():
             name = step.workflow_step.name
             task = step.task
 
-            context[name] = Object()
-            context[name].result = task.raw_result
+            context[name] = {}
+            context[name]["result"] = task.raw_result
 
         return Context(context)
 
@@ -115,31 +95,20 @@ class WorkflowRun(models.Model):
         """Set the WorkflowRun status to IN_PROGRESS"""
         self._update_status(Task.IN_PROGRESS)
 
-    def execute_next_step(self) -> Optional[Task]:
-        """Spawns a task for the next WorkflowStep in the Workflow
+    def execute(self) -> Optional[Task]:
+        """Executes the first step in the Workflow
 
         Returns:
             The Task spawned for the next step in the Workflow. Returns None if there
             are no more remaining steps to be run.
+        Raises:
+            Exception: The WorkflowRun has already been started
         """
-        steps = self.steps.all()
+        if self.status != Task.PENDING:
+            # TODO: Custom Exception
+            raise Exception("WorkflowRun has already been started")
 
-        if not steps.exists():
-            max_sequence = 0
-        else:
-            max_sequence = steps.aggregate(models.Max("workflow_step__sequence"))[
-                "workflow_step__sequence__max"
-            ]
+        first_step = self.workflow.get_first_step()
+        self.in_progress()
 
-        # This intentionally avoids specifying what the exact sequence number is.
-        # Instead it only cares about the next lowest sequence number.
-        if workflow_step := (
-            self.workflow.steps.filter(sequence__gt=max_sequence)
-            .order_by("sequence")
-            .first()
-        ):
-            self.in_progress()
-
-            return workflow_step.execute(workflow_run=self)
-        else:
-            return None
+        return first_step.execute(workflow_run=self)

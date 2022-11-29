@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 VALID_STEP_NAME = RegexValidator(
-    regex="^[a-zA-Z0-9_]+$",
+    regex=r"^\w+$",
     message="Invalid step name. Only numbers, letters, and underscore are allowed.",
 )
 
@@ -24,10 +24,11 @@ class WorkflowStep(models.Model):
 
     Attributes:
         id: unique identifier (UUID)
-        workflow: the Workflow to which this element belongs
-        sequence: The element's order of run within the Workflow
-        name: An internal name for the element which can be used as a reference for
-              input into other elements of the Workflow.
+        workflow: the Workflow to which this step belongs
+        next: The step that follows this one in the workflow. A value of None indicates
+              that this is the final step.
+        name: An internal name for the step which can be used as a reference for
+              input into other steps of the Workflow.
         function: the function that the task will be an run of
         parameter_template: Stringified JSON representing the parameters that will be
                             passed to the function. May contain django template syntax
@@ -39,19 +40,21 @@ class WorkflowStep(models.Model):
         to=Workflow, on_delete=models.CASCADE, related_name="steps"
     )
     name = models.CharField(max_length=64, validators=[VALID_STEP_NAME])
-    sequence = models.IntegerField()
+    next = models.ForeignKey(
+        to="WorkflowStep", blank=True, null=True, on_delete=models.PROTECT
+    )
     function = models.ForeignKey(to="Function", on_delete=models.CASCADE)
     parameter_template = models.TextField(blank=True, null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["workflow", "sequence"],
-                name="ws_workflow_sequence_unique_together",
-            ),
-            models.UniqueConstraint(
                 fields=["workflow", "name"],
                 name="ws_workflow_name_unique_together",
+            ),
+            models.UniqueConstraint(
+                fields=["workflow", "next"],
+                name="ws_workflow_next_unique_together",
             ),
         ]
 
@@ -69,7 +72,7 @@ class WorkflowStep(models.Model):
         return json.loads(resolved_parameters)
 
     def execute(self, workflow_run: "WorkflowRun") -> Task:
-        """Executes a Task base on this element's function and parameters
+        """Executes a Task based on this step's function and parameters
 
         Args:
             workflow_run: The WorkflowRun that the task belongs to

@@ -44,3 +44,10 @@ class Workflow(models.Model):
                 name="workflow_created_at",
             ),
         ]
+
+    def get_first_step(self):
+        """Retrieves the first step of the Workflow"""
+        next_steps = list(self.steps.values_list("next", flat=True))
+
+        # The step that has nothing pointing to it as "next" is the first step
+        return self.steps.exclude(pk__in=next_steps).get()
