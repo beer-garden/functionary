@@ -1,0 +1,50 @@
+{# djlint: off #}
+{% extends "partials/modal.html" %}
+{% load widget_tweaks %}
+
+{% block modal_title %}
+    Workflow
+{% endblock modal_title %}
+
+{% block form_declaration %}
+    {% if workflow %}
+        <form id="workflow-form" method="post" hx-post="{% url 'ui:workflow-update' workflow.id %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% else %}
+        <form id="workflow-form" method="post" hx-post="{% url 'ui:workflow-create' %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% endif %}
+    {% csrf_token %}
+{% endblock form_declaration %}
+
+{% block modal_content %}
+    <div class="field">
+        <label class="label" for="{{ form.name.id_for_label }}">
+            <b>{{ form.name.label }}</b>:
+        </label>
+        {% render_field form.name class="input" %}
+    </div>
+    {{ form.name.errors }}
+    <div class="field">
+        <label class="label" for="{{ form.description.id_for_label }}">
+            <b>{{ form.description.label }}</b>:
+        </label>
+        {% render_field form.description class="input" %}
+    </div>
+    {{ form.description.errors }}
+    <input type="hidden" name="environment" value="{{ request.session.environment_id }}"/>
+    {{ form.non_field_errors }}
+{% endblock modal_content %}
+
+{% block modal_footer %}
+    <button class="button" type="submit" value="Save">
+    {% if workflow %}
+        Save
+    {% else %}
+        Next
+    {% endif %}
+    </button>
+{% endblock modal_footer %}
+
+{% block form_end %}
+</form>
+{% endblock form_end %}
+{# djlint: on #}

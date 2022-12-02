@@ -2,6 +2,7 @@ import json
 import uuid
 from typing import TYPE_CHECKING
 
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.template import Context, Template
@@ -92,3 +93,7 @@ class WorkflowStep(models.Model):
             )
 
         return task
+
+    def clean(self):
+        if self.workflow.environment != self.function.package.environment:
+            raise ValidationError("Function and workflow environments do not match")

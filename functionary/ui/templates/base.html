@@ -21,7 +21,10 @@
               href="{% static 'css/bulma-0.9.4.min.css' %}"
               type="text/css"/>
         <link rel="stylesheet"
-              href="{% static 'css/fontawesome-solid-5.15.4.min.css' %}"
+              href="{% static 'css/fontawesome-6.2.1.min.css' %}"
+              type="text/css"/>
+        <link rel="stylesheet"
+              href="{% static 'css/fontawesome-solid-6.2.1.min.css' %}"
               type="text/css"/>
         <link rel="stylesheet"
               href="{% static 'css/pretty-print-json-1.2.css' %}"
@@ -111,6 +114,12 @@
                             <a href="{% url 'ui:function-list' %}">
                                 <span class="icon has-text-info"><i class="fa fa-lg fa-cube"></i></span>
                                 &nbsp;Functions
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'ui:workflow-list' %}">
+                                <span class="icon has-text-info"><i class="fa fa-lg fa-diagram-next"></i></span>
+                                &nbsp;Workflows
                             </a>
                         </li>
                         <li class="menu-item">

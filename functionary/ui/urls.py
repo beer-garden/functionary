@@ -12,6 +12,7 @@ from .views import (
     tasks,
     teams,
     variables,
+    workflows,
 )
 
 app_name = "ui"
@@ -134,7 +135,6 @@ urlpatterns = [
     ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-
 htmx_urlpatterns = [
     path(
         "crontab_minute_param/",
@@ -168,4 +168,42 @@ htmx_urlpatterns = [
     ),
 ]
 
-urlpatterns += htmx_urlpatterns
+workflows_urlpatterns = [
+    path(
+        "workflow_list/",
+        (workflows.WorkflowListView.as_view()),
+        name="workflow-list",
+    ),
+    path(
+        "workflow/create",
+        (workflows.WorkflowCreateView.as_view()),
+        name="workflow-create",
+    ),
+    path(
+        "workflow/<uuid:pk>",
+        (workflows.WorkflowDetailView.as_view()),
+        name="workflow-detail",
+    ),
+    path(
+        "workflow/<uuid:pk>/edit",
+        (workflows.WorkflowUpdateView.as_view()),
+        name="workflow-update",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/parameter/create",
+        (workflows.WorkflowParameterCreateView.as_view()),
+        name="workflowparameter-create",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/parameter/<int:pk>/delete",
+        (workflows.WorkflowParameterDeleteView.as_view()),
+        name="workflowparameter-delete",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/parameter/<int:pk>/edit",
+        (workflows.WorkflowParameterUpdateView.as_view()),
+        name="workflowparameter-edit",
+    ),
+]
+
+urlpatterns += htmx_urlpatterns + workflows_urlpatterns

@@ -1,0 +1,57 @@
+{# djlint: off #}
+{% extends "partials/modal.html" %}
+{% load widget_tweaks %}
+
+{% block modal_title %}
+    Workflow Parameter
+{% endblock modal_title %}
+
+{% block form_declaration %}
+    {% if workflowparameter %}
+        <form id="parameter-form" method="post" hx-post="{% url 'ui:workflowparameter-edit' workflow.pk workflowparameter.pk %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% else %}
+        <form id="parameter-form" method="post" hx-post="{% url 'ui:workflowparameter-create' workflow.pk %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% endif %}
+    {% csrf_token %}
+{% endblock form_declaration %}
+
+{% block modal_content %}
+    <div class="field">
+        <label class="label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        <div class="control">{% render_field form.name class="input" %}</div>
+        <div class="help is-danger">{{ form.name.errors }}</div>
+        <div class="help is-danger">{{ form.non_field_errors }}</div>
+    </div>
+    <div class="field">
+        <label class="label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        <div class="control">{% render_field form.description class="input" %}</div>
+        <div class="help is-danger">{{ form.description.errors }}</div>
+    </div>
+    <div class="columns">
+        <div class="column">
+            <div class="field">
+                <label class="label" for="{{ form.parameter_type.id_for_label }}">{{ form.parameter_type.label }}</label>
+                <div class="control select">{{ form.parameter_type }}</div>
+                <div class="help is-danger">{{ form.parameter_type.errors }}</div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="field">
+                <label class="label" for="{{ form.required.id_for_label }}">{{ form.required.label }}</label>
+                <div class="control">{{ form.required }}</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <input type="hidden" name="workflow" value="{{ workflow.id }}"/>
+    </div>
+{% endblock modal_content %}
+
+{% block modal_footer %}
+    <button class="button" type="submit" value="Save">Save</button>
+{% endblock modal_footer %}
+
+{% block form_end %}
+</form>
+{% endblock form_end %}
+{# djlint: on #}

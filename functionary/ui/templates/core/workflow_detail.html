@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="block mt-5">
+        <h1 class="title is-2">
+            <p>
+                <i class="fa fa-diagram-next"></i>
+                <span>{{ workflow.name }}</span>
+                <button class="button is-small is-white has-text-info mr-2 mt-4 fa fa-pencil-alt"
+                        type="button"
+                        title="Edit"
+                        hx-target="body"
+                        hx-swap="beforeend"
+                        hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"/>
+            </p>
+        </h1>
+    </div>
+    <div class="block">
+        <span id="desc">{{ workflow.description }}</span>
+    </div>
+    <hr/>
+    <div class="block">{% include "partials/workflows/parameter_list.html" %}</div>
+    <hr/>
+{% endblock content %}
