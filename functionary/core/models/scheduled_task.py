@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django_celery_beat.models import PeriodicTask
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from core.models import ModelSaveHookMixin
 
@@ -141,3 +141,52 @@ class ScheduledTask(ModelSaveHookMixin, models.Model):
             return
         self.status = status
         self.save(update_fields=["status"])
+
+    def set_schedule(self, crontab_schedule: CrontabSchedule) -> None:
+        """Set the schedule of when the ScheduledTask will run. The ScheduledTask and
+        its corresponding PeriodicTask are automatically saved.
+
+        Args:
+            crontab_schedule: CrontabSchedule object representing the run schedule
+
+        Returns:
+            None
+        """
+        if self.periodic_task is None:
+            self.periodic_task = PeriodicTask.objects.create(
+                name=self.name,
+                crontab=crontab_schedule,
+                task="core.utils.tasking.run_scheduled_task",
+                args=f'["{self.id}"]',
+                enabled=False,
+            )
+            self.save()
+        else:
+            self.periodic_task.crontab = crontab_schedule
+            self.periodic_task.save()
+
+    def set_status(self, status: str) -> None:
+        """Given a new status string, update the given scheduled task's status
+        to the new status, and perform that status's operation on the scheduled task.
+
+        Args:
+            status: A string that should be equivalent to any of the statuses defined
+                in the ScheduledTask model
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the given status is not a valid status, raises a ValueError.
+        """
+        match status:
+            case ScheduledTask.ACTIVE:
+                self.activate()
+            case ScheduledTask.PAUSED:
+                self.pause()
+            case ScheduledTask.ARCHIVED:
+                self.archive()
+            case ScheduledTask.ERROR:
+                self.error()
+            case _:
+                raise ValueError("Unknown status given.")

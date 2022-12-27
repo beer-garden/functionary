@@ -1,30 +1,27 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import (
     HttpRequest,
     HttpResponse,
     HttpResponseForbidden,
-    HttpResponseNotFound,
     HttpResponseRedirect,
     QueryDict,
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
+from django_celery_beat.models import CrontabSchedule
 
 from core.auth import Permission
-from core.models import Environment, ScheduledTask
+from core.models import Environment, Function, ScheduledTask
 from core.utils.scheduling import (
-    create_periodic_task,
-    get_function,
-    get_parameters,
+    get_or_create_crontab_schedule,
     is_valid_scheduled_day_of_month,
     is_valid_scheduled_day_of_week,
     is_valid_scheduled_hour,
     is_valid_scheduled_minute,
     is_valid_scheduled_month_of_year,
-    update_crontab,
-    update_status,
 )
 
 from ..forms.tasks import ScheduledTaskForm, TaskParameterForm, get_available_functions
@@ -107,18 +104,18 @@ class ScheduledTaskUpdateView(PermissionedFormUpdateView):
 def create_scheduled_task(request: HttpRequest) -> HttpResponse:
     """Handles form submission for creating a new scheduled task"""
     env = Environment.objects.get(id=request.session.get("environment_id"))
+
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
-    func = get_function(request.POST.get("function"), env)
-    if isinstance(func, HttpResponseNotFound):
-        return func
+    function_id = request.POST.get("function")
+    function = get_object_or_404(Function, id=function_id, package__environment=env)
 
     data: QueryDict = request.POST.copy()
-    data["function"] = func
+    data["function"] = function
     data["environment"] = env
     data["status"] = ScheduledTask.PAUSED
-    function_params_form = TaskParameterForm(func, data)
+    function_params_form = TaskParameterForm(function, data)
 
     # Validate function parameters
     param_errors = None
@@ -138,7 +135,7 @@ def create_scheduled_task(request: HttpRequest) -> HttpResponse:
         "form": ScheduledTaskForm(data=data, env=env),
         "errors": form.errors,
         "param_errors": param_errors,
-        "function_id": str(func.id),
+        "function_id": str(function.id),
     }
     return render(request, "core/scheduled_task_create.html", context)
 
@@ -146,19 +143,20 @@ def create_scheduled_task(request: HttpRequest) -> HttpResponse:
 @require_POST
 @login_required
 def update_scheduled_task(request: HttpRequest, pk: str) -> HttpResponse:
+    """Handles form submission for updating a scheduled task"""
     env = Environment.objects.get(id=request.session.get("environment_id"))
+
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
     scheduled_task = get_object_or_404(ScheduledTask, id=pk)
-    func = get_function(request.POST.get("function"), env)
-    if isinstance(func, HttpResponseNotFound):
-        return func
+    function_id = request.POST.get("function")
+    function = get_object_or_404(Function, id=function_id, package__environment=env)
 
     data: QueryDict = request.POST.copy()
-    data["function"] = func
+    data["function"] = function
     data["environment"] = env
-    function_params_form = TaskParameterForm(func, data)
+    function_params_form = TaskParameterForm(function, data)
 
     # Validate function parameters
     param_errors = None
@@ -170,20 +168,20 @@ def update_scheduled_task(request: HttpRequest, pk: str) -> HttpResponse:
     form = ScheduledTaskForm(data=data, env=env, instance=scheduled_task)
     if form.is_valid():
         form.save()
-        update_status(form.cleaned_data["status"], scheduled_task)
-        update_crontab(form.cleaned_data, scheduled_task)
+        scheduled_task.set_status(form.cleaned_data["status"])
+        crontab_schedule = _get_crontab_schedule(form.cleaned_data)
+        scheduled_task.set_schedule(crontab_schedule)
+
         return HttpResponseRedirect(reverse("ui:schedule-list"))
 
-    """
-    Return the string representation of the function and scheduled task ids
-    so that the parameters can be lazy loaded via htmx.
-    """
+    # Return the string representation of the function and scheduled task ids
+    # so that the parameters can be lazy loaded via htmx.
     context = {
         "form": ScheduledTaskForm(data=data, env=env),
         "errors": form.errors,
         "param_errors": param_errors,
         "scheduledtask": scheduled_task,
-        "function_id": str(func.id),
+        "function_id": str(function.id),
         "scheduled_task_id": str(scheduled_task.id),
     }
     return render(request, "core/scheduled_task_update.html", context)
@@ -198,28 +196,24 @@ def function_parameters(request: HttpRequest) -> HttpResponse:
     function object whose parameters should be rendered.
     """
     env = Environment.objects.get(id=request.session.get("environment_id"))
+
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
     if (function_id := request.GET.get("function", None)) in ["", None]:
         return HttpResponse("No function selected.")
 
-    func = get_function(function_id, env)
-    if isinstance(func, HttpResponseNotFound):
-        return func
+    function = get_object_or_404(Function, id=function_id, package__environment=env)
 
-    """
-    If the request includes the scheduled_task_id, substitute the default
-    widget values for the existing ScheduledTask parameters.
-    """
+    # If the request includes the scheduled_task_id, substitute the default
+    # widget values for the existing ScheduledTask parameters.
     existing_parameters = None
     if (scheduled_task_id := request.GET.get("scheduled_task_id", None)) is not None:
         scheduled_task = ScheduledTask.objects.get(id=scheduled_task_id)
         existing_parameters = scheduled_task.parameters
 
-    parameters = get_parameters(func, parameter_values=existing_parameters)
-    context = {"parameters": parameters}
-    return render(request, "partials/function_parameters.html", context)
+    form = TaskParameterForm(function=function, initial=existing_parameters)
+    return render(request, form.template_name, {"form": form})
 
 
 @require_POST
@@ -270,16 +264,32 @@ def crontab_month_of_year_param(request: HttpRequest) -> HttpResponse:
     return HttpResponse("")
 
 
-def _create_scheduled_task(request: HttpRequest, data: dict, task_params: dict):
+def _create_scheduled_task(
+    request: HttpRequest, schedule_form_data: dict, task_params: dict
+):
     """Helper function for creating scheduled task"""
-    scheduled_task = ScheduledTask.objects.create(
-        name=data["name"],
-        environment=data["environment"],
-        description=data["description"],
-        function=data["function"],
-        parameters=task_params,
-        creator=request.user,
-    )
+    with transaction.atomic():
+        scheduled_task = ScheduledTask.objects.create(
+            name=schedule_form_data["name"],
+            environment=schedule_form_data["environment"],
+            description=schedule_form_data["description"],
+            function=schedule_form_data["function"],
+            parameters=task_params,
+            creator=request.user,
+        )
+        crontab_schedule = _get_crontab_schedule(schedule_form_data)
+        scheduled_task.set_schedule(crontab_schedule)
+        scheduled_task.activate()
 
-    _ = create_periodic_task(data, scheduled_task)
-    scheduled_task.activate()
+
+def _get_crontab_schedule(schedule_form_data: dict) -> CrontabSchedule:
+    """Retrieve or create a CrontabSchedule for the provided ScheduledTaskForm data"""
+    minute = schedule_form_data.get("scheduled_minute")
+    hour = schedule_form_data.get("scheduled_hour")
+    day_of_month = schedule_form_data.get("scheduled_day_of_month")
+    month_of_year = schedule_form_data.get("scheduled_month_of_year")
+    day_of_week = schedule_form_data.get("scheduled_day_of_week")
+
+    return get_or_create_crontab_schedule(
+        minute, hour, day_of_month, month_of_year, day_of_week
+    )

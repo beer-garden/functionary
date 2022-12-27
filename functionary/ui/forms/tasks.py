@@ -103,12 +103,15 @@ def get_available_functions(env: Environment) -> QuerySet[Function]:
 class TaskParameterForm(Form):
     template_name = "forms/task_parameters.html"
 
-    def __init__(self, function, data=None):
-        super().__init__(data)
+    def __init__(self, function, data=None, initial=None, prefix="task-parameter"):
+        super().__init__(data, prefix=prefix)
+
+        if initial is None:
+            initial = {}
 
         for param, value in function.schema["properties"].items():
-            initial = value.get("default", None)
-            req = initial is None
+            initial_value = initial.get(param, None) or value.get("default", None)
+            req = initial_value is None
             param_type = _get_param_type(value)
             field_class, widget = _field_mapping.get(param_type, (None, None))
 
@@ -118,7 +121,7 @@ class TaskParameterForm(Form):
             kwargs = {
                 "label": value["title"],
                 "label_suffix": param_type,
-                "initial": _prepare_initial_value(param_type, initial),
+                "initial": _prepare_initial_value(param_type, initial_value),
                 "required": req,
                 "help_text": value.get("description", None),
             }
