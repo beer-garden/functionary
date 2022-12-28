@@ -1,3 +1,5 @@
+from typing import Union
+
 from django_celery_beat.models import CrontabSchedule
 from django_celery_beat.validators import (
     crontab_validator,
@@ -10,9 +12,13 @@ from django_celery_beat.validators import (
 
 
 def get_or_create_crontab_schedule(
-    minute, hour, day_of_month, month_of_year, day_of_week
+    minute: Union[int, str],
+    hour: Union[int, str],
+    day_of_month: Union[int, str],
+    month_of_year: Union[int, str],
+    day_of_week: Union[int, str],
 ) -> CrontabSchedule:
-    """Creates and returns a crontab schedule
+    """Get or create a CrontabSchedule
 
     If the submitted crontab schedule already exists, returns
     the existing crontab schedule. Otherwise, creates and
@@ -45,41 +51,41 @@ def get_or_create_crontab_schedule(
     return crontab_schedule
 
 
-def is_valid_scheduled_minute(field: str) -> bool:
+def is_valid_scheduled_minute(value: str) -> bool:
     try:
-        minute_validator(field)
+        minute_validator(value)
         return True
     except Exception:
         return False
 
 
-def is_valid_scheduled_hour(field: str) -> bool:
+def is_valid_scheduled_hour(value: str) -> bool:
     try:
-        hour_validator(field)
+        hour_validator(value)
         return True
     except Exception:
         return False
 
 
-def is_valid_scheduled_day_of_week(field: str) -> bool:
+def is_valid_scheduled_day_of_week(value: str) -> bool:
     try:
-        day_of_week_validator(field)
+        day_of_week_validator(value)
         return True
     except Exception:
         return False
 
 
-def is_valid_scheduled_day_of_month(field: str) -> bool:
+def is_valid_scheduled_day_of_month(value: str) -> bool:
     try:
-        day_of_month_validator(field)
+        day_of_month_validator(value)
         return True
     except Exception:
         return False
 
 
-def is_valid_scheduled_month_of_year(field: str) -> bool:
+def is_valid_scheduled_month_of_year(value: str) -> bool:
     try:
-        month_of_year_validator(field)
+        month_of_year_validator(value)
         return True
     except Exception:
         return False
