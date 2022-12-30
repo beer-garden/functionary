@@ -13,7 +13,6 @@ class Workflow(models.Model):
                      should include an environment.
         name: the name of the Workflow
         description: details about the Workflow
-        schema: describes the parameters that runs of this Workflow may provide
         creator: the user that initiated the task
         created_at: task creation timestamp
         updated_at: task updated timestamp
@@ -23,7 +22,6 @@ class Workflow(models.Model):
     environment = models.ForeignKey(to="Environment", on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     description = models.TextField(null=True)
-    schema = models.JSONField()
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -45,9 +43,23 @@ class Workflow(models.Model):
             ),
         ]
 
-    def get_first_step(self):
+    @property
+    def first_step(self):
         """Retrieves the first step of the Workflow"""
         next_steps = list(self.steps.values_list("next", flat=True))
 
         # The step that has nothing pointing to it as "next" is the first step
-        return self.steps.exclude(pk__in=next_steps).get()
+        return self.steps.exclude(pk__in=next_steps).first()
+
+    @property
+    def ordered_steps(self):
+        """Provides the associated WorkflowSteps as an ordered list"""
+        steps = []
+
+        if step := self.first_step:
+            steps.append(step)
+
+            while step := step.next:
+                steps.append(step)
+
+        return steps

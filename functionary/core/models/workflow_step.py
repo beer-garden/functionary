@@ -6,7 +6,7 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.template import Context, Template
 
-from core.models import Task, Workflow, WorkflowRunStep
+from core.models import Task, WorkflowRunStep
 
 if TYPE_CHECKING:
     from core.models import WorkflowRun
@@ -37,7 +37,7 @@ class WorkflowStep(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     workflow = models.ForeignKey(
-        to=Workflow, on_delete=models.CASCADE, related_name="steps"
+        to="Workflow", on_delete=models.CASCADE, related_name="steps"
     )
     name = models.CharField(max_length=64, validators=[VALID_STEP_NAME])
     next = models.ForeignKey(
@@ -51,10 +51,6 @@ class WorkflowStep(models.Model):
             models.UniqueConstraint(
                 fields=["workflow", "name"],
                 name="ws_workflow_name_unique_together",
-            ),
-            models.UniqueConstraint(
-                fields=["workflow", "next"],
-                name="ws_workflow_next_unique_together",
             ),
         ]
 

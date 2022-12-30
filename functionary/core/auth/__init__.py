@@ -58,6 +58,11 @@ class Permission(Enum):
     VARIABLE_UPDATE = "variable:update"
     VARIABLE_DELETE = "variable:delete"
 
+    WORKFLOW_CREATE = "workflow:create"
+    WORKFLOW_READ = "workflow:read"
+    WORKFLOW_UPDATE = "workflow:update"
+    WORKFLOW_DELETE = "workflow:delete"
+
 
 class Role(Enum):
     """Enum containing assignable roles"""
@@ -85,6 +90,9 @@ _DEVELOPER_PERMISSIONS = _READ_ONLY_PERMISSIONS + [
 # TODO: Add permissions once Task model exists
 _OPERATOR_PERMISSIONS = _READ_ONLY_PERMISSIONS + [
     Permission.TASK_CREATE.value,
+    Permission.WORKFLOW_CREATE.value,
+    Permission.WORKFLOW_UPDATE.value,
+    Permission.WORKFLOW_DELETE.value,
 ]
 
 ROLE_PERMISSION_MAP = {

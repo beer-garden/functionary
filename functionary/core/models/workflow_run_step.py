@@ -11,7 +11,9 @@ class WorkflowRunStep(models.Model):
     task = models.OneToOneField(
         to="Task", on_delete=models.PROTECT, related_name="workflow_run_step"
     )
-    workflow_step = models.ForeignKey(to="WorkflowStep", on_delete=models.CASCADE)
+    workflow_step = models.ForeignKey(
+        to="WorkflowStep", blank=True, null=True, on_delete=models.SET_NULL
+    )
     workflow_run = models.ForeignKey(
         to="WorkflowRun",
         on_delete=models.CASCADE,

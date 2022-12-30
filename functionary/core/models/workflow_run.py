@@ -74,7 +74,7 @@ class WorkflowRun(models.Model):
             task = step.task
 
             context[name] = {}
-            context[name]["result"] = task.raw_result
+            context[name]["result"] = task.result
 
         return Context(context)
 
@@ -108,7 +108,6 @@ class WorkflowRun(models.Model):
             # TODO: Custom Exception
             raise Exception("WorkflowRun has already been started")
 
-        first_step = self.workflow.get_first_step()
         self.in_progress()
 
-        return first_step.execute(workflow_run=self)
+        return self.workflow.first_step.execute(workflow_run=self)
