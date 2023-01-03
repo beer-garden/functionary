@@ -35,7 +35,7 @@ def add_step(
     if next is not None and workflow != next.workflow:
         raise ValueError("Provided next step is not part of provided workflow")
 
-    previous_step = WorkflowStep.objects.filter(workflow=workflow, next=next).first()
+    before_step = WorkflowStep.objects.filter(workflow=workflow, next=next).first()
 
     with transaction.atomic():
         new_step = WorkflowStep.objects.create(
@@ -43,12 +43,12 @@ def add_step(
             name=name,
             function=function,
             parameter_template=parameter_template,
-            next=previous_step.next if previous_step else None,
+            next=before_step.next if before_step else None,
         )
 
-        if previous_step:
-            previous_step.next = new_step
-            previous_step.save()
+        if before_step:
+            before_step.next = new_step
+            before_step.save()
 
     return new_step
 
