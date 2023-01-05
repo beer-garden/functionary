@@ -23,8 +23,8 @@ from core.utils.scheduling import (
     is_valid_scheduled_minute,
     is_valid_scheduled_month_of_year,
 )
+from ui.forms import ScheduledTaskForm, TaskParameterForm
 
-from ..forms.tasks import ScheduledTaskForm, TaskParameterForm, get_available_functions
 from .view_base import (
     PermissionedEnvironmentListView,
     PermissionedFormCreateView,
@@ -44,8 +44,8 @@ class ScheduledTaskCreateView(PermissionedFormCreateView):
     template_name = "core/scheduled_task_create.html"
 
     def get(self, *args, **kwargs):
-        env = Environment.objects.get(id=self.request.session.get("environment_id"))
-        if not len(get_available_functions(env)):
+        environment_id = self.request.session.get("environment_id")
+        if not Function.objects.filter(package__environment=environment_id).exists():
             messages.warning(
                 self.request,
                 "No available functions to schedule in current environment.",
