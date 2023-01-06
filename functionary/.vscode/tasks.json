@@ -40,6 +40,12 @@
       "type": "shell",
       "command": "docker stop functionary-build-worker",
       "hide": true
+    },
+    {
+      "label": "scheduler_stop_container",
+      "type": "shell",
+      "command": "docker stop functionary-scheduler",
+      "hide": true
     }
   ]
 }

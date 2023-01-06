@@ -12,10 +12,8 @@ formatters = {
 }
 
 
-"""
-Inside the handlers, update the formatter to be one of the
-defined formatters from above.
-"""
+# Inside the handlers, update the formatter to be one of the
+# defined formatters from above.
 handlers = {
     "console": {
         "level": LOG_LEVEL,

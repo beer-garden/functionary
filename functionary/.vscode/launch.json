@@ -47,6 +47,17 @@
       "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true
+    },
+    {
+      "name": "run_scheduler",
+      "type": "python",
+      "request": "launch",
+      "preLaunchTask": "scheduler_stop_container",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["run_scheduler"],
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
+      "django": true,
+      "justMyCode": false
     }
   ]
 }
