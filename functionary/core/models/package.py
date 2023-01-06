@@ -54,3 +54,7 @@ class Package(models.Model):
     @property
     def full_image_name(self):
         return f"{settings.REGISTRY}/{self.image_name}"
+
+    @property
+    def active_functions(self):
+        return self.functions.filter(active=True)

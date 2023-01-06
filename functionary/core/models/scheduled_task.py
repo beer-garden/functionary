@@ -47,7 +47,9 @@ class ScheduledTask(ModelSaveHookMixin, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200, blank=False)
     description = models.TextField(blank=True)
-    function = models.ForeignKey(to="Function", on_delete=models.CASCADE)
+    function = models.ForeignKey(
+        to="Function", on_delete=models.CASCADE, related_name="scheduled_tasks"
+    )
     environment = models.ForeignKey(to="Environment", on_delete=models.CASCADE)
     parameters = models.JSONField(encoder=DjangoJSONEncoder)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)

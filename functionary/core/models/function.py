@@ -28,6 +28,7 @@ class Function(models.Model):
         variables: list of variable names to set before execution
         return_type: the type of the object being returned
         schema: the function's OpenAPI definition
+        active: whether the function is currently activated
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -43,6 +44,7 @@ class Function(models.Model):
     variables = models.JSONField(default=list, validators=[list_of_strings])
     return_type = models.CharField(max_length=64, null=True)
     schema = models.JSONField()
+    active = models.BooleanField(default=True)
 
     class Meta:
         constraints = [
@@ -69,6 +71,14 @@ class Function(models.Model):
 
     def clean(self):
         self._clean_environment()
+
+    def deactivate(self):
+        """Deactivate the function and pause any associated scheduled tasks"""
+        self.active = False
+        self.save()
+
+        for scheduled_task in self.scheduled_tasks.all():
+            scheduled_task.pause()
 
     @property
     def render_name(self) -> str:

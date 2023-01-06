@@ -98,10 +98,16 @@ class Task(ModelSaveHookMixin, models.Model):
         except JSONDecodeError as err:
             raise ValidationError(err.msg)
 
+    def _clean_function(self):
+        """Validate function is active for newly created tasks"""
+        if self._state.adding and self.function.active is False:
+            raise ValidationError("This function is not active")
+
     def clean(self):
         """Model instance validation and attribute cleanup"""
         self._clean_environment()
         self._clean_parameters()
+        self._clean_function()
 
     def post_create(self):
         """Post create hooks"""

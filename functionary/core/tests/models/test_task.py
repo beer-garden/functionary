@@ -1,4 +1,5 @@
 import pytest
+from django.core.exceptions import ValidationError
 
 from core.models import Function, Package, Task, Team, Variable
 
@@ -43,10 +44,28 @@ def function(package):
     }
     return Function.objects.create(
         name="testfunction",
-        package=package,
         environment=package.environment,
+        package=package,
         schema=function_schema,
         variables=["env_var1"],
+    )
+
+
+@pytest.fixture
+def inactive_function(package):
+    function_schema = {
+        "title": "test",
+        "type": "object",
+        "variables": ["env_var1"],
+        "properties": {"prop1": {"type": "integer"}},
+    }
+    return Function.objects.create(
+        name="inactivefunction",
+        environment=package.environment,
+        package=package,
+        schema=function_schema,
+        variables=["env_var1"],
+        active=False,
     )
 
 
@@ -66,3 +85,15 @@ def test_list(task):
     task_vars = task.variables.all()
     assert len(task_vars) == 1
     assert len(task.environment.variables) > 1
+
+
+@pytest.mark.django_db
+def test_task_function_must_be_active(inactive_function, environment, admin_user):
+    with pytest.raises(ValidationError):
+        task = Task(
+            function=inactive_function,
+            environment=environment,
+            parameters={"prop1": "value1"},
+            creator=admin_user,
+        )
+        task.clean()

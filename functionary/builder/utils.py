@@ -197,6 +197,7 @@ def build_package(build_id: UUID):
         db_functions = _create_functions_from_definition(
             package_definition.get("functions"), package
         )
+        _deactivate_functions(package_definition.get("functions"), package)
         _extract_package_contents(package_contents, workdir)
         _load_dockerfile_template(dockerfile, workdir)
 
@@ -305,9 +306,25 @@ def _create_functions_from_definition(definitions: list[dict], package: Package)
         function_obj.schema = _generate_function_schema(
             name, function_def.get("parameters")
         )
+        function_obj.active = True
         db_functions.append(function_obj)
 
     return db_functions
+
+
+def _deactivate_functions(definitions, package: Package):
+    """Grabs all functions from DB, deactivates any that aren't in the definition"""
+    function_names = []
+
+    for function_def in definitions:
+        function_names.append(function_def.get("name"))
+
+    removed_functions = Function.objects.exclude(
+        package=package, name__in=function_names
+    )
+
+    for function in removed_functions:
+        function.deactivate()
 
 
 def _generate_function_schema(name: str, parameters) -> str:

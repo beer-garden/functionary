@@ -23,7 +23,7 @@ PAGINATION_AMOUNT = 15
 class FunctionListView(PermissionedListView):
     model = Function
     environment_through_field = "package"
-    queryset = Function.objects.select_related("package").all()
+    queryset = Function.objects.select_related("package").filter(active=True)
     ordering = ["package__name", "name"]
     paginate_by = PAGINATION_AMOUNT
 
