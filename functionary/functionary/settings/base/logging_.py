@@ -37,7 +37,7 @@ CELERY_LOGGING = {
         "docker": {"propagate": False},
         "kombu": {"handlers": ["console"], "propagate": False},
         "urllib3": {"propagate": False},
-        "celery.beat": {"propogate": False},
+        "celery.beat": {},
     },
 }
 

@@ -1,14 +1,14 @@
 import logging
-from os import getenv
 
 from celery.apps.beat import Beat
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django_celery_beat import schedulers
 
 from core.celery import app
 from core.utils.messaging import initialize_messaging, wait_for_connection
 
-LOG_LEVEL = getenv("LOG_LEVEL", "INFO")
+LOG_LEVEL = settings.LOG_LEVEL
 logger = logging.getLogger("celery.beat")
 logger.setLevel(getattr(logging, LOG_LEVEL))
 
