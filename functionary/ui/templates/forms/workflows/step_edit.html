@@ -1,0 +1,43 @@
+{# djlint: off #}
+{% extends "partials/modal.html" %}
+{% load widget_tweaks %}
+
+{% block modal_title %}
+    Workflow Step
+{% endblock modal_title %}
+
+{% block form_declaration %}
+    {% if workflowstep %}
+        <form id="step-form" method="post" hx-post="{% url 'ui:workflowstep-edit' view.kwargs.workflow_pk workflowstep.pk %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% else %}
+        <form id="step-form" method="post" hx-post="{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}" hx-target="#form-modal" hx-swap="outerHTML">
+    {% endif %}
+{% endblock form_declaration %}
+
+{% block modal_content %}
+    <div class="field">
+        <label class="label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        <div class="control">{% render_field form.name class="input" %}</div>
+        <div>{{ form.non_field_errors }}</div>
+        <div>{{ form.name.errors }}</div>
+    </div>
+    <div class="field">
+        <label class="label" for="{{ form.function.id_for_label }}">{{ form.function.label }}</label>
+        <div class="control select">{{ form.function }}</div>
+        <div>{{ form.function.errors }}</div>
+    </div>
+    <div class="field">
+        <div id="function-parameters">{{ parameter_form }}</div>
+    </div>
+    <div>{{form.workflow}}</div>
+    <div>{{form.next}}</div>
+{% endblock modal_content %}
+
+{% block modal_footer %}
+    <button class="button" type="submit" value="Save">Save</button>
+{% endblock modal_footer %}
+
+{% block form_end %}
+    </form>
+{% endblock form_end %}
+{# djlint: on #}

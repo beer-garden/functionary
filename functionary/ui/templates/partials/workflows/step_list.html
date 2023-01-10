@@ -1,0 +1,52 @@
+<div id="workflow-steps">
+    <h2 class="title is-4">Steps</h2>
+    <!--TODO: A table is not really suitable for this data. This is just a
+    placeholder to demonstrate the functionality-->
+    <table class="table is-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Function</th>
+                <th>Parameters</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="steps">
+            {% for step in workflow.ordered_steps %}
+                <tr>
+                    <td>{{ step.name }}</td>
+                    <td>{{ step.function }}</td>
+                    <td class="json-container">{{ step.parameter_template }}</td>
+                    <td>
+                        <button class="button is-small mr-2 is-white has-text-success fa fa-plus"
+                                type="button"
+                                title="Add Step Below"
+                                hx-target="body"
+                                hx-swap="beforeend"
+                                hx-get="{% url 'ui:workflowstep-create' workflow.pk %}"
+                                hx-vals='{"next": "{{ step.next.id }}"}'/>
+                        <button class="button is-small mr-2 is-white has-text-info fa fa-pencil-alt"
+                                type="button"
+                                title="Edit"
+                                hx-target="body"
+                                hx-swap="beforeend"
+                                hx-get="{% url 'ui:workflowstep-edit' workflow.pk step.pk %}"/>
+                        <button class="button is-small is-white has-text-danger fa fa-trash"
+                                type="button"
+                                title="Delete"
+                                hx-target="#workflow-steps"
+                                hx-swap="outerHTML"
+                                hx-delete="{% url 'ui:workflowstep-delete' workflow.pk step.pk %}"/>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button class="button is-small"
+            type="button"
+            hx-target="body"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowstep-create' workflow.pk %}">
+        <span class="mr-2">Add</span><span class="fa fa-plus"/>
+    </button>
+</div>

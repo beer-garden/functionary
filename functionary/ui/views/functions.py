@@ -9,12 +9,12 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from core.auth import Permission
 from core.models import Environment, Function, Task
 
-from ..forms.tasks import TaskParameterForm
+from ..forms.tasks import TaskParameterForm, TaskParameterTemplateForm
 from .view_base import (
     PermissionedEnvironmentDetailView,
     PermissionedEnvironmentListView,
@@ -103,3 +103,35 @@ def execute(request: HttpRequest) -> HttpResponse:
 
     args = {"form": form, "function": func}
     return render(request, "core/function_detail.html", args)
+
+
+@require_GET
+@login_required
+def function_parameters(request: HttpRequest) -> HttpResponse:
+    """Used to lazy load a function's parameters as a partial.
+
+    Handles the following request parameters:
+        function: The id of the function object whose parameters should be rendered
+        allow_template_variables: When true, the fields of the generated form will
+            accept django template variables syntax (e.g. {{somevariable}}) in addition
+            to data of the parameters natural type.
+    """
+    env = Environment.objects.get(id=request.session.get("environment_id"))
+
+    if not request.user.has_perm(Permission.TASK_CREATE, env):
+        return HttpResponseForbidden()
+
+    if (
+        allow_template_variables := request.GET.get("allow_template_variables")
+    ) and allow_template_variables.lower() == "true":
+        form_class = TaskParameterTemplateForm
+    else:
+        form_class = TaskParameterForm
+
+    if (function_id := request.GET.get("function")) in ["", None]:
+        return HttpResponse("No function selected.")
+
+    function = get_object_or_404(Function, id=function_id, package__environment=env)
+
+    form = form_class(function=function)
+    return render(request, form.template_name, {"form": form})

@@ -229,8 +229,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <!-- Lazy load function parameters -->
-                        <div class="column" id="function-parameters" hx-trigger="load" hx-get="{% url 'ui:function-parameters' %}" hx-vals='{"function": "{{ function_id }}", "scheduled_task_id": "{{ scheduled_task_id }}"}'>
+                        <div class="column" id="function-parameters">
+                            {% include "forms/task_parameters.html" with form=parameter_form %}
                         </div>
                     </div>
                 </div>

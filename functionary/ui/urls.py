@@ -56,6 +56,11 @@ urlpatterns = [
     ),
     path("function_execute/", (functions.execute), name="function-execute"),
     path(
+        "function_parameters/",
+        (functions.function_parameters),
+        name="function-parameters",
+    ),
+    path(
         "package_list/",
         (packages.PackageListView.as_view()),
         name="package-list",
@@ -129,11 +134,6 @@ htmx_urlpatterns = [
         "crontab_month_of_year_param/",
         (scheduling.crontab_month_of_year_param),
         name="scheduled-month-of-year-param",
-    ),
-    path(
-        "function_parameters/",
-        (scheduling.function_parameters),
-        name="function-parameters",
     ),
     path(
         "new_schedule/",
@@ -256,6 +256,21 @@ workflows_urlpatterns = [
         "workflow/<uuid:workflow_pk>/parameter/<int:pk>/edit",
         (workflows.WorkflowParameterUpdateView.as_view()),
         name="workflowparameter-edit",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/step/create",
+        (workflows.WorkflowStepCreateView.as_view()),
+        name="workflowstep-create",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/delete",
+        (workflows.WorkflowStepDeleteView.as_view()),
+        name="workflowstep-delete",
+    ),
+    path(
+        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/edit",
+        (workflows.WorkflowStepUpdateView.as_view()),
+        name="workflowstep-edit",
     ),
 ]
 

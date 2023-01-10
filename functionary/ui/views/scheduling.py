@@ -10,7 +10,7 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 from django_celery_beat.models import CrontabSchedule
 
 from core.auth import Permission
@@ -96,6 +96,9 @@ class ScheduledTaskUpdateView(PermissionedFormUpdateView):
         scheduled_task: ScheduledTask = self.get_object()
         context["function_id"] = str(scheduled_task.function.id)
         context["scheduled_task_id"] = str(scheduled_task.id)
+        context["parameter_form"] = TaskParameterForm(
+            function=scheduled_task.function, initial=scheduled_task.parameters
+        )
         return context
 
 
@@ -189,37 +192,6 @@ def update_scheduled_task(request: HttpRequest, pk: str) -> HttpResponse:
         "scheduled_task_id": str(scheduled_task.id),
     }
     return render(request, "core/scheduled_task_update.html", context)
-
-
-@require_GET
-@login_required
-def function_parameters(request: HttpRequest) -> HttpResponse:
-    """Used to lazy load a function's parameters as a partial.
-
-    Always expects a 'function_id' parameter in the request, which is the ID of the
-    function object whose parameters should be rendered.
-    """
-    env = Environment.objects.get(id=request.session.get("environment_id"))
-
-    if not request.user.has_perm(Permission.TASK_CREATE, env):
-        return HttpResponseForbidden()
-
-    if (function_id := request.GET.get("function", None)) in ["", None]:
-        return HttpResponse("No function selected.")
-
-    function = get_object_or_404(Function, id=function_id, package__environment=env)
-
-    # If the request includes the scheduled_task_id, substitute the default
-    # widget values for the existing ScheduledTask parameters.
-    existing_parameters = None
-    if (scheduled_task_id := request.GET.get("scheduled_task_id", None)) is not None:
-        scheduled_task: ScheduledTask = get_object_or_404(
-            ScheduledTask, id=scheduled_task_id
-        )
-        existing_parameters = scheduled_task.parameters
-
-    form = TaskParameterForm(function=function, initial=existing_parameters)
-    return render(request, form.template_name, {"form": form})
 
 
 @require_POST

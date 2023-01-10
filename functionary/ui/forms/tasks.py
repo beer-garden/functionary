@@ -1,5 +1,6 @@
 import json
-from typing import Tuple, Type, Union
+import re
+from typing import TYPE_CHECKING, Optional, Tuple, Type, Union
 
 from django.forms import (
     BooleanField,
@@ -12,10 +13,14 @@ from django.forms import (
     IntegerField,
     JSONField,
     Textarea,
+    TextInput,
 )
 from django.forms.widgets import DateInput, DateTimeInput, Widget
 
-from core.models import Function
+if TYPE_CHECKING:
+    from django.http import QueryDict
+
+    from core.models import Function
 
 
 class HTMLDateInput(DateInput):
@@ -112,9 +117,9 @@ class TaskParameterForm(Form):
 
     def __init__(
         self,
-        function: Function,
-        data: dict = None,
-        initial: dict = None,
+        function: "Function",
+        data: dict | None = None,
+        initial: dict | None = None,
         prefix: str = "task-parameter",
     ):
         super().__init__(data=data, prefix=prefix)
@@ -128,7 +133,7 @@ class TaskParameterForm(Form):
             req = initial_value is None
             param_type = _get_param_type(value)
 
-            field_class, widget = self._get_field_info(param_type, input_value)
+            field_class, widget = self.get_field_info(param_type, input_value)
 
             if not field_class:
                 raise ValueError(f"Unknown field type for {param}: {param_type}")
@@ -151,7 +156,7 @@ class TaskParameterForm(Form):
                 field.widget.attrs.update({"class": "input"})
             self.fields[param] = field
 
-    def _get_field_info(
+    def get_field_info(
         self, parameter_type: str, input_value: str | None
     ) -> Tuple[Type[Field], Type[Widget]]:
         """Gets the appropriate field class and widget for the provided parameter type.
@@ -160,3 +165,76 @@ class TaskParameterForm(Form):
         the field class and widget based on the input data.
         """
         return _field_mapping.get(parameter_type, (None, None))
+
+
+class TaskParameterTemplateForm(TaskParameterForm):
+    """TaskParameterForm variant with template variable support
+
+    This is a version of TaskParameterForm that allows template variables to be entered
+    as values regardless of parameter type. That is, a field requiring an integer will
+    allow either and integer value or a template variable such as {{step.result}}.
+    Other than the exception for template variables, other validation rules still apply.
+    """
+
+    def _stringify_template_variables(self, parameter_template: str) -> str:
+        """Converts the template variables in the parameter template to strings so
+        that the template can be safely jsonified.
+        """
+        return re.sub(r"{{([\w\.]+)}}", r'"{{\1}}"', parameter_template)
+
+    def _build_parameter_template(self, parameters: dict) -> str:
+        """Undo the template variable stringification that was required to jsonify
+        the template. The resulting string is one that can be rendered as a django
+        template"""
+        json_data = json.dumps(parameters)
+
+        return re.sub(r'"{{([\w\.]*)}}"', r"{{\1}}", json_data)
+
+    def __init__(
+        self,
+        function: "Function",
+        data: Optional["QueryDict"] = None,
+        initial: str | None = None,
+    ):
+        """TaskParameterTemplateForm init
+
+        Args:
+            function: The Function that will be executed when the WorkflowStep runs
+            data: Form submission data
+            initial: Initial values to populate the form fields with on render
+        """
+        initial_data = (
+            json.loads(self._stringify_template_variables(initial)) if initial else {}
+        )
+
+        super().__init__(function=function, data=data, initial=initial_data)
+
+    def get_field_info(
+        self, parameter_type: str, input_value: str | None
+    ) -> Tuple[Type[Field], Type[Widget]]:
+        """For fields that are allowed to provide template variables as input, alters
+        the widget to be a TextInput. When input_value is provided, if the input is a
+        template variable the field class is set to CharField, as validation against the
+        original field class is no longer possible.
+        """
+        field_class, widget = super().get_field_info(parameter_type, input_value)
+
+        if parameter_type in ["integer", "number", "json"]:
+            widget = TextInput
+
+            if input_value and re.match(r"{{[\w\.]+}}", input_value):
+                field_class = CharField
+
+        return field_class, widget
+
+    @property
+    def parameter_template(self):
+        """Returns the json-string parameter template for parameters form. This can
+        only be access after validation via is_valid().
+        """
+        assert hasattr(self, "cleaned_data"), (
+            "You cannot access parameter_template until cleaned_data is made available"
+            "by calling is_valid()."
+        )
+
+        return self._build_parameter_template(self.cleaned_data)

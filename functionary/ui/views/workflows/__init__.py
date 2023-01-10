@@ -6,4 +6,7 @@ from .parameters.edit import (  # noqa
     WorkflowParameterCreateView,
     WorkflowParameterUpdateView,
 )
+from .steps.create import WorkflowStepCreateView  # noqa
+from .steps.delete import WorkflowStepDeleteView  # noqa
+from .steps.update import WorkflowStepUpdateView  # noqa
 from .update import WorkflowUpdateView  # noqa
