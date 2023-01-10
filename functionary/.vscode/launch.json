@@ -58,6 +58,16 @@
       "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": false
+    },
+    {
+      "name": "shell",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["shell"],
+      "envFile": "${workspaceFolder}/.vscode/.debug.env",
+      "django": true,
+      "justMyCode": true
     }
   ]
 }
