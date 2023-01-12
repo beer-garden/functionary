@@ -17,16 +17,12 @@
 
 {% block modal_content %}
     <div class="field">
-        <label class="label" for="{{ form.name.id_for_label }}">
-            <b>{{ form.name.label }}</b>:
-        </label>
+        <label class="label" for="{{ form.name.id_for_label }}">{{ form.name.label }}:</label>
         {% render_field form.name class="input" %}
     </div>
     {{ form.name.errors }}
     <div class="field">
-        <label class="label" for="{{ form.description.id_for_label }}">
-            <b>{{ form.description.label }}</b>:
-        </label>
+        <label class="label" for="{{ form.description.id_for_label }}">{{ form.description.label }}:</label>
         {% render_field form.description class="input" %}
     </div>
     {{ form.description.errors }}

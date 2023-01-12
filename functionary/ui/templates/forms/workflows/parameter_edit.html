@@ -20,7 +20,6 @@
         <label class="label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
         <div class="control">{% render_field form.name class="input" %}</div>
         <div class="help is-danger">{{ form.name.errors }}</div>
-        <div class="help is-danger">{{ form.non_field_errors }}</div>
     </div>
     <div class="field">
         <label class="label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
@@ -45,6 +44,7 @@
     <div>
         <input type="hidden" name="workflow" value="{{ workflow.id }}"/>
     </div>
+    {{ form.non_field_errors }}
 {% endblock modal_content %}
 
 {% block modal_footer %}
