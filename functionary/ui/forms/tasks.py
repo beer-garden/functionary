@@ -48,7 +48,11 @@ _field_mapping = {
 
 def _transform_json(value: Union[str, dict]) -> Union[str, dict]:
     if type(value) is str:
-        return json.loads(value)
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            pass
+
     return value
 
 
@@ -194,7 +198,7 @@ class TaskParameterTemplateForm(TaskParameterForm):
         self,
         function: "Function",
         data: Optional["QueryDict"] = None,
-        initial: str | None = None,
+        initial: Optional[str] = None,
     ):
         """TaskParameterTemplateForm init
 

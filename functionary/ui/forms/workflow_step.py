@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Union
 
 from django import forms
 from django.urls import reverse
@@ -23,7 +23,7 @@ class WorkflowStepCreateForm(forms.ModelForm):
 
     def __init__(
         self,
-        environment: Optional["Environment"] | "UUID" | str = None,
+        environment: Union["Environment", "UUID", str, None] = None,
         *args,
         **kwargs
     ):
