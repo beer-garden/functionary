@@ -97,3 +97,9 @@ class WorkflowStep(models.Model):
     def clean(self):
         if self.workflow.environment != self.function.package.environment:
             raise ValidationError("Function and workflow environments do not match")
+
+    @property
+    def previous(self):
+        """Returns the step preceding this one in the workflow. For the first step in
+        the workflow, returns None."""
+        return self.workflowstep_set.filter(next=self).first()

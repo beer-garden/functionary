@@ -272,6 +272,11 @@ workflows_urlpatterns = [
         (workflows.WorkflowStepUpdateView.as_view()),
         name="workflowstep-edit",
     ),
+    path(
+        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/move",
+        (workflows.move_workflow_step),
+        name="workflowstep-move",
+    ),
 ]
 
 

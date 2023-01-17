@@ -91,11 +91,15 @@ def move_step(step: WorkflowStep, next: WorkflowStep | None = None) -> None:
         raise ValueError("Provided step must be a member of the same Workflow")
 
     with transaction.atomic():
-        if old_before_step := WorkflowStep.objects.filter(next=step).first():
+        if old_before_step := WorkflowStep.objects.filter(
+            workflow=step.workflow, next=step
+        ).first():
             old_before_step.next = step.next
             old_before_step.save()
 
-        if new_before_step := WorkflowStep.objects.filter(next=next).first():
+        if new_before_step := WorkflowStep.objects.filter(
+            workflow=step.workflow, next=next
+        ).first():
             new_before_step.next = step
             new_before_step.save()
 

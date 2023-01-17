@@ -1,11 +1,18 @@
+from uuid import UUID
+
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import render
+from django.core.exceptions import BadRequest, PermissionDenied
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 from django.views.generic import UpdateView
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Function, WorkflowStep
+from core.utils.workflow import move_step
 from ui.forms import TaskParameterTemplateForm, WorkflowStepUpdateForm
 
 
@@ -63,3 +70,24 @@ class WorkflowStepUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView
         return self.request.user.has_perm(
             Permission.WORKFLOW_UPDATE, step.workflow.environment
         )
+
+
+@require_POST
+@login_required
+def move_workflow_step(request: HttpRequest, workflow_pk: UUID, pk: UUID):
+    step = get_object_or_404(WorkflowStep, workflow=workflow_pk, pk=pk)
+    new_next_step = None
+
+    if not request.user.has_perm(Permission.WORKFLOW_UPDATE, step.workflow.environment):
+        raise PermissionDenied()
+
+    if next := request.POST.get("next"):
+        try:
+            new_next_step = WorkflowStep.objects.get(workflow=workflow_pk, pk=next)
+        except (ValueError, WorkflowStep.DoesNotExist):
+            raise BadRequest(f"{next} is not a valid next value for this WorkflowStep")
+
+    move_step(step, new_next_step)
+
+    context = {"workflow": step.workflow}
+    return render(request, "partials/workflows/step_list.html", context)

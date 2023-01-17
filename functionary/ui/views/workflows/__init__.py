@@ -8,5 +8,5 @@ from .parameters.edit import (  # noqa
 )
 from .steps.create import WorkflowStepCreateView  # noqa
 from .steps.delete import WorkflowStepDeleteView  # noqa
-from .steps.update import WorkflowStepUpdateView  # noqa
+from .steps.update import WorkflowStepUpdateView, move_workflow_step  # noqa
 from .update import WorkflowUpdateView  # noqa
