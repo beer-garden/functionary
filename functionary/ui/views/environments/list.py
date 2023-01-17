@@ -9,12 +9,4 @@ class EnvironmentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Sorts based on team name, then env name."""
-        if self.request.user.is_superuser:
-            return (
-                super()
-                .get_queryset()
-                .select_related("team")
-                .order_by("team__name", "name")
-            )
-        else:
-            return self.request.user.environments().select_related("team")
+        return self.request.user.environments.select_related("team")

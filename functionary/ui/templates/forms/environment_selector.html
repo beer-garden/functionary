@@ -10,8 +10,8 @@
         <option value="-1">
             Choose
         </option>
-        {% for grp, envs in environments.items %}
-            <optgroup label="{{ grp }}">
+        {% for team, envs in environments.items %}
+            <optgroup label="{{ team }}">
                 {% for env in envs %}
                     <option value="{{ env.id }}"
                             {% if environment_id == env.id|stringformat:'s' %}selected{% endif %}>

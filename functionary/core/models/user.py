@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from core.auth import ROLE_PERMISSION_MAP
+from core.auth import ROLE_PERMISSION_MAP, Role
 
 if TYPE_CHECKING:
     from core.models import Environment, Team
@@ -61,6 +61,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         Returns:
             A set of strings representing the user's permissions.
         """
+        if self.is_superuser:
+            return set(ROLE_PERMISSION_MAP[Role.ADMIN.name])
+
         roles = self.teamuserroles.filter(team=team).values_list("role", flat=True)
         permissions = set()
 
@@ -82,6 +85,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         Returns:
             A set of strings representing the user's permissions.
         """
+        if self.is_superuser:
+            return set(ROLE_PERMISSION_MAP[Role.ADMIN.name])
+
         roles = self.environmentuserroles.filter(environment=environment).values_list(
             "role", flat=True
         )
@@ -105,7 +111,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             any Environment roles.
         """
         Environment = apps.get_model("core", "Environment")
-        envs = Environment.objects.filter(
-            models.Q(team__user_roles__user=self) | models.Q(user_roles__user=self)
-        ).distinct()
-        return envs
+
+        if self.is_superuser:
+            return Environment.objects.all()
+        else:
+            return Environment.objects.filter(
+                models.Q(team__user_roles__user=self) | models.Q(user_roles__user=self)
+            ).distinct()

@@ -4,6 +4,7 @@ from django.urls import path
 
 from .views import (
     builds,
+    environment_select,
     environments,
     functions,
     home,
@@ -107,6 +108,11 @@ urlpatterns = [
         (variables.VariableView.as_view()),
         name="detail-variable",
     ),
+    path(
+        "environment_select/",
+        (environment_select.EnvironmentSelectView.as_view()),
+        name="set-environment",
+    ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 htmx_urlpatterns = [
@@ -172,11 +178,6 @@ environment_urlpatterns = [
         "environment_list/",
         (environments.EnvironmentListView.as_view()),
         name="environment-list",
-    ),
-    path(
-        "environment/set_environment",
-        (environments.EnvironmentSelectView.as_view()),
-        name="set-environment",
     ),
     path(
         "environment/<uuid:environment_id>/user_role/create",

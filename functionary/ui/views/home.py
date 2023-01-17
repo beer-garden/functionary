@@ -1,20 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from core.models import Environment
+from ui.views.utils import set_session_environment
 
 
 @login_required
 def home(request):
     if "environment_id" not in request.session:
-        envs = request.user.environments
-        if envs:
-            request.session["environment_id"] = str(
-                envs.order_by("team__name", "name").first().id
-            )
-        elif request.user.is_superuser:
-            request.session["environment_id"] = str(
-                Environment.objects.all().order_by("team__name", "name").first().id
-            )
+        environment = request.user.environments.order_by("team__name", "name").first()
+        set_session_environment(request, environment)
 
     return render(request, "home.html")
