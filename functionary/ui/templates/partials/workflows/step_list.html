@@ -18,7 +18,7 @@
                 <tr id="step-{{ step.id }}">
                     <td>
                         {% with previous=step.previous %}
-                            {% if previous.id is not None %}
+                            {% if previous is not None %}
                                 <form id="step-{{ step.id }}-move-up"
                                       method="post"
                                       hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
@@ -33,7 +33,7 @@
                         {% endwith %}
                     </td>
                     <td>
-                        {% if step.next.id is not None %}
+                        {% if step.next is not None %}
                             <form id="step-{{ step.id }}-move-down"
                                   method="post"
                                   hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
