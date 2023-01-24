@@ -1,7 +1,8 @@
 from core.models.scheduled_task import ScheduledTask
-from ui.views.view_base import PermissionedEnvironmentListView
+from ui.views.generic import PermissionedListView
 
 
-class ScheduledTaskListView(PermissionedEnvironmentListView):
+class ScheduledTaskListView(PermissionedListView):
     model = ScheduledTask
+    permissioned_model = "Task"
     template_name = "core/scheduling_list.html"

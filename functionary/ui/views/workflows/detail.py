@@ -1,8 +1,8 @@
 from core.models import Workflow
-from ui.views.view_base import PermissionedEnvironmentDetailView
+from ui.views.generic import PermissionedDetailView
 
 
-class WorkflowDetailView(PermissionedEnvironmentDetailView):
+class WorkflowDetailView(PermissionedDetailView):
     "Detail view for the Workflow model"
 
     model = Workflow

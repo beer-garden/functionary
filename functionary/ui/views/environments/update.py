@@ -1,19 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic.edit import UpdateView
 
-from core.auth import Permission
-from core.models import Environment, EnvironmentUserRole
+from core.models import EnvironmentUserRole
 from ui.forms.environments import EnvironmentUserRoleForm
+from ui.views.generic import PermissionedUpdateView
 
 from .utils import get_user_role
 
 
-class EnvironmentUserRoleUpdateView(
-    LoginRequiredMixin, UserPassesTestMixin, UpdateView
-):
+class EnvironmentUserRoleUpdateView(PermissionedUpdateView):
     model = EnvironmentUserRole
+    permissioned_model = "Environment"
     form_class = EnvironmentUserRoleForm
     template_name = "forms/environment/environmentuserrole_update.html"
 
@@ -30,7 +26,3 @@ class EnvironmentUserRoleUpdateView(
         )
         initial["role"] = role.role if role else initial["role"]
         return initial
-
-    def test_func(self) -> bool:
-        environment = get_object_or_404(Environment, id=self.kwargs["environment_id"])
-        return self.request.user.has_perm(Permission.ENVIRONMENT_UPDATE, environment)

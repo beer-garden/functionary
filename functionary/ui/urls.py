@@ -238,6 +238,11 @@ workflows_urlpatterns = [
         name="workflow-update",
     ),
     path(
+        "workflow/<uuid:pk>/delete",
+        (workflows.WorkflowDeleteView.as_view()),
+        name="workflow-delete",
+    ),
+    path(
         "workflow/<uuid:workflow_pk>/parameter/create",
         (workflows.WorkflowParameterCreateView.as_view()),
         name="workflowparameter-create",

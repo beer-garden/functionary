@@ -1,16 +1,13 @@
 from core.models import Package
 
-from .view_base import (
-    PermissionedEnvironmentDetailView,
-    PermissionedEnvironmentListView,
-)
+from .generic import PermissionedDetailView, PermissionedListView
 
 
-class PackageListView(PermissionedEnvironmentListView):
+class PackageListView(PermissionedListView):
     model = Package
 
 
-class PackageDetailView(PermissionedEnvironmentDetailView):
+class PackageDetailView(PermissionedDetailView):
     model = Package
 
     def get_queryset(self):

@@ -1,19 +1,16 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView
 
-from core.auth import Permission
 from core.models import Environment, EnvironmentUserRole, User
 from ui.forms.environments import EnvironmentUserRoleForm
+from ui.views.generic import PermissionedCreateView
 
 from .utils import get_user_role
 
 
-class EnvironmentUserRoleCreateView(
-    LoginRequiredMixin, UserPassesTestMixin, CreateView
-):
+class EnvironmentUserRoleCreateView(PermissionedCreateView):
     model = EnvironmentUserRole
+    permissioned_model = "Environment"
     form_class = EnvironmentUserRoleForm
     template_name = "forms/environment/environmentuserrole_create.html"
 
@@ -46,7 +43,3 @@ class EnvironmentUserRoleCreateView(
         user_role, _ = get_user_role(user, environment)
         initial["role"] = user_role.role if user_role else None
         return initial
-
-    def test_func(self) -> bool:
-        environment = get_object_or_404(Environment, id=self.kwargs["environment_id"])
-        return self.request.user.has_perm(Permission.ENVIRONMENT_UPDATE, environment)

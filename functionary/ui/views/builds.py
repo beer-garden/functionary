@@ -1,20 +1,19 @@
 from builder.models import Build
 
+from .generic import PermissionedDetailView, PermissionedListView
 from .tasks import FINISHED_STATUS
-from .view_base import (
-    PermissionedEnvironmentDetailView,
-    PermissionedEnvironmentListView,
-)
 
 
-class BuildListView(PermissionedEnvironmentListView):
+class BuildListView(PermissionedListView):
     model = Build
-    order_by_fields = ["-created_at"]
+    permissioned_model = "Package"
+    ordering = ["-created_at"]
     queryset = Build.objects.select_related("creator", "package").all()
 
 
-class BuildDetailView(PermissionedEnvironmentDetailView):
+class BuildDetailView(PermissionedDetailView):
     model = Build
+    permissioned_model = "Package"
     queryset = Build.objects.select_related("creator", "package").all()
 
     def get_context_data(self, **kwargs):

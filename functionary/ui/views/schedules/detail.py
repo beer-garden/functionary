@@ -1,10 +1,11 @@
 from core.models import Task
 from core.models.scheduled_task import ScheduledTask
-from ui.views.view_base import PermissionedEnvironmentDetailView
+from ui.views.generic import PermissionedDetailView
 
 
-class ScheduledTaskDetailView(PermissionedEnvironmentDetailView):
+class ScheduledTaskDetailView(PermissionedDetailView):
     model = ScheduledTask
+    permissioned_model = "Task"
     template_name = "core/scheduling_detail.html"
 
     def get_context_data(self, **kwargs):

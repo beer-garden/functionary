@@ -1,19 +1,20 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.views.generic import CreateView
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Function, Workflow, WorkflowStep
 from core.utils.workflow import add_step
 from ui.forms import TaskParameterTemplateForm, WorkflowStepCreateForm
+from ui.views.generic import PermissionedCreateView
 
 
-class WorkflowStepCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class WorkflowStepCreateView(PermissionedCreateView):
     """Create view for the WorkflowStep model"""
 
     model = WorkflowStep
+    permissioned_model = "Workflow"
+    environment_through_field = "workflow"
     form_class = WorkflowStepCreateForm
     template_name = WorkflowStepCreateForm.template_name
 

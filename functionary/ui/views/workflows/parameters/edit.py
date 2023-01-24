@@ -1,17 +1,18 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Workflow, WorkflowParameter
+from ui.views.generic import PermissionedCreateView, PermissionedUpdateView
 
 
-class WorkflowParameterFormViewMixin(LoginRequiredMixin, UserPassesTestMixin):
+class WorkflowParameterFormViewMixin:
     """Mixin for shared logic related to creation and update of WorkflowParameters"""
 
     model = WorkflowParameter
+    permissioned_model = "Workflow"
+    environment_through_field = "workflow"
     template_name = "forms/workflows/parameter_edit.html"
     fields = "__all__"
 
@@ -41,13 +42,18 @@ class WorkflowParameterFormViewMixin(LoginRequiredMixin, UserPassesTestMixin):
         )
 
 
-class WorkflowParameterCreateView(WorkflowParameterFormViewMixin, CreateView):
+class WorkflowParameterCreateView(
+    WorkflowParameterFormViewMixin, PermissionedCreateView
+):
     """Create view for the WorkflowParameter model"""
 
     required_permission = Permission.WORKFLOW_CREATE
 
 
-class WorkflowParameterUpdateView(WorkflowParameterFormViewMixin, UpdateView):
+class WorkflowParameterUpdateView(
+    WorkflowParameterFormViewMixin, PermissionedUpdateView
+):
     """Update view for the WorkflowParameter model"""
 
     required_permission = Permission.WORKFLOW_UPDATE
+    fields = ["name", "description", "parameter_type", "default", "required"]

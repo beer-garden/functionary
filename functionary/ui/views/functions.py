@@ -13,22 +13,19 @@ from django.views.decorators.http import require_GET, require_POST
 
 from core.auth import Permission
 from core.models import Environment, Function, Task
+from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
 
-from ..forms.tasks import TaskParameterForm, TaskParameterTemplateForm
-from .view_base import (
-    PermissionedEnvironmentDetailView,
-    PermissionedEnvironmentListView,
-)
+from .generic import PermissionedDetailView, PermissionedListView
 
 
-class FunctionListView(PermissionedEnvironmentListView):
+class FunctionListView(PermissionedListView):
     model = Function
     environment_through_field = "package"
     queryset = Function.objects.select_related("package").all()
-    order_by_fields = ["package__name", "name"]
+    ordering = ["package__name", "name"]
 
 
-class FunctionDetailView(PermissionedEnvironmentDetailView):
+class FunctionDetailView(PermissionedDetailView):
     model = Function
     environment_through_field = "package"
 

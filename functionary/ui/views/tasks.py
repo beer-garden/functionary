@@ -15,10 +15,7 @@ from django_htmx import http
 from core.auth import Permission
 from core.models import Environment, Task
 
-from .view_base import (
-    PermissionedEnvironmentDetailView,
-    PermissionedEnvironmentListView,
-)
+from .generic import PermissionedDetailView, PermissionedListView
 
 FINISHED_STATUS = ["COMPLETE", "ERROR"]
 PAGINATION_AMOUNT = 8
@@ -138,14 +135,14 @@ def _get_result_context(context: dict, format: str) -> dict:
     return context
 
 
-class TaskListView(PermissionedEnvironmentListView):
+class TaskListView(PermissionedListView):
     model = Task
-    order_by_fields = ["-created_at"]
+    ordering = ["-created_at"]
     queryset = Task.objects.select_related("environment", "function", "creator").all()
     paginate_by = PAGINATION_AMOUNT
 
 
-class TaskDetailView(PermissionedEnvironmentDetailView):
+class TaskDetailView(PermissionedDetailView):
     model = Task
 
     def get_queryset(self):
@@ -168,7 +165,7 @@ class TaskDetailView(PermissionedEnvironmentDetailView):
         return _get_result_context(context, format)
 
 
-class TaskResultsView(PermissionedEnvironmentDetailView):
+class TaskResultsView(PermissionedDetailView):
     """View for retrieving the results in a given output format."""
 
     model = Task

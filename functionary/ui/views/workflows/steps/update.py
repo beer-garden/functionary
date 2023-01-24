@@ -1,25 +1,26 @@
 from uuid import UUID
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.views.generic import UpdateView
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Function, WorkflowStep
 from core.utils.workflow import move_step
 from ui.forms import TaskParameterTemplateForm, WorkflowStepUpdateForm
+from ui.views.generic import PermissionedUpdateView
 
 
-class WorkflowStepUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class WorkflowStepUpdateView(PermissionedUpdateView):
     """Update view for WorkflowStep model"""
 
     model = WorkflowStep
+    permissioned_model = "Workflow"
+    environment_through_field = "workflow"
     form_class = WorkflowStepUpdateForm
     template_name = WorkflowStepUpdateForm.template_name
 
@@ -62,14 +63,6 @@ class WorkflowStepUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView
             context["parameter_form"] = parameter_form
 
             return render(self.request, self.template_name, context)
-
-    def test_func(self):
-        """Permission check for view access"""
-        step = self.get_object()
-
-        return self.request.user.has_perm(
-            Permission.WORKFLOW_UPDATE, step.workflow.environment
-        )
 
 
 @require_POST

@@ -1,13 +1,13 @@
 from core.models import Workflow
-from ui.views.view_base import PermissionedEnvironmentListView
+from ui.views.generic import PermissionedListView
 
 PAGINATION_AMOUNT = 10
 
 
-class WorkflowListView(PermissionedEnvironmentListView):
+class WorkflowListView(PermissionedListView):
     """List view for the Workflow model"""
 
     model = Workflow
     queryset = Workflow.objects.select_related("creator").all()
-    order_by_fields = ["name"]
+    ordering = ["name"]
     paginate_by = PAGINATION_AMOUNT

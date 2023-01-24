@@ -1,13 +1,12 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
-from django.views.generic import CreateView
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Environment, Workflow
+from ui.views.generic import PermissionedCreateView
 
 
-class WorkflowCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class WorkflowCreateView(PermissionedCreateView):
     """Create view for the Workflow model"""
 
     model = Workflow

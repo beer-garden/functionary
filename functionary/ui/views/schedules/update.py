@@ -2,15 +2,15 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, QueryDi
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-from core.auth import Permission
 from core.models import Environment, ScheduledTask
 from ui.forms import ScheduledTaskForm, TaskParameterForm
+from ui.views.generic import PermissionedUpdateView
 from ui.views.schedules.utils import get_crontab_schedule
-from ui.views.view_base import PermissionedFormUpdateView
 
 
-class ScheduledTaskUpdateView(PermissionedFormUpdateView):
+class ScheduledTaskUpdateView(PermissionedUpdateView):
     model = ScheduledTask
+    permissioned_model = "Task"
     form_class = ScheduledTaskForm
     template_name = "forms/schedules/scheduling_edit.html"
 
@@ -76,9 +76,3 @@ class ScheduledTaskUpdateView(PermissionedFormUpdateView):
             "task_parameter_form": task_parameter_form,
         }
         return render(request, "forms/schedules/scheduling_edit.html", context)
-
-    def test_func(self) -> bool:
-        environment = get_object_or_404(
-            Environment, id=self.request.session.get("environment_id")
-        )
-        return self.request.user.has_perm(Permission.TASK_UPDATE, environment)
