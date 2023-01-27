@@ -51,7 +51,11 @@ properties:
     to view the Environment. In this case, we can set permissioned_model to
     "Environment." Note that the value is a string rather than an actual model class.
     This is so that the model class isn't required to be imported just to use it as the
-    permissioned_model.
+    permissioned_model. Additionally, setting this value changes the required permission
+    from <MODEL>_<ACTION> to <MODEL>_UPDATE, as the operation being performed is treated
+    as an update to the permissioned model, rather than a create, update, or delete to
+    the view model. For example, deleting a WorkflowStep is treated as an UPDATE to the
+    Workflow.
 """
 import re
 from functools import cache
