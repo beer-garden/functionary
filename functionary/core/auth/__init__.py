@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+class Operation(Enum):
+    """Enum of the valid CRUD operations"""
+
+    CREATE = "CREATE"
+    READ = "READ"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+
+
 class Permission(Enum):
     """Enum containing permissions, which consist of one for each of the CRUD
     operations per model. Examples:

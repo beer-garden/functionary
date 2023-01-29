@@ -1,5 +1,8 @@
 """Extensions to the django generic views that add permission based access control and
-filtering for the request session's active environment.
+filtering for the request session's active environment. These are intended for use on
+model based views where the model is either directly or indirectly associated with an
+environment. That is, the model has a foreign key to `Environment`, or has a foreign key
+to another model that itself has a foreign key to `Environment`.
 
 The following views are provided here:
 
@@ -71,7 +74,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from core.auth import Permission
+from core.auth import Operation, Permission
 from core.models import Environment
 
 
@@ -85,7 +88,7 @@ class PermissionedViewMixin(LoginRequiredMixin, UserPassesTestMixin):
     environment_through_field: str | None = None
     model: Type[models.Model] | None = None
     permissioned_model: str | None = None
-    post_action: str | None = None
+    post_action: Operation | None = None
 
     def _get_permission_for_request(self) -> Permission | None:
         """Determine the required permission for the request based on the request
@@ -95,15 +98,17 @@ class PermissionedViewMixin(LoginRequiredMixin, UserPassesTestMixin):
 
         match self.request.method:
             case "GET":
-                action = "READ"
+                action = Operation.READ
             case "POST":
-                action = "UPDATE" if self.permissioned_model else self.post_action
+                action = (
+                    Operation.UPDATE if self.permissioned_model else self.post_action
+                )
             case "DELETE":
-                action = "UPDATE" if self.permissioned_model else "DELETE"
+                action = Operation.UPDATE if self.permissioned_model else "DELETE"
             case _:
                 return None
 
-        return getattr(Permission, f"{model_name}_{action}")
+        return getattr(Permission, f"{model_name}_{action.value}")
 
     def _get_parent_filter(self) -> dict:
         """For views hosted under a nested route, construct the filter parameters for
@@ -156,40 +161,40 @@ class PermissionedViewMixin(LoginRequiredMixin, UserPassesTestMixin):
             return self.request.user.has_perm(
                 required_permission, self.get_environment()
             )
-        else:
-            return False
+
+        return False
 
 
 class PermissionedCreateView(PermissionedViewMixin, CreateView):
     """Extended CreateView with active environment permissions checking and queryset
-    filtering."""
+    filtering. See `ui.views.generic` for details."""
 
-    post_action = "CREATE"
+    post_action = Operation.CREATE
 
 
 class PermissionedListView(PermissionedViewMixin, ListView):
     """Extended ListView with active environment permissions checking and queryset
-    filtering."""
+    filtering. See `ui.views.generic` for details."""
 
     pass
 
 
 class PermissionedDetailView(PermissionedViewMixin, DetailView):
     """Extended DetailView with active environment permissions checking and queryset
-    filtering."""
+    filtering. See `ui.views.generic` for details."""
 
     pass
 
 
 class PermissionedUpdateView(PermissionedViewMixin, UpdateView):
     """Extended UpdateView with active environment permissions checking and queryset
-    filtering."""
+    filtering. See `ui.views.generic` for details."""
 
-    post_action = "UPDATE"
+    post_action = Operation.UPDATE
 
 
 class PermissionedDeleteView(PermissionedViewMixin, DeleteView):
     """Extended DeleteView with active environment permissions checking and queryset
-    filtering."""
+    filtering. See `ui.views.generic` for details."""
 
-    post_action = "DELETE"
+    post_action = Operation.DELETE

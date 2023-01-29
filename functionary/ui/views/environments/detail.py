@@ -36,3 +36,8 @@ class EnvironmentDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
             else Variable.objects.none()
         )
         return context
+
+    def test_func(self):
+        return self.request.user.has_perm(
+            Permission.ENVIRONMENT_READ, self.get_object()
+        )
