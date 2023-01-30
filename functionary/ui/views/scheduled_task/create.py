@@ -13,7 +13,6 @@ from .utils import get_crontab_schedule
 
 class ScheduledTaskCreateView(PermissionedCreateView):
     model = ScheduledTask
-    permissioned_model = "Task"
     form_class = ScheduledTaskForm
     template_name = "forms/scheduled_task/scheduled_task_edit.html"
 

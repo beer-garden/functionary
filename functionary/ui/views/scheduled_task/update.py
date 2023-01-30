@@ -10,7 +10,6 @@ from ui.views.scheduled_task.utils import get_crontab_schedule
 
 class ScheduledTaskUpdateView(PermissionedUpdateView):
     model = ScheduledTask
-    permissioned_model = "Task"
     form_class = ScheduledTaskForm
     template_name = "forms/scheduled_task/scheduled_task_edit.html"
 

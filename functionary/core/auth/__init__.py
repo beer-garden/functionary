@@ -42,6 +42,11 @@ class Permission(Enum):
     PACKAGE_UPDATE = "package:update"
     PACKAGE_DELETE = "package:delete"
 
+    SCHEDULEDTASK_CREATE = "scheduledtask:create"
+    SCHEDULEDTASK_READ = "scheduledtask:read"
+    SCHEDULEDTASK_UPDATE = "scheduledtask:update"
+    SCHEDULEDTASK_DELETE = "scheduledtask:delete"
+
     TASK_CREATE = "task:create"
     TASK_READ = "task:read"
     TASK_UPDATE = "task:update"
@@ -100,6 +105,9 @@ _READ_ONLY_PERMISSIONS = [
 
 # Operators just handle tasking for a team and environment
 _OPERATOR_PERMISSIONS = _READ_ONLY_PERMISSIONS + [
+    Permission.SCHEDULEDTASK_CREATE.value,
+    Permission.SCHEDULEDTASK_UPDATE.value,
+    Permission.SCHEDULEDTASK_DELETE.value,
     Permission.TASK_CREATE.value,
     Permission.WORKFLOW_CREATE.value,
     Permission.WORKFLOW_UPDATE.value,

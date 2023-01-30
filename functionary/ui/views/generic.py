@@ -104,7 +104,9 @@ class PermissionedViewMixin(LoginRequiredMixin, UserPassesTestMixin):
                     Operation.UPDATE if self.permissioned_model else self.post_action
                 )
             case "DELETE":
-                action = Operation.UPDATE if self.permissioned_model else "DELETE"
+                action = (
+                    Operation.UPDATE if self.permissioned_model else Operation.DELETE
+                )
             case _:
                 return None
 

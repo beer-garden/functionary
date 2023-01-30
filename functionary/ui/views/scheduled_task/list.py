@@ -6,5 +6,4 @@ PAGINATION_AMOUNT = 15
 
 class ScheduledTaskListView(PermissionedListView):
     model = ScheduledTask
-    permissioned_model = "Task"
     paginate_by = PAGINATION_AMOUNT
