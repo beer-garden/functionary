@@ -69,10 +69,12 @@ seed data.
 To debug, a set of launch commands is provided:
 
 - runserver (functionary)
+- run_listener (functionary)
 - run_worker (functionary)
-- build_worker (functionary)
-- listener (runner)
-- worker (runner)
+- run_build_worker (functionary)
+- run_scheduler (functionary)
+- shell (functionary)
+- runner (runner)
 
 These will be available from the dropdown in the "Run and Debug" panel
 (`Ctrl+Shift+D`). When launching any of these, if there was already a container

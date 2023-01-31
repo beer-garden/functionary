@@ -7,7 +7,6 @@
 To run the various components of Functionary you'll first need the following:
 
 - RabbitMQ
-- Redis
 - A private container registry
 
 The easiest way to run these is via the docker-compose.yml available
@@ -29,8 +28,6 @@ environment variables:
 
 - RABBITMQ_HOST
 - RABBITMQ_PORT
-- REDIS_HOST
-- REDIS_PORT
 - REGISTRY_HOST
 - REGISTRY_PORT
 
