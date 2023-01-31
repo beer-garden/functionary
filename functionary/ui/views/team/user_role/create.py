@@ -19,14 +19,14 @@ class TeamUserRoleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
-        context["team_id"] = self.kwargs.get("team_id")
+        context["team_id"] = self.kwargs.get("team_pk")
         return context
 
     def get_success_url(self) -> str:
-        return reverse("ui:team-detail", kwargs={"pk": self.kwargs.get("team_id")})
+        return reverse("ui:team-detail", kwargs={"pk": self.kwargs.get("team_pk")})
 
     def test_func(self) -> bool:
-        team = get_object_or_404(Team, id=self.kwargs["team_id"])
+        team = get_object_or_404(Team, id=self.kwargs["team_pk"])
         return self.request.user.has_perm(Permission.TEAM_UPDATE, team)
 
 

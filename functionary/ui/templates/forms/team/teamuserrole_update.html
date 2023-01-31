@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block form_declaration %}
-    <form hx-post="{% url 'ui:update-team-member' teamuserrole.team.id teamuserrole.id %}" method="post" hx-swap="outerHTML" hx-target="#form-modal">
+    <form hx-post="{% url 'ui:teamuserrole-update' teamuserrole.team.id teamuserrole.id %}" method="post" hx-swap="outerHTML" hx-target="#form-modal">
 {% endblock %}
 
 {% block modal_content %}

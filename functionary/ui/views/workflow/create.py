@@ -10,7 +10,7 @@ class WorkflowCreateView(PermissionedCreateView):
     """Create view for the Workflow model"""
 
     model = Workflow
-    template_name = "forms/workflows/workflow_edit.html"
+    template_name = "forms/workflow/workflow_edit.html"
     fields = ["name", "description", "environment"]
 
     def form_valid(self, form):

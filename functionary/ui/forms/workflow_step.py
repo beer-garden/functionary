@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class WorkflowStepCreateForm(forms.ModelForm):
     """Form for WorkflowStep creation"""
 
-    template_name = "forms/workflows/step_edit.html"
+    template_name = "forms/workflow/step_edit.html"
 
     class Meta:
         model = WorkflowStep

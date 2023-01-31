@@ -14,7 +14,7 @@
                 type="button"
                 title="Edit"
                 onclick="disableVariableButtons(true)"
-                hx-get="{% url 'ui:update-variable' pk=variable.id parent_id=parent_id %}">
+                hx-get="{% url 'ui:variable-update' pk=variable.id parent_id=parent_id %}">
             <span class="fa fa-pencil-alt"/>
         </button>
     {% endif %}
@@ -25,7 +25,7 @@
                 hx-confirm="Are you sure you want to delete {{ variable.name }}?"
                 hx-target="closest tr"
                 hx-swap="outerHTML swap:1s"
-                hx-delete="{% url 'ui:delete-variable' variable.id %}">
+                hx-delete="{% url 'ui:variable-delete' variable.id %}">
             <span class="fa fa-trash"/>
         </button>
     {% endif %}

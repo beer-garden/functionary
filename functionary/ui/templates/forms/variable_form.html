@@ -34,14 +34,14 @@
                 </div>
             </div>
             {% if variable %}
-                <button class="button" type="submit" onclick="disableVariableButtons(false)" hx-post="{% url 'ui:update-variable' variable.id parent_id %}">
+                <button class="button" type="submit" onclick="disableVariableButtons(false)" hx-post="{% url 'ui:variable-update' variable.id parent_id %}">
                     Update
                 </button>
-                <button class="button" onclick="disableVariableButtons(false)" hx-get="{% url 'ui:detail-variable' pk=variable.id %}">
+                <button class="button" onclick="disableVariableButtons(false)" hx-get="{% url 'ui:variable-detail' pk=variable.id %}">
                     Cancel
                 </button>
             {% else %}
-                <button class="button" type="submit" onclick="disableVariableButtons(false)" hx-params="not environment, team" hx-post="{% url 'ui:add-variable' parent_id %}">
+                <button class="button" type="submit" onclick="disableVariableButtons(false)" hx-params="not environment, team" hx-post="{% url 'ui:variable-create' parent_id %}">
                     Add
                 </button>
                 <button id="remove_var_button" class="button" onclick="htmx.remove(htmx.closest(htmx.find('#remove_var_button'), '.add_variable_form')); disableVariableButtons(false)">

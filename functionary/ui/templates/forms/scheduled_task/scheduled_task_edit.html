@@ -6,9 +6,9 @@
     {% if form %}
         
         {% if update %}
-            <form method="post" action="{% url 'ui:update-schedule' scheduledtask.id %}">
+            <form method="post" action="{% url 'ui:scheduledtask-update' scheduledtask.id %}">
         {% else %}
-            <form method="post" action="{% url 'ui:create-schedule' %}">
+            <form method="post" action="{% url 'ui:scheduledtask-create' %}">
         {% endif %}
             
         {% csrf_token %}

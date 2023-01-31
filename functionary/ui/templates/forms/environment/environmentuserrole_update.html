@@ -1,6 +1,5 @@
 {% extends "partials/modal.html" %}
 
-
 {% block modal_title %}
     Update User's Role
 {% endblock %}
@@ -10,7 +9,7 @@
 {% endblock %}
 
 {% block form_declaration %}
-    <form hx-post="{% url 'ui:update-environment-member' environmentuserrole.environment.id environmentuserrole.id %}" method="post" 
+    <form hx-post="{% url 'ui:environmentuserrole-update' environmentuserrole.environment.id environmentuserrole.id %}" method="post"
         hx-swap="outerHTML" 
         hx-target="#form-modal">
 {% endblock %}

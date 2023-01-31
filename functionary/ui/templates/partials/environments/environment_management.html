@@ -2,7 +2,7 @@
     <i class="fa fa-user"></i>&nbsp;Users:
     <button class="button is-small has-text-link is-white singletonActive"
             hx-trigger="click"
-            hx-get="{% url 'ui:create-environment-member' environment_id %}"
+            hx-get="{% url 'ui:environmentuserrole-create' environment_id %}"
             hx-target="#add-user"
             type="button">
         <span class="fa fa-plus"></span>
@@ -30,13 +30,13 @@
                 <td>
                     {% if u.environment_user_role_id %}
                         <button class="button is-small has-text-link is-white singletonActive"
-                                hx-get="{% url 'ui:update-environment-member' environment_id u.environment_user_role_id %}"
+                                hx-get="{% url 'ui:environmentuserrole-update' environment_id u.environment_user_role_id %}"
                                 hx-target="#update-modal">
                             <span class="fa fa-pencil-alt"></span>
                         </button>
                     {% else %}
                         <button class="button is-small has-text-link is-white singletonActive"
-                                hx-get="{% url 'ui:create-environment-member' environment_id %}"
+                                hx-get="{% url 'ui:environmentuserrole-create' environment_id %}"
                                 hx-vals='{"user_id": "{{ u.user.id }}"}'
                                 hx-target="#update-modal">
                             <span class="fa fa-pencil-alt"></span>
@@ -46,7 +46,7 @@
                 <td>
                     {% if u.environment_user_role_id %}
                         <button class="button is-small has-text-link is-white singletonActive"
-                                hx-post="{% url 'ui:delete-environment-member' environment_id u.environment_user_role_id %}"
+                                hx-post="{% url 'ui:environmentuserrole-delete' environment_id u.environment_user_role_id %}"
                                 hx-confirm="Are you sure you want to remove {{ u.user.username }}'s explicit role from this environment?">
                             <span class="fa fa-trash"></span>
                         </button>

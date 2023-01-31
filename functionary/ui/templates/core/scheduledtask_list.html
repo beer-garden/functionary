@@ -3,7 +3,7 @@
 {% block content %}
     <div>
         <div class="level-right">
-            <a href="{% url 'ui:create-schedule' %}">
+            <a href="{% url 'ui:scheduledtask-create' %}">
                 <button class="button level-item is-link mt-5 mb-5">
                     <span class="icon is-small">
                         <i class="fa fa-solid fa-plus"></i>
@@ -29,7 +29,7 @@
                 {% for schedule in page_obj %}
                     <tr>
                         <td>
-                            <a href="{% url 'ui:detail-schedule' schedule.id %}">{{ schedule.name }}</a>
+                            <a href="{% url 'ui:scheduledtask-detail' schedule.id %}">{{ schedule.name }}</a>
                         </td>
                         <td>
                             <a href="{% url 'ui:function-detail' schedule.function.id %}">{{ schedule.function.name }}</a>
@@ -44,7 +44,7 @@
                         <td>{{ schedule.periodic_task.crontab }}</td>
                         <td>{{ schedule.status }}</td>
                         <td>
-                            <a href="{% url 'ui:update-schedule' schedule.id %}">
+                            <a href="{% url 'ui:scheduledtask-update' schedule.id %}">
                                 <button class="button is-small has-text-link is-white singletonActive">
                                     <span class="fa fa-pencil-alt"></span>
                                 </button>

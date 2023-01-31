@@ -1,7 +1,7 @@
 from builder.models import Build
 
 from .generic import PermissionedDetailView, PermissionedListView
-from .tasks import FINISHED_STATUS
+from .task import FINISHED_STATUS
 
 PAGINATION_AMOUNT = 15
 

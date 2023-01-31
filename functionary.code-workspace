@@ -19,7 +19,7 @@
       "path": "runner"
     },
     {
-      "path": "templates"
+      "path": "package_templates"
     }
   ],
   "settings": {

@@ -5,18 +5,18 @@ from django.urls import reverse
 from core.models import Environment, ScheduledTask
 from ui.forms import ScheduledTaskForm, TaskParameterForm
 from ui.views.generic import PermissionedUpdateView
-from ui.views.schedules.utils import get_crontab_schedule
+from ui.views.scheduled_task.utils import get_crontab_schedule
 
 
 class ScheduledTaskUpdateView(PermissionedUpdateView):
     model = ScheduledTask
     permissioned_model = "Task"
     form_class = ScheduledTaskForm
-    template_name = "forms/schedules/scheduling_edit.html"
+    template_name = "forms/scheduled_task/scheduled_task_edit.html"
 
     def get_success_url(self) -> str:
         scheduled_task: ScheduledTask = self.get_object()
-        return reverse("ui:detail-schedule", kwargs={"pk": scheduled_task.id})
+        return reverse("ui:scheduledtask-detail", kwargs={"pk": scheduled_task.id})
 
     def get_initial(self) -> dict:
         initial = super().get_initial()
@@ -75,4 +75,4 @@ class ScheduledTaskUpdateView(PermissionedUpdateView):
             "form": form,
             "task_parameter_form": task_parameter_form,
         }
-        return render(request, "forms/schedules/scheduling_edit.html", context)
+        return render(request, "forms/scheduled_task/scheduled_task_edit.html", context)

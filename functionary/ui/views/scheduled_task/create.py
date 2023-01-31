@@ -15,7 +15,7 @@ class ScheduledTaskCreateView(PermissionedCreateView):
     model = ScheduledTask
     permissioned_model = "Task"
     form_class = ScheduledTaskForm
-    template_name = "forms/schedules/scheduling_edit.html"
+    template_name = "forms/scheduled_task/scheduled_task_edit.html"
 
     def get_form_kwargs(self) -> dict:
         kwargs = super().get_form_kwargs()
@@ -32,7 +32,7 @@ class ScheduledTaskCreateView(PermissionedCreateView):
                 self.request,
                 "No available functions to schedule in current environment.",
             )
-            return redirect("ui:schedule-list")
+            return redirect("ui:scheduledtask-list")
         return super().get(*args, **kwargs)
 
     def post(self, request: HttpRequest) -> HttpResponse:
@@ -60,14 +60,14 @@ class ScheduledTaskCreateView(PermissionedCreateView):
                 task_parameter_form.cleaned_data,
             )
             return HttpResponseRedirect(
-                reverse("ui:detail-schedule", kwargs={"pk": scheduled_task.id})
+                reverse("ui:scheduledtask-detail", kwargs={"pk": scheduled_task.id})
             )
 
         context = {
             "form": scheduled_task_form,
             "task_parameter_form": task_parameter_form,
         }
-        return render(request, "forms/schedules/scheduling_edit.html", context)
+        return render(request, "forms/scheduled_task/scheduled_task_edit.html", context)
 
 
 def _create_scheduled_task(

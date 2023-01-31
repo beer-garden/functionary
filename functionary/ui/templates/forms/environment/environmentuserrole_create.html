@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block form_declaration %}
-    <form hx-post="{% url 'ui:create-environment-member' environment_id %}" method="post" hx-swap="outerHTML" hx-target="#form-modal">
+    <form hx-post="{% url 'ui:environmentuserrole-create' environment_id %}" method="post" hx-swap="outerHTML" hx-target="#form-modal">
 {% endblock %}
 
 {% block modal_content %}

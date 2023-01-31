@@ -43,7 +43,7 @@ registry is started before running the script.
 
 ```shell
 # Starting from the root of the functionary repo
-cd templates
+cd package_templates
 ./build.sh -p
 ```
 

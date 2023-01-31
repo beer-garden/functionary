@@ -9,7 +9,7 @@ class WorkflowUpdateView(PermissionedUpdateView):
     """View to handle updates of Workflow details"""
 
     model = Workflow
-    template_name = "forms/workflows/workflow_edit.html"
+    template_name = "forms/workflow/workflow_edit.html"
     fields = ["name", "description"]
 
     def form_valid(self, form):

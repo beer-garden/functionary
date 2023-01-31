@@ -3,7 +3,7 @@ from django.views.generic.detail import DetailView
 
 from core.auth import Permission
 from core.models import Team, Variable
-from ui.views.teams.utils import get_users
+from ui.views.team.utils import get_users
 
 
 class TeamDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):

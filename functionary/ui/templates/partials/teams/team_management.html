@@ -2,7 +2,7 @@
     <i class="fa fa-user"></i>&nbsp;Users:
     <button class="button is-small has-text-link is-white singletonActive"
             hx-trigger="click"
-            hx-get="{% url 'ui:create-team-member' team_id %}"
+            hx-get="{% url 'ui:teamuserrole-create' team_id %}"
             hx-target="#add-user"
             type="button">
         <span class="fa fa-plus"></span>
@@ -27,14 +27,14 @@
                 <td>{{ u.role }}</td>
                 <td>
                     <button class="button is-small has-text-link is-white singletonActive"
-                            hx-get="{% url 'ui:update-team-member' team_id u.team_user_role_id %}"
+                            hx-get="{% url 'ui:teamuserrole-update' team_id u.team_user_role_id %}"
                             hx-target="#update-modal">
                         <span class="fa fa-pencil-alt"></span>
                     </button>
                 </td>
                 <td>
                     <button class="button is-small has-text-link is-white singletonActive"
-                            hx-post="{% url 'ui:delete-team-member' team_id u.team_user_role_id %}"
+                            hx-post="{% url 'ui:teamuserrole-delete' team_id u.team_user_role_id %}"
                             hx-confirm="Are you sure you want to remove {{ u.user.username }}'s from this team?"
                             hx-target="closest tr"
                             hx-swap="outerHTML swap:1s">

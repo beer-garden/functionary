@@ -13,7 +13,7 @@ class WorkflowParameterFormViewMixin:
     model = WorkflowParameter
     permissioned_model = "Workflow"
     environment_through_field = "workflow"
-    template_name = "forms/workflows/parameter_edit.html"
+    template_name = "forms/workflow/parameter_edit.html"
     fields = "__all__"
 
     def form_valid(self, form):

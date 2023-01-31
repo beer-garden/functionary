@@ -2,9 +2,8 @@ from django.urls import reverse
 
 from core.models import EnvironmentUserRole
 from ui.forms.environments import EnvironmentUserRoleForm
+from ui.views.environment.utils import get_user_role
 from ui.views.generic import PermissionedUpdateView
-
-from .utils import get_user_role
 
 
 class EnvironmentUserRoleUpdateView(PermissionedUpdateView):
@@ -15,7 +14,7 @@ class EnvironmentUserRoleUpdateView(PermissionedUpdateView):
 
     def get_success_url(self) -> str:
         return reverse(
-            "ui:environment-detail", kwargs={"pk": self.kwargs.get("environment_id")}
+            "ui:environment-detail", kwargs={"pk": self.kwargs.get("environment_pk")}
         )
 
     def get_initial(self) -> dict:
