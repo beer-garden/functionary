@@ -319,8 +319,8 @@ def _deactivate_functions(definitions, package: Package):
     for function_def in definitions:
         function_names.append(function_def.get("name"))
 
-    removed_functions = Function.objects.exclude(
-        package=package, name__in=function_names
+    removed_functions = Function.objects.filter(package=package).exclude(
+        name__in=function_names
     )
 
     for function in removed_functions:

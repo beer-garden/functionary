@@ -97,8 +97,8 @@ def function4(package2):
 
 
 @pytest.fixture
-def definitions(function1, function2):
-    function_dict1 = {
+def package1_definitions_without_function2(function1):
+    function1_def = {
         "name": function1.name,
         "summary": function1.summary,
         "parameters": [],
@@ -106,26 +106,23 @@ def definitions(function1, function2):
         "display_name": function1.name,
     }
 
-    function_dict2 = {
-        "name": function2.name,
-        "summary": function2.summary,
-        "parameters": [],
-        "description": "description",
-        "display_name": function2.name,
-    }
-    return function_dict1, function_dict2
+    return [function1_def]
 
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures("function1", "function2", "function3", "function4")
-def test_deactivate_functions(definitions, package1):
+def test_deactivate_functions(
+    package1_definitions_without_function2, package1, package2
+):
     db_functions = Function.objects.all()
     for function in db_functions:
         assert function.active is True
 
-    utils._deactivate_functions(definitions, package1)
-    all_functions = Function.objects.all()
-    assert all_functions.get(name="function1").active is True
-    assert all_functions.get(name="function2").active is True
-    assert all_functions.get(name="function3").active is False
-    assert all_functions.get(name="function4").active is False
+    utils._deactivate_functions(package1_definitions_without_function2, package1)
+
+    # package2 functions should still all be active
+    assert package2.functions.count() == package2.active_functions.count()
+
+    # package1 function1 should be active, function2 inactive
+    assert package1.functions.get(name="function1").active is True
+    assert package1.functions.get(name="function2").active is False
