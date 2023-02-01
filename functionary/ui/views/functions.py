@@ -76,7 +76,6 @@ def execute(request: HttpRequest) -> HttpResponse:
     form = TaskParameterForm(func, data)
 
     if form.is_valid():
-
         # Clean the task fields before saving the Task
         try:
             # Create the new Task, the validated parameters are in form.cleaned_data
