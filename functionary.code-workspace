@@ -85,7 +85,7 @@
       {
         "label": "functionary: docker compose up",
         "type": "shell",
-        "command": "docker compose -f ../docker/docker-compose.yml up --build -d",
+        "command": "docker compose -f ../docker/docker-compose.yml build --build-arg uid=$UID && docker compose -f ../docker/docker-compose.yml up -d",
         "problemMatcher": []
       },
       {
