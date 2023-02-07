@@ -44,10 +44,10 @@ def _get_pydantic_model(instance: Union["Function", "Workflow"]) -> Type[BaseMod
     for parameter in instance.parameters.all():
         field = Field()
         field.alias = parameter.name
-        field.title = getattr(parameter, "render_name", parameter.name)
+        field.title = parameter.name
         field.description = parameter.description
 
-        field.default = parameter.default or (... if parameter.required else None)
+        field.default = ... if parameter.required else parameter.default
         type_ = _PARAMETER_TYPE_MAP[parameter.parameter_type]
 
         params_dict[field.alias] = (type_, field)
