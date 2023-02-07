@@ -19,6 +19,7 @@ class MinioInterface:
             secure=settings.S3_SECURE,
             region=settings.S3_REGION,
         )
+
         self.bucket_name = bucket_name
         self._create_bucket()
 
@@ -96,8 +97,9 @@ def handle_file_parameters(
     Returns:
         None
     """
-    minio = MinioInterface(bucket_name=str(task.environment.id))
     if request.FILES:
+        minio = MinioInterface(bucket_name=str(task.environment.id))
+
         for param_name, file in request.FILES.items():
             # Remove parameter prefix
             param_name = param_name.split("-")[-1]
