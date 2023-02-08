@@ -15,18 +15,15 @@ from core.auth import Permission
 from core.models import Environment, Function, Task
 from core.utils.minio import S3ConnectionError, handle_file_parameters
 from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
+from ui.tables.function import FunctionTable
 
 from .generic import PermissionedDetailView, PermissionedListView
-
-PAGINATION_AMOUNT = 15
 
 
 class FunctionListView(PermissionedListView):
     model = Function
-    environment_through_field = "package"
-    queryset = Function.objects.select_related("package").filter(active=True)
     ordering = ["package__name", "name"]
-    paginate_by = PAGINATION_AMOUNT
+    table_class = FunctionTable
 
 
 class FunctionDetailView(PermissionedDetailView):
