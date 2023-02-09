@@ -181,13 +181,12 @@ def _handle_file_parameters(task: Task) -> None:
     parameters = task.parameters
 
     for parameter in task.function.parameters.filter(
-        parameter_type=PARAMETER_TYPE.FILE
+        parameter_type=PARAMETER_TYPE.FILE, name__in=parameters.keys()
     ):
         param_name = parameter.name
 
-        if param_name in parameters:
-            filename = generate_filename(task, param_name, parameters[param_name])
-            parameters[param_name] = _get_presigned_url(filename, environment)
+        filename = generate_filename(task, param_name, parameters[param_name])
+        parameters[param_name] = _get_presigned_url(filename, environment)
 
 
 def _get_presigned_url(filename: str, environment: Environment) -> str:

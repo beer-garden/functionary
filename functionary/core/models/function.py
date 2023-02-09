@@ -29,7 +29,6 @@ class Function(models.Model):
         description: more details about the function
         variables: list of variable names to set before execution
         return_type: the type of the object being returned
-        schema: the function's OpenAPI definition
         active: whether the function is currently activated
     """
 
