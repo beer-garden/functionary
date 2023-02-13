@@ -1,6 +1,8 @@
 import django_tables2 as tables
 from django.urls import reverse
 
+from ui.tables.meta import BaseMeta
+
 
 class EnvironmentTable(tables.Table):
     environment = tables.Column(
@@ -14,5 +16,5 @@ class EnvironmentTable(tables.Table):
         linkify=lambda record: reverse("ui:team-detail", kwargs={"pk": record.team.id}),
     )
 
-    class Meta:
-        attrs = {"class": "table is-striped is-hoverable is-fullwidth"}
+    class Meta(BaseMeta):
+        pass

@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load django_tables2 %}
 {% block content %}
-    <div class="table-container">{% render_table table 'table.html' %}</div>
+    {% include "partials/table.html" %}
 {% endblock content %}

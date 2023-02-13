@@ -9,3 +9,4 @@ class WorkflowListView(PermissionedListView):
     model = Workflow
     ordering = ["name"]
     table_class = WorkflowTable
+    template_name = "core/workflow_list.html"

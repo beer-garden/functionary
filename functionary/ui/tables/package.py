@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.urls import reverse
 
 from core.models import Package
+from ui.tables.meta import BaseMeta
 
 
 class PackageTable(tables.Table):
@@ -9,7 +10,6 @@ class PackageTable(tables.Table):
         linkify=lambda record: reverse("ui:package-detail", kwargs={"pk": record.id}),
     )
 
-    class Meta:
+    class Meta(BaseMeta):
         model = Package
         fields = ("name", "summary")
-        attrs = {"class": "table is-striped is-hoverable is-fullwidth"}

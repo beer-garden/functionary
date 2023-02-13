@@ -3,6 +3,14 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from core.models.scheduled_task import ScheduledTask
+from ui.tables import DATETIME_FORMAT
+from ui.tables.meta import BaseMeta
+
+
+def generateLastRunUrl(record):
+    if record.most_recent_task:
+        return reverse("ui:task-detail", kwargs={"pk": record.most_recent_task})
+    return None
 
 
 class ScheduledTaskTable(tables.Table):
@@ -19,10 +27,8 @@ class ScheduledTaskTable(tables.Table):
     last_run = tables.DateTimeColumn(
         accessor="most_recent_task__created_at",
         verbose_name="Last Run",
-        linkify=lambda record: reverse(
-            "ui:task-detail", kwargs={"pk": record.most_recent_task}
-        ),
-        format="N j, Y, g:i a",
+        linkify=lambda record: generateLastRunUrl(record),
+        format=DATETIME_FORMAT,
     )
     schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
     edit_button = tables.Column(
@@ -30,10 +36,9 @@ class ScheduledTaskTable(tables.Table):
         verbose_name="",
     )
 
-    class Meta:
+    class Meta(BaseMeta):
         model = ScheduledTask
         fields = ("name", "function", "last_run", "schedule", "status", "edit_button")
-        attrs = {"class": "table is-striped is-hoverable is-fullwidth"}
 
     def render_edit_button(self, value, record):
         return format_html(

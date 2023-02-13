@@ -2,6 +2,7 @@ import django_tables2 as tables
 from django.urls import reverse
 
 from core.models import Function
+from ui.tables.meta import BaseMeta
 
 
 class FunctionTable(tables.Table):
@@ -14,7 +15,6 @@ class FunctionTable(tables.Table):
         ),
     )
 
-    class Meta:
+    class Meta(BaseMeta):
         model = Function
         fields = ("name", "package", "summary")
-        attrs = {"class": "table is-striped is-hoverable is-fullwidth"}
