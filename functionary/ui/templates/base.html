@@ -42,16 +42,15 @@
         <div class="container-fluid">
             <div class="row flex-nowrap">
                 <div class="col-auto px-lg-3 px-md-2 px-0 bg-panel text-light shadow">
-                    <div class="d-flex flex-column justify-content-between p-3 min-vh-100 max-vh-100">
+                    <div class="d-flex flex-column justify-content-between px-3 min-vh-100 max-vh-100">
                         {% if user.is_authenticated %}
                             <nav class="nav nav-pills flex-column mb-auto align-items-center align-items-md-start">
                                 <a href="{% url 'ui:home' %}" class="navbar-brand">
-                                    <h1>
+                                    <h1 class="mb-0">
                                         <span class="display-2">F</span>
                                         <span class="functionary-title fs-4">unctionary</span>
                                     </h1>
                                 </a>
-                                <h2 class="navbar-brand">Run your functions</h2>
                                 <hr class="w-100" />
                                 {% include "partials/env_selector.html" %}
                                 <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
