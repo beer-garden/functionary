@@ -21,7 +21,7 @@
                     <form hx-post="{% url 'socialaccount_connections' %}">
                         {% csrf_token %}
                         {% if form.non_field_errors %}<div id="errorMsg">{{ form.non_field_errors }}</div>{% endif %}
-                        <table class="table table-striped table-sm">
+                        <table class="table table-sm">
                             <thead class="table-light">
                                 <tr>
                                     <th scope="col">Provider</th>
@@ -58,7 +58,7 @@
                                                         hx-target="#connect_modal"
                                                         hx-swap="innerHTML"
                                                         hx-get="{% provider_login_url provider_pair.provider.id process="connect" scope=scope auth_params=auth_params %}">
-                                                    <icon class="fa fa-plus text-tertiary" />
+                                                    <icon class="fa fa-plus text-success" />
                                                 </button>
                                             {% endif %}
                                         </td>

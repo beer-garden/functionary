@@ -6,22 +6,34 @@
 
 // 2. Include any default variable overrides here
 $gunmetal: #343E40;
-$persian-blue: #3436ad;
-$eggshell: #E9E7CF;
+// $persian-blue: #3436ad;
+// $eggshell: #E9E7CF;
+$lapis-lazuli: #3E5F8E;
+$seasalt: #F7F8F8;
 
-$primary: #0A174B;
-$secondary: #E9E7CF;
-$tertiary: #2B405B;
-$panel: #D7ACA9;
-$body-bg: #F7F8F8;
+// $primary: #0A174B;
+// $secondary: #E9E7CF;
+// $tertiary: #2B405B;
+// $panel: #D7ACA9;
+// $body-bg: $seasalt;
+// $danger: #8a1b19;
+// $warning: #FFCDA3;
+// $info: #7CAFB6;
+// $success: #5a7a57;
+
+$primary: $lapis-lazuli;
+$secondary: $seasalt;
+$tertiary: $seasalt;
+$panel: $lapis-lazuli;
+$body-bg: $seasalt;
 $danger: #8a1b19;
 $warning: #FFCDA3;
 $info: #7CAFB6;
 $success: #5a7a57;
 
-$link-color: $primary;
-$link-hover-color: $persian-blue;
-$emphasized-link-hover-darken-percentage: 25%;
+// $link-color: $primary;
+$link-hover-color: adjust-color($body-bg, $blackness: +15%); //$persian-blue;
+// $emphasized-link-hover-darken-percentage: 25%;
 $text-light: $body-bg;
 $text-dark: $gunmetal;
 
@@ -32,25 +44,19 @@ $text-dark: $gunmetal;
 $display-font-family: 'Playball', cursive;
 $display-font-sizes: (1: 7rem, 2: 5rem);
 
-$navbar-dark-brand-color: $secondary;
-$navbar-dark-color: $primary;
-$navbar-light-color: $panel;
 $nav-link-color: $tertiary;
 
-$table-striped-bg-factor: .45;
-$table-striped-bg: rgba($secondary, $table-striped-bg-factor);
-$table-striped-order: even;
+// $table-striped-bg-factor: .45;
+// $table-striped-bg: rgba($secondary, $table-striped-bg-factor);
+// $table-striped-order: even;
 
 $hr-border-color: $tertiary;
 
-$btn-close-color: $body-bg;
+// $modal-footer-bg: $secondary;
+// $modal-content-bg: $body-bg;
 
-$modal-footer-bg: $secondary;
-$modal-content-bg: $body-bg;
-
-$input-focus-border-color: $primary;
-$input-btn-focus-color: $primary;
-$input-bg: adjust-color($body-bg, $lightness: +5%);
+// $input-focus-border-color: $primary;
+// $input-bg: adjust-color($body-bg, $lightness: +5%);
 
 // 3. Include remainder of required Bootstrap stylesheets
 
@@ -75,27 +81,10 @@ $utilities-colors: map-merge($utilities-colors, $theme-colors-rgb);
 $utilities-text-colors: map-loop($utilities-colors, rgba-css-var, "$key", "text");
 $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 
-// Must import after theme mapping or it breaks color for panel :(
-@import "./utilities";
-
-$utilities: map-merge(
-  $utilities,
-  (
-    "viewport-height": (
-      property: height,
-      class: vh,
-      values: (100: 100vh, 92: 92vh)
-    ),
-    "min-viewport-height": (
-      property: min-height,
-      class: min-vh,
-      values: (100: 100vh, 92: 92vh)
-    )
-  )
-);
-
 // 5. Include remainder of required Bootstrap stylesheets
 @import "./root";
+// Must import after theme mapping or it breaks color for panel :(
+@import "./utilities";
 
 // 6. Include additional Bootstrap components
 @import "./reboot";

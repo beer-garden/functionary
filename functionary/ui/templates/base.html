@@ -38,23 +38,20 @@
         <script src="{% static 'js/highlight-menu-item.js' %}" defer></script>
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        <nav class="navbar navbar-expand-sm navbar-dark bg-primary px-2 py-0">
-            <div class="container-fluid">
-                <a href="{% url 'ui:home' %}" class="navbar-brand">
-                    <h1>
-                        <span class="display-2">F</span>
-                        <span class="functionary-title fs-4">unctionary</span>
-                    </h1>
-                </a>
-                <h2 class="navbar-brand">Run your functions</h2>
-            </div>
-        </nav>
         <div class="container-fluid">
             <div class="row flex-nowrap">
-                <div class="col-auto px-lg-3 px-md-2 px-0 bg-panel shadow">
-                    <div class="d-flex flex-column justify-content-between p-3 min-vh-92 max-vh-92">
+                <div class="col-auto px-lg-3 px-md-2 px-0 bg-panel text-light shadow">
+                    <div class="d-flex flex-column justify-content-between p-3 min-vh-100 max-vh-100">
                         {% if user.is_authenticated %}
                             <nav class="nav nav-pills flex-column mb-auto align-items-center align-items-md-start">
+                                <a href="{% url 'ui:home' %}" class="navbar-brand">
+                                    <h1>
+                                        <span class="display-2">F</span>
+                                        <span class="functionary-title fs-4">unctionary</span>
+                                    </h1>
+                                </a>
+                                <h2 class="navbar-brand">Run your functions</h2>
+                                <hr class="w-100" />
                                 {% include "partials/env_selector.html" %}
                                 <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
                                     <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
@@ -100,7 +97,7 @@
                                 <form method="post" action="{% url 'account_logout' %}">
                                     {% csrf_token %}
                                     <button class="btn nav-link px-0" type="submit">
-                                        <i class="fa fa-lg fa-door-open fa-fw text-danger"></i>
+                                        <i class="fa fa-lg fa-door-open fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Logout</span>
                                     </button>
                                 </form>
