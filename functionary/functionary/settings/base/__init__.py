@@ -71,7 +71,6 @@ INSTALLED_APPS = [
     "builder",
     "ui",
     "django.contrib.admin",
-    "django_bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -157,11 +156,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# AUTHENTICATION_BACKENDS = [
-#     "django.contrib.auth.backends.ModelBackend",
-#     "core.auth.backends.CoreBackend",
-#     "allauth.account.auth_backends.AuthenticationBackend",
-# ]
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "core.auth.backends.CoreBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 
 
 # Internationalization
