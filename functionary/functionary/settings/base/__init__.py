@@ -157,11 +157,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "core.auth.backends.CoreBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
+# AUTHENTICATION_BACKENDS = [
+#     "django.contrib.auth.backends.ModelBackend",
+#     "core.auth.backends.CoreBackend",
+#     "allauth.account.auth_backends.AuthenticationBackend",
+# ]
 
 
 # Internationalization
@@ -185,11 +185,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Bootstrap settings
-# https://django-bootstrap5.readthedocs.io/en/latest/settings.html
-
-BOOTSTRAP5 = {
-    # Customize by building /static/scss/custom.scss with Sass CLI tool into below file
-    "theme_url": os.path.join(BASE_DIR.parent.parent, "/static/css/custom.css"),
-}
