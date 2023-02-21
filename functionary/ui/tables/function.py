@@ -1,8 +1,19 @@
+import django_filters
 import django_tables2 as tables
 from django.urls import reverse
 
 from core.models import Function
 from ui.tables.meta import BaseMeta
+
+FIELDS = ("name", "package", "summary")
+
+
+class FunctionFilter(django_filters.FilterSet):
+    package = django_filters.Filter(field_name="package__name", label="Package")
+
+    class Meta:
+        model = Function
+        fields = FIELDS
 
 
 class FunctionTable(tables.Table):
@@ -19,4 +30,4 @@ class FunctionTable(tables.Table):
 
     class Meta(BaseMeta):
         model = Function
-        fields = ("name", "package", "summary")
+        fields = FIELDS

@@ -1,3 +1,4 @@
+import django_filters
 import django_tables2 as tables
 from django.urls import reverse
 from django.utils.html import format_html
@@ -5,6 +6,17 @@ from django.utils.html import format_html
 from core.models.scheduled_task import ScheduledTask
 from ui.tables import DATETIME_FORMAT
 from ui.tables.meta import BaseMeta
+
+FIELDS = ("name", "function", "last_run", "schedule", "status")
+
+
+class ScheduledTaskFilter(django_filters.FilterSet):
+    function = django_filters.Filter(field_name="function__name", label="Function")
+
+    class Meta:
+        model = ScheduledTask
+        fields = FIELDS
+        exclude = ("schedule", "last_run")
 
 
 def generateLastRunUrl(record):
@@ -41,7 +53,7 @@ class ScheduledTaskTable(tables.Table):
 
     class Meta(BaseMeta):
         model = ScheduledTask
-        fields = ("name", "function", "last_run", "schedule", "status", "edit_button")
+        fields = FIELDS
 
     def render_edit_button(self, value, record):
         return format_html(

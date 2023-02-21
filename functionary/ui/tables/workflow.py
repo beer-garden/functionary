@@ -1,8 +1,19 @@
+import django_filters
 import django_tables2 as tables
 from django.urls import reverse
 
 from core.models import Workflow
 from ui.tables.meta import BaseMeta
+
+FIELDS = ("name", "description", "creator")
+
+
+class WorkflowFilter(django_filters.FilterSet):
+    creator = django_filters.Filter(field_name="creator__username", label="Creator")
+
+    class Meta:
+        model = Workflow
+        fields = FIELDS
 
 
 class WorkflowTable(tables.Table):
@@ -13,4 +24,4 @@ class WorkflowTable(tables.Table):
 
     class Meta(BaseMeta):
         model = Workflow
-        fields = ("name", "description", "creator")
+        fields = FIELDS

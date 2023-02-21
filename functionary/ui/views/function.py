@@ -15,7 +15,7 @@ from core.auth import Permission
 from core.models import Environment, Function, Task
 from core.utils.minio import S3ConnectionError, handle_file_parameters
 from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
-from ui.tables.function import FunctionTable
+from ui.tables.function import FunctionFilter, FunctionTable
 
 from .generic import PermissionedDetailView, PermissionedListView
 
@@ -24,6 +24,7 @@ class FunctionListView(PermissionedListView):
     model = Function
     ordering = ["package__name", "name"]
     table_class = FunctionTable
+    filterset_class = FunctionFilter
 
 
 class FunctionDetailView(PermissionedDetailView):
