@@ -4,12 +4,11 @@ from .base import *  # noqa
 
 DEBUG = True
 
-INSTALLED_APPS += ["debug_toolbar", "django_browser_reload"]
+INSTALLED_APPS += ["debug_toolbar"]
 
 # Note: Order of MIDDLEWARE content matters
 MIDDLEWARE += [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 
