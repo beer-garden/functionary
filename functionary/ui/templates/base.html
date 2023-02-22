@@ -44,11 +44,11 @@
                 <div class="col-auto px-lg-3 px-md-2 px-0 bg-panel text-light shadow">
                     <div class="d-flex flex-column justify-content-between px-3 min-vh-100 max-vh-100">
                         {% if user.is_authenticated %}
-                            <nav class="nav nav-pills flex-column mb-auto align-items-center align-items-md-start">
+                            <nav class="nav navbar-dark nav-pills flex-column mb-auto align-items-center align-items-md-start">
                                 <a href="{% url 'ui:home' %}" class="navbar-brand">
                                     <h1 class="mb-0">
                                         <span class="display-2">F</span>
-                                        <span class="functionary-title fs-4">unctionary</span>
+                                        <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
                                     </h1>
                                 </a>
                                 <hr class="w-100" />

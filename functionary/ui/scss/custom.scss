@@ -10,11 +10,13 @@ $gunmetal: #343E40;
 // $eggshell: #E9E7CF;
 $lapis-lazuli: #3E5F8E;
 $seasalt: #F7F8F8;
+// $tea-rose: #D7ACA9;
+// $indigo-dye: #2B405B;
 
 // $primary: #0A174B;
 // $secondary: #E9E7CF;
-// $tertiary: #2B405B;
-// $panel: #D7ACA9;
+// $tertiary: $tea-rose;
+// $panel: $primary;
 // $body-bg: $seasalt;
 // $danger: #8a1b19;
 // $warning: #FFCDA3;
@@ -24,15 +26,15 @@ $seasalt: #F7F8F8;
 $primary: $lapis-lazuli;
 $secondary: $seasalt;
 $tertiary: $seasalt;
-$panel: $lapis-lazuli;
+$panel: $primary;
 $body-bg: $seasalt;
 $danger: #8a1b19;
 // $warning: #FFCDA3;
 // $info: #7CAFB6;
 $success: #5a7a57;
 
-// $link-color: $primary;
-$link-hover-color: adjust-color($body-bg, $blackness: +15%); //$persian-blue;
+$link-color: $primary;
+// $link-hover-color: $persian-blue;
 // $emphasized-link-hover-darken-percentage: 25%;
 $text-light: $body-bg;
 $text-dark: $gunmetal;
@@ -45,6 +47,8 @@ $display-font-family: 'Playball', cursive;
 $display-font-sizes: (1: 7rem, 2: 4rem);
 
 $nav-link-color: $tertiary;
+$nav-link-hover-color: adjust-color($body-bg, $blackness: +35%);
+$navbar-dark-brand-color: $secondary;
 
 // $table-striped-bg-factor: .45;
 // $table-striped-bg: rgba($secondary, $table-striped-bg-factor);
@@ -59,9 +63,10 @@ $hr-border-color: $tertiary;
 // $input-bg: adjust-color($body-bg, $lightness: +5%);
 
 // $pagination-bg: $primary;
-// $pagination-color: $secondary;
-// $pagination-disabled-color: $text-light;
-// $pagination-disabled-bg: $tertiary;
+// $pagination-color: $text-light;
+$pagination-hover-color: $primary;
+$pagination-active-bg: $primary;
+$pagination-active-border-color: $primary;
 
 $enable-rfs: false; // Disable Responsive Font Sizes
 

@@ -10,10 +10,12 @@ class EnvironmentTable(tables.Table):
         linkify=lambda record: reverse(
             "ui:environment-detail", kwargs={"pk": record.id}
         ),
+        attrs={"a": {"class": "text-decoration-none"}},
     )
     team = tables.Column(
         accessor="team__name",
         linkify=lambda record: reverse("ui:team-detail", kwargs={"pk": record.team.id}),
+        attrs={"a": {"class": "text-decoration-none"}},
     )
 
     class Meta(BaseMeta):
