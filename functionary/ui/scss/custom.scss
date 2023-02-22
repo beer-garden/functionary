@@ -27,8 +27,8 @@ $tertiary: $seasalt;
 $panel: $lapis-lazuli;
 $body-bg: $seasalt;
 $danger: #8a1b19;
-$warning: #FFCDA3;
-$info: #7CAFB6;
+// $warning: #FFCDA3;
+// $info: #7CAFB6;
 $success: #5a7a57;
 
 // $link-color: $primary;
@@ -57,6 +57,11 @@ $hr-border-color: $tertiary;
 
 // $input-focus-border-color: $primary;
 // $input-bg: adjust-color($body-bg, $lightness: +5%);
+
+// $pagination-bg: $primary;
+// $pagination-color: $secondary;
+// $pagination-disabled-color: $text-light;
+// $pagination-disabled-bg: $tertiary;
 
 $enable-rfs: false; // Disable Responsive Font Sizes
 
@@ -103,11 +108,11 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 @import "./transitions";
 // @import "./accordion";
 // @import "./breadcrumb";
-// @import "./pagination";
+@import "./pagination";
 // @import "./badge";
 @import "./alert";
 // @import "./progress";
-// @import "./ist-group";
+// @import "./list-group";
 @import "./close";
 // @import "./toasts";
 // @import "./breadcrumb";

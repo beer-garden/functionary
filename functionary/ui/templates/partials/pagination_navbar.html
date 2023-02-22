@@ -1,40 +1,43 @@
 {% load paginator %}
 <div class="container mt-4 mx-4 ">
-    <div class="columns">
-        <div class="column has-text-centered">
-            <nav class="pagination is-centered" role="navigation">
-                {% if page_obj.has_previous %}
-                    <a class="pagination-previous"
-                       href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    <nav aria-label="table navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+            {% endif %}
+            {% get_updated_elided_page_range paginator page_obj.number as page_range %}
+            {% for page_number in page_range %}
+                {% if page_number == page_obj.number %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+                    </li>
                 {% else %}
-                    <a class="pagination-previous is-disabled">Previous</a>
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        <li class="page-item">
+                            <a class="page-link">{{ page_number }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
-                {% if page_obj.has_next %}
-                    <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">Next page</a>
-                {% else %}
-                    <a class="pagination-next is-disabled">Next page</a>
-                {% endif %}
-                <ul class="pagination-list">
-                    {% get_updated_elided_page_range paginator page_obj.number as page_range %}
-                    {% for page_number in page_range %}
-                        {% if page_number == page_obj.number %}
-                            <li>
-                                <a class="pagination-link is-current" href="?page={{ page_number }}">{{ page_number }}</a>
-                            </li>
-                        {% else %}
-                            {% if page_number == page_obj.paginator.ELLIPSIS %}
-                                <li>
-                                    <a class="pagination-link">{{ page_number }}</a>
-                                </li>
-                            {% else %}
-                                <li>
-                                    <a class="pagination-link" href="?page={{ page_number }}">{{ page_number }}</a>
-                                </li>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </nav>
-        </div>
-    </div>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 </div>
