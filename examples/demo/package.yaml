@@ -63,5 +63,40 @@ package:
           display_name: File
           summary: File to measure
           description: Input file that will be measured
-          type:  file
+          type: file
           required: true
+    - name: parameter_types
+      summary: Test for parameter type form rendering and passthrough values
+      display_name: Parameter Types
+      description:
+        Function to test all of the supported parameter types. Intended to test
+        the UI form rendering for the different types, as well as what data
+        types and values get received by the underlying function.
+      parameters:
+        - name: boolean_
+          type: boolean
+          required: False
+        - name: date_
+          type: date
+          required: False
+        - name: datetime_
+          type: datetime
+          required: False
+        - name: file_
+          type: file
+          required: False
+        - name: float_
+          type: float
+          required: False
+        - name: integer_
+          type: integer
+          required: False
+        - name: json_
+          type: json
+          required: False
+        - name: string_
+          type: string
+          required: False
+        - name: text_
+          type: text
+          required: False
