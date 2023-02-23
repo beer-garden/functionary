@@ -148,6 +148,24 @@ class TaskParameterForm(Form):
         """
         return _field_mapping.get(parameter_type, (None, None))
 
+    def _remove_empty_fields(self, parameters: dict) -> None:
+        """Removes any fields that were empty (no value entered in the form) from the
+        parameters dict so they can be treated as optional values that weren't provided,
+        rather than values that were provided with the Field class's `empty_value`.
+        """
+        for name in list(parameters.keys()):
+            value = parameters[name]
+
+            if value is None or value == "":
+                _ = parameters.pop(name)
+
+    def clean(self):
+        """Form level validation and data cleanup"""
+        cleaned_data = super().clean()
+        self._remove_empty_fields(cleaned_data)
+
+        return cleaned_data
+
 
 class TaskParameterTemplateForm(TaskParameterForm):
     """TaskParameterForm variant with template variable support
