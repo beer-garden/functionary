@@ -10,6 +10,7 @@ $gunmetal: #343E40;
 // $eggshell: #E9E7CF;
 $lapis-lazuli: #3E5F8E;
 $seasalt: #F7F8F8;
+$slate-gray: #6b737b;
 
 // $primary: #0A174B;
 // $secondary: #E9E7CF;
@@ -36,6 +37,7 @@ $link-hover-color: adjust-color($body-bg, $blackness: +15%); //$persian-blue;
 // $emphasized-link-hover-darken-percentage: 25%;
 $text-light: $body-bg;
 $text-dark: $gunmetal;
+$text-muted: $slate-gray;
 
 @font-face {
     font-family: 'Playball';
@@ -51,6 +53,7 @@ $nav-link-color: $tertiary;
 // $table-striped-order: even;
 
 $hr-border-color: $tertiary;
+$breadcrumb-divider: quote(">");
 
 // $modal-footer-bg: $secondary;
 // $modal-content-bg: $body-bg;
@@ -98,11 +101,11 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 @import "./forms";
 @import "./buttons";
 @import "./card";
-// @import "./button-group";
+@import "./button-group";
 @import "./dropdown";
 @import "./transitions";
 // @import "./accordion";
-// @import "./breadcrumb";
+@import "./breadcrumb";
 // @import "./pagination";
 // @import "./badge";
 @import "./alert";
@@ -110,7 +113,6 @@ $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
 // @import "./ist-group";
 @import "./close";
 // @import "./toasts";
-// @import "./breadcrumb";
 @import "./modal";
 // @import "./tooltip";
 // @import "./popover";
