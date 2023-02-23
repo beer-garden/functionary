@@ -26,16 +26,6 @@ $light: #F7F8F8;
 $dark: #343E40;
 
 /*------------------
-  Fonts
-  ------------------*/
-  @font-face {
-    font-family: 'Playball';
-    src: url('../webfonts/Functionary_Playball.woff2');
-}
-$display-font-family: 'Playball', cursive;
-$display-font-sizes: (1: 7rem, 2: 4rem);
-
-/*------------------
   Options
   ------------------*/
 $enable-rfs: false; // Disable Responsive Font Sizes
