@@ -1,44 +1,6 @@
-// 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
-@import "./functions";
-@import "./variables";
-@import "./mixins";
-@import "./maps";
-
-// 2. Include any default variable overrides here
-$gunmetal: #343E40;
-// $persian-blue: #3436ad;
-// $eggshell: #E9E7CF;
-$lapis-lazuli: #3E5F8E;
-$seasalt: #F7F8F8;
-// $tea-rose: #D7ACA9;
-// $indigo-dye: #2B405B;
-
-// $primary: #0A174B;
-// $secondary: #E9E7CF;
-// $tertiary: $tea-rose;
-// $panel: $primary;
-// $body-bg: $seasalt;
-// $danger: #8a1b19;
-// $warning: #FFCDA3;
-// $info: #7CAFB6;
-// $success: #5a7a57;
-
-$primary: $lapis-lazuli;
-$secondary: $seasalt;
-$tertiary: $seasalt;
-$panel: $primary;
-$body-bg: $seasalt;
-$danger: #8a1b19;
-// $warning: #FFCDA3;
-// $info: #7CAFB6;
-$success: #5a7a57;
-
-$link-color: $primary;
-// $link-hover-color: $persian-blue;
-// $emphasized-link-hover-darken-percentage: 25%;
-$text-light: $body-bg;
-$text-dark: $gunmetal;
-
+/*------------------
+ * Fonts
+ * ------------------*/
 @font-face {
     font-family: 'Playball';
     src: url('../webfonts/Functionary_Playball.woff2');
@@ -46,93 +8,24 @@ $text-dark: $gunmetal;
 $display-font-family: 'Playball', cursive;
 $display-font-sizes: (1: 7rem, 2: 4rem);
 
-$nav-link-color: $tertiary;
-$nav-link-hover-color: adjust-color($body-bg, $blackness: +35%);
-$navbar-dark-brand-color: $secondary;
+/*------------------
+  Colors
+  ------------------*/
+$primary: #3E5F8E;
+$secondary: #F7F8F8;
+$danger: #8a1b19;
+$warning: #FFCDA3;
+$info: #7CAFB6;
+$success: #5a7a57;
+$light: #f5f5f5;
+$dark: #1a1818;
 
-// $table-striped-bg-factor: .45;
-// $table-striped-bg: rgba($secondary, $table-striped-bg-factor);
-// $table-striped-order: even;
+/*------------------
+  Options
+  ------------------*/
+$enable-rfs: false;
 
-$hr-border-color: $tertiary;
-
-// $modal-footer-bg: $secondary;
-// $modal-content-bg: $body-bg;
-
-// $input-focus-border-color: $primary;
-// $input-bg: adjust-color($body-bg, $lightness: +5%);
-
-// $pagination-bg: $primary;
-// $pagination-color: $text-light;
-$pagination-hover-color: $primary;
-$pagination-active-bg: $primary;
-$pagination-active-border-color: $primary;
-
-$enable-rfs: false; // Disable Responsive Font Sizes
-
-// 3. Include remainder of required Bootstrap stylesheets
-
-// 4. Include any default map overrides here
-$custom-theme-colors: (
-    "primary": $primary,
-    "secondary": $secondary,
-    "tertiary": $tertiary,
-    "danger": $danger,
-    "warning": $warning,
-    "info": $info,
-    "success": $success,
-    "bg-light": $body-bg,
-    "bg-dark": $gunmetal,
-    "panel": $panel,
-);
-
-// Regenerate bg-* text-*
-$theme-colors: map-merge($theme-colors, $custom-theme-colors);
-$theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
-$utilities-colors: map-merge($utilities-colors, $theme-colors-rgb);
-$utilities-text-colors: map-loop($utilities-colors, rgba-css-var, "$key", "text");
-$utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
-
-// 5. Include remainder of required Bootstrap stylesheets
-@import "./root";
-// Must import after theme mapping or it breaks color for panel :(
-@import "./utilities";
-
-// 6. Include additional Bootstrap components
-@import "./reboot";
-@import "./type";
-// @import "./images";
-@import "./containers";
-@import "./grid";
-@import "./tables";
-@import "./forms";
-@import "./buttons";
-@import "./card";
-// @import "./button-group";
-@import "./dropdown";
-@import "./transitions";
-// @import "./accordion";
-// @import "./breadcrumb";
-@import "./pagination";
-// @import "./badge";
-@import "./alert";
-// @import "./progress";
-// @import "./list-group";
-@import "./close";
-// @import "./toasts";
-// @import "./breadcrumb";
-@import "./modal";
-// @import "./tooltip";
-// @import "./popover";
-// @import "./carousel";
-// @import "./spinners";
-// @import "./offcanvas";
-// @import "./placeholders";
-// @import "./code";
-@import "./nav";
-@import "./navbar";
-
-// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
-@import "./utilities/api";
-
-// 8. Add additional custom code here
+/*------------------
+  Imports
+  ------------------*/
+@import "./bootstrap";
