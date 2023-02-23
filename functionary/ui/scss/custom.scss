@@ -1,3 +1,8 @@
+
+// 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
+@import "./functions";
+
+// 2. Include any default variable overrides here
 /*------------------
  * Fonts
  * ------------------*/
@@ -12,20 +17,80 @@ $display-font-sizes: (1: 7rem, 2: 4rem);
   Colors
   ------------------*/
 $primary: #3E5F8E;
-$secondary: #F7F8F8;
-$danger: #8a1b19;
+$secondary: #FFFFFF;
+$danger: #8A1B19;
 $warning: #FFCDA3;
 $info: #7CAFB6;
-$success: #5a7a57;
-$light: #f5f5f5;
-$dark: #1a1818;
+$success: #5A7A57;
+$light: #F7F8F8;
+$dark: #343E40;
+
+/*------------------
+  Fonts
+  ------------------*/
+  @font-face {
+    font-family: 'Playball';
+    src: url('../webfonts/Functionary_Playball.woff2');
+}
+$display-font-family: 'Playball', cursive;
+$display-font-sizes: (1: 7rem, 2: 4rem);
 
 /*------------------
   Options
   ------------------*/
-$enable-rfs: false;
+$enable-rfs: false; // Disable Responsive Font Sizes
 
-/*------------------
-  Imports
-  ------------------*/
-@import "./bootstrap";
+$navbar-dark-color: $secondary;
+$navbar-dark-hover-color: #D3DAE4; // Slight deviation from default for compliance
+$navbar-dark-brand-color: $secondary;
+
+$hr-border-color: $secondary;
+
+// 3. Include required Bootstrap stylesheets
+@import "./variables";
+@import "./mixins";
+@import "./maps";
+
+// 4. Include any default map overrides here
+
+// 5. Include remainder of Bootstrap stylesheets
+@import "./root";
+@import "./utilities";
+
+// 6. Include additional Bootstrap components
+@import "./reboot";
+@import "./type";
+// @import "./images";
+@import "./containers";
+@import "./grid";
+@import "./tables";
+@import "./forms";
+@import "./buttons";
+@import "./card";
+// @import "./button-group";
+@import "./dropdown";
+@import "./transitions";
+// @import "./accordion";
+// @import "./breadcrumb";
+@import "./pagination";
+// @import "./badge";
+@import "./alert";
+// @import "./progress";
+// @import "./list-group";
+@import "./close";
+// @import "./toasts";
+@import "./modal";
+// @import "./tooltip";
+// @import "./popover";
+// @import "./carousel";
+// @import "./spinners";
+// @import "./offcanvas";
+// @import "./placeholders";
+// @import "./code";
+@import "./nav";
+@import "./navbar";
+
+// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
+@import "./utilities/api";
+
+// 8. Add additional custom code here
