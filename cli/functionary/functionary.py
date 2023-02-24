@@ -13,3 +13,6 @@ def cli():
 cli.add_command(login_cmd)
 cli.add_command(package_cmd)
 cli.add_command(environment_cmd)
+
+if __name__ == "__main__":
+    cli()
