@@ -36,12 +36,12 @@ $navbar-dark-hover-color: #D3DAE4; // Slight deviation from default for complian
 $navbar-dark-brand-color: $secondary;
 
 $hr-border-color: $secondary;
+$breadcrumb-divider: quote(">");
 
 // 3. Include required Bootstrap stylesheets
 @import "./variables";
-@import "./maps";
 @import "./mixins";
-@import "./mixins/utilities";
+@import "./maps";
 
 // 4. Include any default map overrides here
 

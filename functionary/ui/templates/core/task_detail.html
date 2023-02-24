@@ -32,16 +32,16 @@
                 </div>
             </div>
             <div>
-                <i class="fa fa-list fa-fw  text-muted"></i>
+                <i class="fa fa-list fa-fw text-muted"></i>
                 <span class="h2 fs-4">Parameters:</span>
                 <div class="ps-4">
-                    <div class="p-4 bg-light rounded-3">
+                    <div class="p-4 bg-opacity-10 bg-dark rounded-3">
                         <p class="font-monospace m-0">{{ task.parameters | pprint }}</p>
                     </div>
                 </div>
             </div>
             <div>
-                <i class="fa fa-clipboard-check fa-fw  text-muted"></i>
+                <i class="fa fa-clipboard-check fa-fw text-muted"></i>
                 <span class="h2 fs-4">Result:</span>
                 {% include "partials/task_result_block.html" %}
             </div>

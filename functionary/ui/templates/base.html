@@ -41,7 +41,7 @@
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container-fluid">
             <div class="row flex-nowrap">
-                <div class="col-auto px-lg-3 px-md-2 px-0 bg-primary shadow">
+                <div class="col-auto px-lg-3 px-md-2 px-2 bg-primary shadow">
                     <div class="d-flex flex-column vh-100">
                         {% if user.is_authenticated %}
                             <nav class="navbar navbar-dark nav-pills flex-column mb-auto">
@@ -91,7 +91,7 @@
                                 </div>
                             </nav>
                             <hr/>
-                            <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-5">
+                            <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-md-5">
                                 <div class="navbar-nav">
                                     <a class="nav-link px-0" href="{% url 'socialaccount_connections' %}">
                                         <i class="fa fa-lg fa-user fa-fw"></i>
