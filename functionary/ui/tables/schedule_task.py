@@ -18,17 +18,20 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: reverse(
             "ui:scheduledtask-detail", kwargs={"pk": record.id}
         ),
+        attrs={"a": {"class": "text-decoration-none"}},
     )
     function = tables.Column(
         linkify=lambda record: reverse(
             "ui:function-detail", kwargs={"pk": record.function.id}
         ),
+        attrs={"a": {"class": "text-decoration-none"}},
     )
     last_run = tables.DateTimeColumn(
         accessor="most_recent_task__created_at",
         verbose_name="Last Run",
         linkify=lambda record: generateLastRunUrl(record),
         format=DATETIME_FORMAT,
+        attrs={"a": {"class": "text-decoration-none"}},
     )
     schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
     edit_button = tables.Column(
@@ -42,8 +45,8 @@ class ScheduledTaskTable(tables.Table):
 
     def render_edit_button(self, value, record):
         return format_html(
-            f'<a href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
-            f'<button class="button is-small has-text-link is-white singletonActive">'
+            f'<a class="btn btn-small singletonActive" role="button"'
+            f' href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
             f'<span class="fa fa-pencil-alt"></span>'
-            f"</button></a>"
+            f"</a>"
         )

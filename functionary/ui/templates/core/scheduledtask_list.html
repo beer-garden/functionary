@@ -1,17 +1,13 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div>
-        <div class="level-right">
-            <a href="{% url 'ui:scheduledtask-create' %}">
-                <button class="button level-item is-link mt-5 mb-5">
-                    <span class="icon is-small">
-                        <i class="fa fa-solid fa-plus"></i>
-                    </span>
-                    <span>Create New Scheduled Task</span>
-                </button>
-            </a>
-        </div>
+    <div class="d-flex justify-content-end">
+        <a class="btn btn-primary mb-3"
+           role="button"
+           href="{% url 'ui:scheduledtask-create' %}">
+            <i class="fa fa-solid fa-plus"></i>
+            <span>Create New Scheduled Task</span>
+        </a>
     </div>
     {% include "partials/table.html" %}
 {% endblock content %}

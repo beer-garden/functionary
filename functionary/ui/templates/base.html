@@ -41,66 +41,70 @@
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container-fluid">
             <div class="row flex-nowrap">
-                <div class="col-auto px-lg-3 px-md-2 px-0 bg-panel text-light shadow">
-                    <div class="d-flex flex-column justify-content-between px-3 min-vh-100 max-vh-100">
+                <div class="col-auto px-lg-3 px-md-2 px-0 bg-primary shadow">
+                    <div class="d-flex flex-column vh-100">
                         {% if user.is_authenticated %}
-                            <nav class="nav nav-pills flex-column mb-auto align-items-center align-items-md-start">
+                            <nav class="navbar navbar-dark nav-pills flex-column mb-auto">
                                 <a href="{% url 'ui:home' %}" class="navbar-brand">
                                     <h1 class="mb-0">
                                         <span class="display-2">F</span>
-                                        <span class="functionary-title fs-4">unctionary</span>
+                                        <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
                                     </h1>
                                 </a>
                                 <hr class="w-100" />
-                                {% include "partials/env_selector.html" %}
-                                <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
-                                    <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Tasking</span>
-                                </a>
-                                <a class="nav-link px-0" href="{% url 'ui:build-list' %}">
-                                    <i class="fa fa-lg fa-wrench fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Builds</span>
-                                </a>
-                                <a class="nav-link px-0" href="{% url 'ui:package-list' %}">
-                                    <i class="fa fa-lg fa-cubes fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Packages</span>
-                                </a>
-                                <a class="nav-link px-0" href="{% url 'ui:function-list' %}">
-                                    <i class="fa fa-lg fa-cube fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Functions</span>
-                                </a>
-                                <a class="nav-link px-0" href="{% url 'ui:workflow-list' %}">
-                                    <i class="fa fa-lg fa-diagram-next fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Workflows</span>
-                                </a>
-                                <a class="nav-link px-0" href="{% url 'ui:scheduledtask-list' %}">
-                                    <i class="fa fa-lg fa-clock fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">Schedules</span>
-                                </a>
-                                {% if user.is_superuser %}
-                                    <a class="nav-link px-0" href="{% url 'ui:environment-list' %}">
-                                        <i class="fa fa-lg fa-building fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Environments</span>
+                                <div class="d-none d-md-inline">{% include "partials/env_selector.html" %}</div>
+                                <div class="navbar-nav">
+                                    <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
+                                        <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Tasking</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:team-list' %}">
-                                        <i class="fa fa-lg fa-users fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Teams</span>
+                                    <a class="nav-link px-0" href="{% url 'ui:build-list' %}">
+                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Builds</span>
                                     </a>
-                                {% endif %}
+                                    <a class="nav-link px-0" href="{% url 'ui:package-list' %}">
+                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Packages</span>
+                                    </a>
+                                    <a class="nav-link px-0" href="{% url 'ui:function-list' %}">
+                                        <i class="fa fa-lg fa-cube fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Functions</span>
+                                    </a>
+                                    <a class="nav-link px-0" href="{% url 'ui:workflow-list' %}">
+                                        <i class="fa fa-lg fa-diagram-next fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Workflows</span>
+                                    </a>
+                                    <a class="nav-link px-0" href="{% url 'ui:scheduledtask-list' %}">
+                                        <i class="fa fa-lg fa-clock fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
+                                    </a>
+                                    {% if user.is_superuser %}
+                                        <a class="nav-link px-0" href="{% url 'ui:environment-list' %}">
+                                            <i class="fa fa-lg fa-building fa-fw"></i>
+                                            <span class="ms-1 d-none d-md-inline">Environments</span>
+                                        </a>
+                                        <a class="nav-link px-0" href="{% url 'ui:team-list' %}">
+                                            <i class="fa fa-lg fa-users fa-fw"></i>
+                                            <span class="ms-1 d-none d-md-inline">Teams</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </nav>
                             <hr/>
-                            <nav class="nav nav-pills flex-column mb-5 align-items-center align-items-md-start">
-                                <a class="nav-link px-0" href="{% url 'socialaccount_connections' %}">
-                                    <i class="fa fa-lg fa-user fa-fw"></i>
-                                    <span class="ms-1 d-none d-md-inline">{{ user }}</span>
-                                </a>
-                                <form method="post" action="{% url 'account_logout' %}">
-                                    {% csrf_token %}
-                                    <button class="btn nav-link px-0" type="submit">
-                                        <i class="fa fa-lg fa-door-open fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Logout</span>
-                                    </button>
-                                </form>
+                            <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-5">
+                                <div class="navbar-nav">
+                                    <a class="nav-link px-0" href="{% url 'socialaccount_connections' %}">
+                                        <i class="fa fa-lg fa-user fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">{{ user }}</span>
+                                    </a>
+                                    <form method="post" action="{% url 'account_logout' %}">
+                                        {% csrf_token %}
+                                        <button class="btn nav-link px-0" type="submit">
+                                            <i class="fa fa-lg fa-door-open fa-fw"></i>
+                                            <span class="ms-1 d-none d-md-inline">Logout</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </nav>
                         {% endif %}
                     </div>

@@ -8,6 +8,7 @@ from ui.tables.meta import BaseMeta
 class PackageTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:package-detail", kwargs={"pk": record.id}),
+        attrs={"a": {"class": "text-decoration-none"}},
     )
 
     class Meta(BaseMeta):

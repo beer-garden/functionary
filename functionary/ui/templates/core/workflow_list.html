@@ -1,22 +1,18 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% block content %}
-    <div>
-        <div class="level-right">
-            {% if request.session.user_can_create_workflow %}
-                <button class="button level-item is-link mb-5 mt-5"
-                        hx-target="body"
-                        hx-swap="beforeend"
-                        hx-get="{% url 'ui:workflow-create' %}">
-                    <span class="icon is-small">
-                        <i class="fa fa-solid fa-plus"></i>
-                    </span>
-                    <span>Create New Workflow</span>
-                </button>
-            {% else %}
-                <!--add a spacer when the button is not present-->
-                <div class="mb-5"></div>
-            {% endif %}
-        </div>
-        {% include "partials/table.html" %}
+    <div class="d-flex justify-content-end">
+        {% if request.session.user_can_create_workflow %}
+            <button class="btn btn-primary mb-3"
+                    hx-target="body"
+                    hx-swap="beforeend"
+                    hx-get="{% url 'ui:workflow-create' %}">
+                <i class="fa fa-solid fa-plus"></i>
+                <span>Create New Workflow</span>
+            </button>
+        {% else %}
+            <!--add a spacer when the button is not present-->
+            <div class="mb-5"></div>
+        {% endif %}
     </div>
+    {% include "partials/table.html" %}
 {% endblock content %}
