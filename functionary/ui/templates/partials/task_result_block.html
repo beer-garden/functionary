@@ -1,22 +1,33 @@
-{% if completed %}
-    <div id="result-block" class="block ml-4 is-12" hx-swap-oob="true">
-        <div class="tabs is-small is-toggle">
-            <ul hx-target="#result-block">
-                <li {% if output_format != "table" and output_format != "log" %}class="is-active"{% endif %}>
-                    <a hx-get="{% url 'ui:task-results' task.id %}?output=display_raw">Raw</a>
-                </li>
+<div id="result-block" hx-swap-oob="true">
+    <div class="ps-4">
+        {% if completed %}
+            <div class="btn-group btn-group-sm"
+                 role="group"
+                 hx-target="#result-block"
+                 aria-label="Result display selection">
+                <button type="button"
+                        class="btn btn-outline-primary {% if output_format != "table" and output_format != "log" %}active{% endif %}"
+                        hx-get="{% url 'ui:task-results' task.id %}?output=display_raw">
+                    Raw
+                </button>
                 {% if show_output_selector %}
-                    <li {% if output_format == "table" %}class="is-active"{% endif %}>
-                        <a hx-get="{% url 'ui:task-results' task.id %}?output=display_table">Table</a>
-                    </li>
+                    <button type="button"
+                            class="btn btn-outline-primary {% if output_format == "table" %}active{% endif %}"
+                            hx-get="{% url 'ui:task-results' task.id %}?output=display_table">
+                        Table
+                    </button>
                 {% endif %}
-                <li {% if output_format == "log" %}class="is-active"{% endif %}>
-                    <a hx-get="{% url 'ui:task-log' pk=task.id %}">Log</a>
-                </li>
-            </ul>
-        </div>
-        {% include "partials/task_result.html" %}
+                <button type="button"
+                        class="btn btn-outline-primary {% if output_format == "log" %}active{% endif %}"
+                        hx-get="{% url 'ui:task-log' pk=task.id %}">
+                    Log
+                </button>
+            </div>
+            <div class="p-4 bg-light rounded-3">
+                <p class="font-monospace m-0">{% include "partials/task_result.html" %}</p>
+            </div>
+        {% else %}
+            <i id="result_indicator" class="fas fa-spinner fa-spin fa-2x ml-4"></i>
+        {% endif %}
     </div>
-{% else %}
-    <i id="result_indicator" class="fas fa-spinner fa-spin fa-2x ml-4"></i>
-{% endif %}
+</div>
