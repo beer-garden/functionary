@@ -2,7 +2,6 @@ import django_filters
 import django_tables2 as tables
 from django.urls import reverse
 
-from core.models import Environment
 from ui.tables.meta import BaseMeta
 
 
