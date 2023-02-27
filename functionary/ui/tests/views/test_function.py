@@ -41,9 +41,16 @@ def string_parameter(function):
     )
 
 
+@pytest.fixture
+def text_parameter(function):
+    return function.parameters.create(
+        name="optional_text", parameter_type=PARAMETER_TYPE.TEXT, required=False
+    )
+
+
 @pytest.mark.django_db
 def test_execute_handles_optional_parameters(
-    admin_client, function, integer_parameter, string_parameter
+    admin_client, function, integer_parameter, string_parameter, text_parameter
 ):
     """Optional parameters that are empty when the form is submitted should be excluded
     from the Task parameters"""
@@ -56,10 +63,15 @@ def test_execute_handles_optional_parameters(
         "function_id": str(function.id),
         f"task-parameter-{integer_parameter.name}": "",
         f"task-parameter-{string_parameter.name}": "",
+        f"task-parameter-{text_parameter.name}": "should be included",
     }
 
     admin_client.post(url, data)
     task = Task.objects.get(function=function)
 
+    # Parameters that were not set should not be present
     assert integer_parameter.name not in task.parameters
     assert string_parameter.name not in task.parameters
+
+    # The parameter that was set should be present
+    assert text_parameter.name in task.parameters

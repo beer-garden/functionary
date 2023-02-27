@@ -1,14 +1,14 @@
 import datetime
 import json
 from copy import deepcopy
-from typing import TYPE_CHECKING, Type, TypeVar, Union
+from typing import TYPE_CHECKING, List, Type, TypeVar, Union
 
 import jsonschema
 from django.core.exceptions import ValidationError as DjangoValidationError
 from pydantic import BaseModel, Field, FileUrl, Json, ValidationError, create_model
 
 if TYPE_CHECKING:
-    from core.models import Function, Workflow
+    from core.models import Function, FunctionParameter, Workflow
 
 
 class PARAMETER_TYPE:
@@ -37,6 +37,9 @@ _PARAMETER_TYPE_MAP = {
 
 PARAMETER_TYPE_CHOICES = [(_type, _type) for _type in _PARAMETER_TYPE_MAP.keys()]
 
+DATE_FORMAT = r"%Y-%m-%d"
+DATETIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
+
 
 def _get_pydantic_model(instance: Union["Function", "Workflow"]) -> Type[BaseModel]:
     """Get a pydantic model describing the parameters of the provided instance"""
@@ -58,17 +61,64 @@ def _get_pydantic_model(instance: Union["Function", "Workflow"]) -> Type[BaseMod
     return create_model(model_name, **params_dict)
 
 
+def _filter_by_type(parameters: List["FunctionParameter"], type: Type):
+    """Filter the provided parameters by the specified type and return as a list"""
+    return [p for p in parameters if p.parameter_type == type]
+
+
+def _serialize_date_parameters(
+    task_parameters: dict, function_parameters: List["FunctionParameter"]
+) -> None:
+    """Serialize date parameters"""
+    date_parameters = _filter_by_type(function_parameters, PARAMETER_TYPE.DATE)
+
+    for parameter in date_parameters:
+        name = parameter.name
+        value = task_parameters[name]
+
+        if type(value) is datetime.date:
+            task_parameters[name] = value.strftime(DATE_FORMAT)
+
+
+def _serialize_datetime_parameters(
+    task_parameters: dict, function_parameters: List["FunctionParameter"]
+) -> None:
+    """Serialize datetime parameters"""
+    datetime_parameters = _filter_by_type(function_parameters, PARAMETER_TYPE.DATETIME)
+
+    for parameter in datetime_parameters:
+        name = parameter.name
+        value = task_parameters[name]
+
+        if type(value) is datetime.datetime:
+            task_parameters[name] = value.strftime(DATETIME_FORMAT)
+
+
 def _serialize_json_parameters(
+    task_parameters: dict, function_parameters: List["FunctionParameter"]
+) -> None:
+    """Serialize json parameters"""
+    json_parameters = _filter_by_type(function_parameters, PARAMETER_TYPE.JSON)
+
+    for parameter in json_parameters:
+        name = parameter.name
+        task_parameters[name] = json.dumps(task_parameters[name])
+
+
+def _serialize_parameters(
     parameters: dict, instance: Union["Function", "Workflow"]
 ) -> dict:
     """Serializes json type parameters for use in validation"""
     parameters_copy = deepcopy(parameters)
 
-    for parameter_obj in instance.parameters.filter(
-        name__in=parameters.keys(), parameter_type=PARAMETER_TYPE.JSON
-    ):
-        name = parameter_obj.name
-        parameters_copy[name] = json.dumps(parameters_copy[name])
+    # Retrieve all parameters, then filter later, to avoid multiple database lookups
+    present_parameters = list(
+        instance.parameters.filter(name__in=parameters.keys()).all()
+    )
+
+    _serialize_date_parameters(parameters_copy, present_parameters)
+    _serialize_datetime_parameters(parameters_copy, present_parameters)
+    _serialize_json_parameters(parameters_copy, present_parameters)
 
     return parameters_copy
 
@@ -99,13 +149,13 @@ def validate_parameters(parameters: dict, instance: Union["Function", "Workflow"
     """
     try:
         pydantic_model = _get_pydantic_model(instance)
-        serialized_parameters = _serialize_json_parameters(parameters, instance)
+        serialized_parameters = _serialize_parameters(parameters, instance)
         jsonschema.validate(
             serialized_parameters, pydantic_model(**serialized_parameters).schema()
         )
     except (
         ValidationError,
-        jsonschema.exceptions.ValidationError,
+        jsonschema.ValidationError,
         json.JSONDecodeError,
     ) as exc:
         raise DjangoValidationError(exc)

@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from django.core.exceptions import ValidationError
 
@@ -49,6 +51,16 @@ def date_param(function):
     )
 
 
+@pytest.fixture
+def datetime_param(function):
+    return FunctionParameter.objects.create(
+        name="datetime_param",
+        function=function,
+        parameter_type=PARAMETER_TYPE.DATETIME,
+        required=True,
+    )
+
+
 @pytest.mark.django_db
 def test_parameters(function, json_param):
     """JSON parameters get stringified."""
@@ -87,3 +99,31 @@ def test_incorrect_parameter_type(function, json_param, date_param):
 
     with pytest.raises(ValidationError, match=r".*date_param.*"):
         validate_parameters({json_param.name: 1, date_param.name: "False"}, function)
+
+
+@pytest.mark.django_db
+def test_date_parameter(function, date_param):
+    """Properly formatted date parameters successfully validate"""
+    date_value = datetime.date(2023, 2, 27)
+    validate_parameters({date_param.name: date_value}, function)
+
+
+@pytest.mark.django_db
+def test_date_str_parameter(function, date_param):
+    """Properly formatted strings for date parameters successfully validate"""
+    date_value = "2023-02-27"
+    validate_parameters({date_param.name: date_value}, function)
+
+
+@pytest.mark.django_db
+def test_datetime_parameter(function, datetime_param):
+    """Properly formatted datetime parameters successfully validate"""
+    datetime_value = datetime.datetime(2023, 2, 27, 12, 30, 00)
+    validate_parameters({datetime_param.name: datetime_value}, function)
+
+
+@pytest.mark.django_db
+def test_datetime_str_parameter(function, datetime_param):
+    """Properly formatted strings for datetime parameters successfully validate"""
+    datetime_value = "2023-02-27T12:30:00Z"
+    validate_parameters({datetime_param.name: datetime_value}, function)
