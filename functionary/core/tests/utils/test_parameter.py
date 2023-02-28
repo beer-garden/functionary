@@ -34,7 +34,7 @@ def function(package):
 @pytest.fixture
 def json_param(function):
     return FunctionParameter.objects.create(
-        name="json_param",
+        name="json",
         function=function,
         parameter_type=PARAMETER_TYPE.JSON,
         required=True,
@@ -77,27 +77,27 @@ def test_functions_without_parameters(function):
 @pytest.mark.django_db
 def test_missing_parameter(function, json_param, date_param):
     """Check for missing param2"""
-    with pytest.raises(ValidationError, match=r".*date_param.*"):
+    with pytest.raises(ValidationError, match=rf".*{date_param.name}.*"):
         validate_parameters({json_param.name: {"hello": 1}}, function)
 
 
 @pytest.mark.django_db
 def test_incorrect_parameters(function, json_param):
     """Check that incorrect parameters don't work."""
-    with pytest.raises(ValidationError, match=r".*json_param.*required.*"):
+    with pytest.raises(ValidationError, match=rf".*{json_param.name}.*required.*"):
         validate_parameters({}, function)
 
-    with pytest.raises(ValidationError, match=r".*json_param.*required.*"):
+    with pytest.raises(ValidationError, match=rf".*{json_param.name}.*required.*"):
         validate_parameters({"true": False}, function)
 
 
 @pytest.mark.django_db
 def test_incorrect_parameter_type(function, json_param, date_param):
     """Check that parameters with an incorrect type don't work."""
-    with pytest.raises(ValidationError, match=r".*date_param.*"):
+    with pytest.raises(ValidationError, match=rf".*{date_param.name}.*"):
         validate_parameters({json_param.name: 1, date_param.name: False}, function)
 
-    with pytest.raises(ValidationError, match=r".*date_param.*"):
+    with pytest.raises(ValidationError, match=rf".*{date_param.name}.*"):
         validate_parameters({json_param.name: 1, date_param.name: "False"}, function)
 
 

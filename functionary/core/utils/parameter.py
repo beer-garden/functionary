@@ -54,7 +54,8 @@ def _get_pydantic_model(instance: Union["Function", "Workflow"]) -> Type[BaseMod
         field.default = ... if parameter.required else parameter.default
         type_ = _PARAMETER_TYPE_MAP[parameter.parameter_type]
 
-        params_dict[field.alias] = (type_, field)
+        # Append _ to ensure name does not conflict with pydantic BaseModel properties
+        params_dict[f"{field.alias}_"] = (type_, field)
 
     model_name = f"{type(instance).__name__}ParameterModel"
 

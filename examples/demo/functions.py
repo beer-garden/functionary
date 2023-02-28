@@ -1,6 +1,5 @@
 import os
 import time
-from datetime import date, datetime
 
 import requests
 
@@ -43,28 +42,28 @@ def num_chars(file: str, other_param: str) -> int:
 
 
 def parameter_types(
-    boolean_: bool | None = None,
-    date_: date | None = None,
-    datetime_: datetime | None = None,
-    file_: str | None = None,
-    float_: float | None = None,
-    integer_: int | None = None,
-    json_: dict | None = None,
-    string_: str | None = None,
-    text_: str | None = None,
+    boolean: bool | None = None,
+    date: str | None = None,
+    datetime: str | None = None,
+    file: str | None = None,
+    float: float | None = None,
+    integer: int | None = None,
+    json: dict | None = None,
+    string: str | None = None,
+    text: str | None = None,
 ):
     return [
-        {"parameter": "boolean_", "type": type(boolean_).__name__, "value": boolean_},
-        {"parameter": "date_", "type": type(date_).__name__, "value": date_},
+        {"parameter": "boolean", "type": type(boolean).__name__, "value": boolean},
+        {"parameter": "date", "type": type(date).__name__, "value": date},
         {
-            "parameter": "datetime_",
-            "type": type(datetime_).__name__,
-            "value": datetime_,
+            "parameter": "datetime",
+            "type": type(datetime).__name__,
+            "value": datetime,
         },
-        {"parameter": "file_", "type": type(file_).__name__, "value": file_},
-        {"parameter": "float_", "type": type(float_).__name__, "value": float_},
-        {"parameter": "integer_", "type": type(integer_).__name__, "value": integer_},
-        {"parameter": "json_", "type": type(json_).__name__, "value": json_},
-        {"parameter": "string_", "type": type(string_).__name__, "value": string_},
-        {"parameter": "text_", "type": type(text_).__name__, "value": text_},
+        {"parameter": "file", "type": type(file).__name__, "value": file},
+        {"parameter": "float", "type": type(float).__name__, "value": float},
+        {"parameter": "integer", "type": type(integer).__name__, "value": integer},
+        {"parameter": "json", "type": type(json).__name__, "value": json},
+        {"parameter": "string", "type": type(string).__name__, "value": string},
+        {"parameter": "text", "type": type(text).__name__, "value": text},
     ]
