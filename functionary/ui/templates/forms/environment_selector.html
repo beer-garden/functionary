@@ -11,7 +11,7 @@
         <option disabled value="-1">
             Choose
         </option>
-        {% for team, envs in environments.items %}
+        {% for team, envs in user_environments.items %}
             <optgroup label="{{ team }}">
                 {% for env in envs %}
                     <option value="{{ env.id }}"
