@@ -1,54 +1,40 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% block content %}
     <div id="task_detail"
          {% if not completed %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
-        <div class="block">
-            <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
-                <ul>
-                    <li>
-                        <a href="{% url 'ui:task-list' %}">Task List</a>
-                    </li>
-                    <li class="is-active">
-                        <a href="#">{{ task.function.render_name }}</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-        <div class="block" id="task_details">
-            <div class="block">
-                <h1 class="title is-1">
-                    <p>
-                        <i class="fa fa-digital-tachograph"></i>
-                        <span>{{ task.function.render_name }}</span>
-                        <i class="is-size-5 fa fa-info pl-4"></i>
-                        <span class="is-size-5 has-text-weight-normal">{{ task.status }}</span>
-                    </p>
-                </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ui:task-list' %}">Task List</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ task.function.render_name }}</li>
+            </ol>
+        </nav>
+        <div class="hstack gap-3 py-2">
+            <h1>
+                <i class="fa fa-digital-tachograph fa-xl"></i>
+                {{ task.function.render_name }}
+            </h1>
+            <div>
+                <i class="fa fa-circle-info"></i>
+                <span class="fs-5">{{ task.status }}</span>
             </div>
         </div>
-        <div class="block has-addons">
-            <div class="block">
-                <label class="label" for="users">
-                    <i class="fa fa-user"></i>&nbsp;Creator:
-                </label>
-                <p class="ml-4">
-                    {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="has-text-grey-light">({{ task.creator.username }})</span>
+        <div class="vstack gap-4 py-2">
+            <div>
+                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw"></i>Creator:</strong>
+                <p class="ps-4 py-2">
+                    {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="text-muted">({{ task.creator.username }})</span>
                     at {{ task.created_at }}
                 </p>
             </div>
-            <div class="block">
-                <label class="label" for="params">
-                    <i class="fa fa-list"></i>&nbsp;Parameters:
-                </label>
-                <div id="params">
-                    <pre class="block ml-4 mr-4">{{ task.parameters | pprint }}</pre>
-                </div>
+            <div>
+                <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw"></i>Parameters:</strong>
+                <p class="font-monospace ps-4 py-2 m-0">{{ task.parameters | pprint }}</p>
             </div>
-            <div id="task_results" class="block">
-                <label class="label" for="result">
-                    <i class="fa fa-clipboard-check"></i>&nbsp;Result:
-                </label>
-                {% include 'partials/task_result_block.html' %}
+            <div>
+                <strong class="fs-4"><i class="fa fa-clipboard-check fa-sm fa-fw"></i>Result:</strong>
+                {% include "partials/task_result_block.html" %}
             </div>
         </div>
     </div>

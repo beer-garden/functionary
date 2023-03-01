@@ -1,7 +1,5 @@
-<div>
-    {% if task.log == "" %}
-        <p>This task does not have any logs to display.</p>
-    {% else %}
-        <pre class="mr-4">{{ task.log }}</pre>
-    {% endif %}
-</div>
+{% if task.log == "" %}
+    <p>This task does not have any logs to display.</p>
+{% else %}
+    <pre class="py-1 font-monospace">{{ task.log }}</pre>
+{% endif %}
