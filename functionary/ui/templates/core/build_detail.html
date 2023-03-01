@@ -8,10 +8,10 @@
                 <li class="breadcrumb-item">
                     <a href="{% url 'ui:build-list' %}">Build List</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">{{ build.function.render_name }}</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ build.package.render_name }}</li>
             </ol>
         </nav>
-        <div class="hstack gap-4 py-4">
+        <div class="hstack gap-3 py-2">
             <h1>
                 <i class="fa fa-wrench fa-xl"></i>
                 {{ build.package.render_name }}
@@ -21,30 +21,25 @@
                 <span class="fs-5">{{ build.status }}</span>
             </div>
         </div>
-        <div class="vstack gap-4">
+        <div class="vstack gap-4 py-2">
             <div>
-                <i class="fa fa-user fa-fw text-muted"></i>
-                <span class="h fs-4">Creator:</span>
-                <div class="ps-4">
-                    {{ build.creator.first_name }} {{ build.creator.last_name }} <span class="has-text-grey-light">({{ build.creator.username }})</span>
+                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw"></i>Creator:</strong>
+                <p class="ps-4 py-2">
+                    {{ build.creator.first_name }} {{ build.creator.last_name }} <span class="text-muted">({{ build.creator.username }})</span>
                     at {{ build.created_at }}
-                </div>
+                </p>
             </div>
             {% if build.updated_at %}
                 <div>
-                    <i class="fa fa-user fa-fw text-muted"></i>
-                    <span class="h fs-4">Last Updated:</span>
-                    <div class="ps-4">{{ build.updated_at }}</div>
+                    <strong class="fs-4"><i class="fa fa-clock-rotate-left fa-sm fa-fw"></i>Last Updated:</strong>
+                    <p class="ps-4 py-2">{{ build.updated_at }}</p>
                 </div>
             {% endif %}
             {% if build_log.log %}
                 <div>
-                    <i class="fa fa-user fa-fw text-muted"></i>
-                    <span class="h fs-4">Build Log:</span>
+                    <strong class="fs-4"><i class="fa fa-book fa-sm fa-fw"></i>Build Log:</strong>
                     <div class="ps-4">
-                        <div class="p-4 bg-opacity-10 bg-dark rounded-3">
-                            <pre class="ml-4">{{ build_log.log }}</pre>
-                        </div>
+                        <pre class="py-1 font-monospace">{{ build_log.log }}</pre>
                     </div>
                 </div>
             {% endif %}
