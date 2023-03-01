@@ -42,7 +42,7 @@
         <div class="container-fluid">
             <div class="row flex-nowrap">
                 <div class="col-auto px-lg-3 px-md-2 px-2 bg-primary shadow">
-                    <div class="d-flex flex-column vh-100">
+                    <div class="d-flex flex-column vh-100 sticky-top">
                         {% if user.is_authenticated %}
                             <nav class="navbar navbar-dark nav-pills flex-column mb-auto">
                                 <a href="{% url 'ui:home' %}" class="navbar-brand">
@@ -109,7 +109,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col py-3">
+                <div class="col-11 col-md-9 py-3">
                     {% if messages %}
                         {% include "partials/auth_messages.html" %}
                     {% endif %}

@@ -10,7 +10,7 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ task.function.render_name }}</li>
             </ol>
         </nav>
-        <div class="hstack gap-4 py-4">
+        <div class="hstack gap-3 py-2">
             <h1>
                 <i class="fa fa-digital-tachograph fa-xl"></i>
                 {{ task.function.render_name }}
@@ -20,29 +20,20 @@
                 <span class="fs-5">{{ task.status }}</span>
             </div>
         </div>
-        <div class="vstack gap-4">
+        <div class="vstack gap-4 py-2">
             <div>
-                <i class="fa fa-user fa-fw text-muted"></i>
-                <span class="h fs-4">Creator:</span>
-                <div class="ps-4">
-                    <p>
-                        {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="text-muted">({{ task.creator.username }})</span>
-                        at {{ task.created_at }}
-                    </p>
-                </div>
+                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw"></i>Creator:</strong>
+                <p class="ps-4 py-2">
+                    {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="text-muted">({{ task.creator.username }})</span>
+                    at {{ task.created_at }}
+                </p>
             </div>
             <div>
-                <i class="fa fa-list fa-fw text-muted"></i>
-                <span class="h2 fs-4">Parameters:</span>
-                <div class="ps-4">
-                    <div class="p-4 bg-opacity-10 bg-dark rounded-3">
-                        <p class="font-monospace m-0">{{ task.parameters | pprint }}</p>
-                    </div>
-                </div>
+                <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw"></i>Parameters:</strong>
+                <p class="font-monospace ps-4 py-2 m-0">{{ task.parameters | pprint }}</p>
             </div>
             <div>
-                <i class="fa fa-clipboard-check fa-fw text-muted"></i>
-                <span class="h2 fs-4">Result:</span>
+                <strong class="fs-4"><i class="fa fa-clipboard-check fa-sm fa-fw"></i>Result:</strong>
                 {% include "partials/task_result_block.html" %}
             </div>
         </div>
