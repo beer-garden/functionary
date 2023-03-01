@@ -35,6 +35,7 @@ $navbar-dark-hover-color: #D3DAE4; // Slight deviation from default for complian
 $navbar-dark-brand-color: $secondary;
 
 $hr-border-color: $secondary;
+$breadcrumb-divider: quote(">");
 
 // 3. Include required Bootstrap stylesheets
 @import "./variables";
@@ -44,8 +45,8 @@ $hr-border-color: $secondary;
 // 4. Include any default map overrides here
 
 // 5. Include remainder of Bootstrap stylesheets
-@import "./root";
 @import "./utilities";
+@import "./root";
 
 // 6. Include additional Bootstrap components
 @import "./reboot";
@@ -57,11 +58,11 @@ $hr-border-color: $secondary;
 @import "./forms";
 @import "./buttons";
 @import "./card";
-// @import "./button-group";
+@import "./button-group";
 @import "./dropdown";
 @import "./transitions";
 // @import "./accordion";
-// @import "./breadcrumb";
+@import "./breadcrumb";
 @import "./pagination";
 // @import "./badge";
 @import "./alert";
@@ -76,11 +77,11 @@ $hr-border-color: $secondary;
 // @import "./spinners";
 // @import "./offcanvas";
 // @import "./placeholders";
-// @import "./code";
 @import "./nav";
 @import "./navbar";
 
-// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
+// 7. utilities API last to generate classes based on the Sass map in `_utilities.scss`
+@import "./helpers";
 @import "./utilities/api";
 
 // 8. Add additional custom code here
