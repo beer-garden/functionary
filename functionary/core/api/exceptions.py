@@ -16,9 +16,8 @@ def custom_exception_handler(exc, context):
         return None, resulting in a 500 error.
     """
     response = exception_handler(exc, context)
-    if response is not None:
+    if response is not None and isinstance(response.data, dict):
         response.data["code"] = exc.get_codes()
-
     return response
 
 

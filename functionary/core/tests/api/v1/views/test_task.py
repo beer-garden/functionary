@@ -1,27 +1,29 @@
 import json
+from io import BytesIO
 
 import pytest
+from django.test.client import MULTIPART_CONTENT, Client
 from django.urls import reverse
 
-from core.models import Function, Package, Task, TaskResult, Team
+from core.models import Environment, Function, Package, Task, TaskResult, Team
 from core.utils.parameter import PARAMETER_TYPE
 
 
 @pytest.fixture
-def environment():
+def environment() -> Environment:
     team = Team.objects.create(name="team")
     return team.environments.get()
 
 
 @pytest.fixture
-def package(environment):
+def package(environment: Environment) -> Package:
     return Package.objects.create(name="testpackage", environment=environment)
 
 
 @pytest.fixture
-def function(package):
+def int_function(package: Package) -> Function:
     _function = Function.objects.create(
-        name="testfunction",
+        name="testfunction_int",
         package=package,
         environment=package.environment,
     )
@@ -32,30 +34,192 @@ def function(package):
 
 
 @pytest.fixture
-def task(function, admin_user):
+def json_function(package: Package) -> Function:
+    _function = Function.objects.create(
+        name="testfunction_json",
+        package=package,
+        environment=package.environment,
+    )
+
+    _function.parameters.create(
+        name="prop1", parameter_type=PARAMETER_TYPE.JSON, required=True
+    )
+
+    return _function
+
+
+@pytest.fixture
+def file_function(package: Package) -> Function:
+    _function = Function.objects.create(
+        name="testfunction_file",
+        package=package,
+        environment=package.environment,
+    )
+
+    _function.parameters.create(name="prop1", parameter_type=PARAMETER_TYPE.FILE)
+
+    return _function
+
+
+@pytest.fixture
+def task(int_function, admin_user) -> Task:
     return Task.objects.create(
-        function=function,
-        environment=function.package.environment,
+        function=int_function,
+        environment=int_function.package.environment,
         parameters={"prop1": "value1"},
         creator=admin_user,
     )
 
 
 @pytest.fixture
-def request_headers(environment):
+def request_headers(environment: Environment) -> dict:
     return {"HTTP_X_ENVIRONMENT_ID": str(environment.id)}
 
 
-def test_create(admin_client, function, request_headers):
-    """Create a Task"""
+def test_valid_content_type(
+    admin_client: Client,
+    int_function: Function,
+    request_headers: dict,
+):
+    """Test for valid content types"""
+    url = reverse("task-list")
+
+    # Due to the way Django encodes a multipart payload, nested dicts do not work
+    # https://code.djangoproject.com/ticket/30735
+    task_input = {
+        "function": str(int_function.id),
+        "parameters": json.dumps({"prop1": 5}),
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type="application/json", **request_headers
+    )
+    assert response.status_code == 415
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    assert response.status_code == 201
+
+
+def test_create_int_task(
+    admin_client: Client,
+    int_function: Function,
+    package: Package,
+    request_headers: dict,
+):
+    """Create a Task with integer parameters"""
     url = reverse("task-list")
 
     task_input = {
-        "function": str(function.id),
-        "parameters": {"prop1": 5},
+        "function": str(int_function.id),
+        "parameters": json.dumps({"prop1": 5}),
     }
+
     response = admin_client.post(
-        url, data=task_input, content_type="application/json", **request_headers
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+    task_input = {
+        "function_name": int_function.name,
+        "package_name": package.name,
+        "parameters": task_input["parameters"],
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+
+def test_create_json_task(
+    admin_client: Client,
+    json_function: Function,
+    package: Package,
+    request_headers: dict,
+):
+    """Create a Task with JSON parameters"""
+    url = reverse("task-list")
+
+    task_input = {
+        "function": str(json_function.id),
+        "parameters": json.dumps({"prop1": {"hello": "world"}}),
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+    task_input = {
+        "function_name": json_function.name,
+        "package_name": package.name,
+        "parameters": task_input["parameters"],
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+
+def test_create_file_task(
+    mocker,
+    admin_client: Client,
+    file_function: Function,
+    package: Package,
+    request_headers: dict,
+):
+    """Create a Task with file parameters"""
+
+    def mock_file_upload(_task, _request):
+        """Mock the method of uploading a file to S3"""
+        return
+
+    url = reverse("task-list")
+
+    mocker.patch("core.api.v1.views.task._upload_files", mock_file_upload)
+
+    example_file = BytesIO(b"Hello World!")
+    task_input = {"function": str(file_function.id), "prop1": example_file}
+    response = admin_client.post(
+        url,
+        data=task_input,
+        content_type=MULTIPART_CONTENT,
+        **request_headers,
+    )
+
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+    task_input = {
+        "function_name": file_function.name,
+        "package_name": package.name,
+        "prop1": task_input["prop1"],
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
     )
     task_id = response.data.get("id")
 
@@ -65,24 +229,71 @@ def test_create(admin_client, function, request_headers):
 
 
 def test_create_returns_400_for_invalid_parameters(
-    admin_client, function, request_headers
+    admin_client: Client,
+    int_function: Function,
+    json_function: Function,
+    package: Package,
+    request_headers: dict,
 ):
     """Return a 400 for invalid tasking parameters"""
     url = reverse("task-list")
 
-    task_input = {
-        "function": str(function.id),
-        "parameters": {"prop1": "not an integer"},
+    invalid_int_function_input = {
+        "function": str(int_function.id),
+        "parameters": json.dumps({"prop1": "not an integer"}),
     }
     response = admin_client.post(
-        url, data=task_input, content_type="application/json", **request_headers
+        url,
+        data=invalid_int_function_input,
+        content_type=MULTIPART_CONTENT,
+        **request_headers,
     )
 
     assert response.status_code == 400
-    assert not Task.objects.filter(function=function).exists()
+    assert not Task.objects.filter(function=int_function).exists()
+
+    invalid_json_input = {
+        "function": json_function,
+        "parameters": '{"hello": "world"',
+    }
+
+    # Wrap in 'raises' to avoid Django encode_multipart JSON decode exception
+    with pytest.raises(json.JSONDecodeError):
+        response = admin_client.post(
+            url,
+            data=invalid_json_input,
+            content_type=MULTIPART_CONTENT,
+            **request_headers,
+        )
+        assert response.status_code == 400
+        assert not Task.objects.filter(function=json_function).exists()
+
+    task_input = {
+        "function_name": "invalid_function_name",
+        "package_name": package.name,
+        "parameters": '{"some": "input"}',
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    task_id = response.data.get("id")
+
+    assert response.status_code == 400
+    assert task_id is None
+
+    task_input = {
+        "function_name": json_function.name,
+        "package_name": package.name,
+    }
+
+    response = admin_client.post(
+        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    )
+    assert response.status_code == 400
 
 
-def test_no_result_returns_404(admin_client, task, request_headers):
+def test_no_result_returns_404(admin_client: Client, task: Task, request_headers: dict):
     """The task result is returned as the correct type"""
 
     url = f"{reverse('task-list')}{task.id}/result/"
@@ -91,7 +302,9 @@ def test_no_result_returns_404(admin_client, task, request_headers):
     assert response.status_code == 404
 
 
-def test_result_type_is_preserved(admin_client, task, request_headers):
+def test_result_type_is_preserved(
+    admin_client: Client, task: Task, request_headers: dict
+):
     """The task result is returned as the correct type"""
     url = f"{reverse('task-list')}{task.id}/result/"
 

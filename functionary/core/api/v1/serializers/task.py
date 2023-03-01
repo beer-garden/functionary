@@ -1,7 +1,10 @@
 """ Task serializers """
+from collections import OrderedDict
+
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
+from core.api.v1.utils import cast_parameters, parse_parameters
 from core.models import Function, Task
 
 
@@ -19,6 +22,12 @@ class TaskCreateByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ["function", "parameters"]
+
+    def to_internal_value(self, data) -> OrderedDict:
+        parse_parameters(data)
+        ret = super().to_internal_value(data)
+        cast_parameters(ret)
+        return ret
 
     def create(self, validated_data):
         """Custom create that calls clean() on the task instance"""
@@ -41,29 +50,54 @@ class TaskCreateByNameSerializer(serializers.ModelSerializer):
         model = Task
         fields = ["function_name", "package_name", "parameters"]
 
-    def create(self, validated_data):
+    def to_internal_value(self, data: OrderedDict) -> OrderedDict:
+        parse_parameters(data)
+        ret = super().to_internal_value(data)
+        self._get_function(ret)
+        cast_parameters(ret)
+        return ret
+
+    def create(self, validated_data: OrderedDict):
         """Custom create that calls clean() on the task instance"""
-        # pop here to remove fields that are not part of the Task model
-        function_name = validated_data.pop("function_name")
-        package_name = validated_data.pop("package_name")
-
-        try:
-            validated_data["function"] = Function.objects.get(
-                name=function_name,
-                package__name=package_name,
-                environment=validated_data["environment"],
-            )
-        except Function.DoesNotExist:
-            raise serializers.ValidationError(
-                f"No function {function_name} found for package {package_name}"
-            )
-
         try:
             Task(**validated_data).clean()
         except ValidationError as exc:
             raise serializers.ValidationError(exc.message)
 
         return super().create(validated_data)
+
+    def _get_function(self, values: OrderedDict) -> Function:
+        """Substitute the function for the function_name and package_name
+
+        Since this serializer does not substitute the Function before
+        it's create method, we must fetch the function ourselves.
+
+        Args:
+            values: An ordered dict containing the values passed to the serializer
+
+        Returns:
+            function: The Function object
+
+        Raises:
+            ValidationError: If the function was not found
+        """
+        function_name = values.pop("function_name")
+        package_name = values.pop("package_name")
+
+        try:
+            function: Function = Function.objects.get(
+                name=function_name,
+                package__name=package_name,
+            )
+            values["function"] = function
+        except Function.DoesNotExist:
+            exception_map = {
+                "function_name": (
+                    f"No function {function_name} found for package {package_name}"
+                )
+            }
+            exc = ValidationError(exception_map)
+            raise serializers.ValidationError(serializers.as_serializer_error(exc))
 
 
 class TaskCreateResponseSerializer(serializers.ModelSerializer):
