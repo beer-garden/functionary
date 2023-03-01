@@ -23,7 +23,7 @@
         </div>
         <div class="vstack gap-4 py-2">
             <div>
-                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw"></i>Creator:</strong>
+                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw pe-1"></i>Creator:</strong>
                 <p class="ps-4 py-2">
                     {{ build.creator.first_name }} {{ build.creator.last_name }} <span class="text-muted">({{ build.creator.username }})</span>
                     at {{ build.created_at }}
@@ -31,13 +31,13 @@
             </div>
             {% if build.updated_at %}
                 <div>
-                    <strong class="fs-4"><i class="fa fa-clock-rotate-left fa-sm fa-fw"></i>Last Updated:</strong>
+                    <strong class="fs-4"><i class="fa fa-clock-rotate-left fa-sm fa-fw pe-1"></i>Last Updated:</strong>
                     <p class="ps-4 py-2">{{ build.updated_at }}</p>
                 </div>
             {% endif %}
             {% if build_log.log %}
                 <div>
-                    <strong class="fs-4"><i class="fa fa-book fa-sm fa-fw"></i>Build Log:</strong>
+                    <strong class="fs-4"><i class="fa fa-book fa-sm fa-fw pe-1"></i>Build Log:</strong>
                     <div class="ps-4">
                         <pre class="py-1 font-monospace">{{ build_log.log }}</pre>
                     </div>
