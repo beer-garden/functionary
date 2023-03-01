@@ -79,30 +79,30 @@ package:
         the UI form rendering for the different types, as well as what data
         types and values get received by the underlying function.
       parameters:
-        - name: boolean_
+        - name: boolean
           type: boolean
           required: False
-        - name: date_
+        - name: date
           type: date
           required: False
-        - name: datetime_
+        - name: datetime
           type: datetime
           required: False
-        - name: file_
+        - name: file
           type: file
           required: False
-        - name: float_
+        - name: float
           type: float
           required: False
-        - name: integer_
+        - name: integer
           type: integer
           required: False
-        - name: json_
+        - name: json
           type: json
           required: False
-        - name: string_
+        - name: string
           type: string
           required: False
-        - name: text_
+        - name: text
           type: text
           required: False
