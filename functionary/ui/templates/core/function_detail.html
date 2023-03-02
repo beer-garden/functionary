@@ -1,57 +1,48 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% load extras %}
 {% block content %}
-    <div class="column is-full">
-        <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
-            <ul>
-                <li>
-                    <a href="{% url 'ui:function-list' %}">Function List</a>
-                </li>
-                <li>
-                    <span class="icon mr-0 ml-2"><i class="fa fa-cubes"></i></span><a class="pl-0" href="{% url 'ui:package-detail' function.package.id %}">{{ function.package.render_name }}</a>
-                </li>
-                <li class="is-active">
-                    <a href="#">{{ function.render_name }}</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <div class="column">
-        <div class="block">
-            <h1 class="title is-1">
-                <p>
-                    <i class="fa fa-cube"></i>
-                    <span>{{ function.render_name }}</span>
-                </p>
-            </h1>
-        </div>
-        <div class="columns is-centered">
-            <div class="column has-text-centered">
-                {% if not function.active %}<div class="notification is-warning">This function is currently inactive</div>{% endif %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none" href="{% url 'ui:function-list' %}">Function List</a>
+            </li>
+            <li class="breadcrumb-item">
+                <i class="fa fa-cubes"></i>
+                <a class="text-decoration-none"
+                   href="{% url 'ui:package-detail' function.package.id %}">{{ function.package.render_name }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
+        </ol>
+    </nav>
+    <h1>
+        <i class="fa fa-cube fa-xl"></i>
+        <span>{{ function.render_name }}</span>
+    </h1>
+    <div class="vstack gap-4 py-2">
+        {% if not function.active %}
+            <div class="alert alert-warning text-center" role="alert">
+                <i class="fa fa-triangle-exclamation"></i>
+                This function is currently inactive
             </div>
-        </div>
+        {% endif %}
         {% if function.description %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Description:</label>
-                <div class="ml-4">
-                    <span id="desc">{{ function.description }}</span>
-                </div>
+            <div>
+                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description:</strong>
+                <p class="ps-4 py-2">{{ function.description }}</p>
             </div>
         {% elif function.summary %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Summary:</label>
-                <div class="ml-4">
-                    <span id="desc">{{ function.summary }}</span>
-                </div>
+            <div>
+                <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Summary:</strong>
+                <p class="ps-4 py-2">{{ function.summary }}</p>
             </div>
         {% endif %}
-        {% if function.return_type %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Return Type:</label>
-                <span class="ml-4">{{ function.return_type }}</span>
-            </div>
-        {% endif %}
+        {% comment %} {% if function.return_type %} {% endcomment %}
+        <div>
+            <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Return Type:</strong>
+            <p class="ps-4 py-2">{{ function.return_type }}</p>
+        </div>
+        {% comment %} {% endif %} {% endcomment %}
         {% if form is not None %}
             <div class="field ml-4">
                 {% if function.active %}
