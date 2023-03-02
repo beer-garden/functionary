@@ -12,6 +12,7 @@ class PackageFilter(django_filters.FilterSet):
     class Meta:
         model = Package
         fields = FIELDS
+        exclude = "summary"
 
 
 class PackageTable(tables.Table):

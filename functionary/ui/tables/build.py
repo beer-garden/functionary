@@ -7,10 +7,11 @@ from ui.tables import DATETIME_FORMAT
 from ui.tables.filters import DateTimeFilter
 from ui.tables.meta import BaseMeta
 
-FIELDS = ("package__name", "status", "created_at", "creator")
+FIELDS = ("package", "status", "created_at", "creator")
 
 
 class BuildFilter(django_filters.FilterSet):
+    package = django_filters.Filter(field_name="package__name", label="Package")
     created_at_min = DateTimeFilter(
         field_name="created_at",
         label="Created after",
@@ -30,9 +31,10 @@ class BuildFilter(django_filters.FilterSet):
 
 
 class BuildTable(tables.Table):
-    package__name = tables.Column(
+    package = tables.Column(
         linkify=lambda record: reverse("ui:build-detail", kwargs={"pk": record.id}),
         attrs={"a": {"class": "text-decoration-none"}},
+        verbose_name="Package",
     )
     created_at = tables.DateTimeColumn(
         format=DATETIME_FORMAT,

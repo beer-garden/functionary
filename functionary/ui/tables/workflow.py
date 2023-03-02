@@ -14,6 +14,7 @@ class WorkflowFilter(django_filters.FilterSet):
     class Meta:
         model = Workflow
         fields = FIELDS
+        exclude = "description"
 
 
 class WorkflowTable(tables.Table):

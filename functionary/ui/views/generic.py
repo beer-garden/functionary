@@ -177,6 +177,11 @@ class PermissionedListView(PermissionedViewMixin, SingleTableMixin, FilterView):
     paginate_by = 15
     template_name = "default_list.html"
 
+    def get_template_names(self):
+        if "x-filter" in self.request.headers:
+            return "partials/table.html"
+        return super().get_template_names()
+
 
 class PermissionedDetailView(PermissionedViewMixin, DetailView):
     """Extended DetailView with active environment permissions checking and queryset

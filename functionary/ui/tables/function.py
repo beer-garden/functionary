@@ -14,6 +14,7 @@ class FunctionFilter(django_filters.FilterSet):
     class Meta:
         model = Function
         fields = FIELDS
+        exclude = "summary"
 
 
 class FunctionTable(tables.Table):
