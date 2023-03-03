@@ -1,5 +1,5 @@
 from builder.models import Build
-from ui.tables.build import BuildTable
+from ui.tables.build import BuildFilter, BuildTable
 
 from .generic import PermissionedDetailView, PermissionedListView
 from .task import FINISHED_STATUS
@@ -10,6 +10,7 @@ class BuildListView(PermissionedListView):
     permissioned_model = "Package"
     ordering = ["-created_at"]
     table_class = BuildTable
+    filterset_class = BuildFilter
 
 
 class BuildDetailView(PermissionedDetailView):

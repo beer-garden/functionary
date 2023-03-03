@@ -67,7 +67,8 @@ from typing import Type
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import models
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
-from django_tables2 import SingleTableView
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
 
 from core.auth import Operation, Permission
 from core.models import Environment
@@ -169,12 +170,17 @@ class PermissionedCreateView(PermissionedViewMixin, CreateView):
     post_action = Operation.CREATE
 
 
-class PermissionedListView(PermissionedViewMixin, SingleTableView):
+class PermissionedListView(PermissionedViewMixin, SingleTableMixin, FilterView):
     """Extended ListView with active environment permissions checking and queryset
     filtering. See `ui.views.generic` for details."""
 
     paginate_by = 15
     template_name = "default_list.html"
+
+    def get_template_names(self):
+        if "x-filter" in self.request.headers:
+            return "partials/table.html"
+        return super().get_template_names()
 
 
 class PermissionedDetailView(PermissionedViewMixin, DetailView):

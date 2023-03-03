@@ -14,5 +14,8 @@
             <div class="mb-5"></div>
         {% endif %}
     </div>
+    {% if filter %}
+        {% include "partials/list_filter.html" %}
+    {% endif %}
     {% include "partials/table.html" %}
 {% endblock content %}

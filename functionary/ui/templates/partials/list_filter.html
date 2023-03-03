@@ -1,0 +1,20 @@
+{% load widget_tweaks %}
+<form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block" class="form row">
+    {% for field in filter.form %}
+        <div class="col-auto mb-3 ">
+            <label for=field.id_for_label class="form-label">{{ field.label }}</label>
+            {% if field.widget_type == "select" %}
+                {{ field|add_class:"form-select form-select-sm"|add_error_class:"is-invalid"|append_attr:"onchange:requestSubmit()" }}
+            {% elif field.widget_type == 'datetime' %}
+                {{ field|add_class:"form-control form-control-sm"|add_error_class:"is-invalid"|append_attr:"onchange:requestSubmit()" }}
+            {% else %}
+                {{ field|add_class:"form-control form-control-sm"|add_error_class:"is-invalid"|append_attr:"onkeyup:requestSubmit()" }}
+            {% endif %}
+            <div>
+                <ul class="list-unstyled errorlist">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+</form>

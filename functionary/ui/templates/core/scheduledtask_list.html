@@ -9,5 +9,8 @@
             <span>Create New Scheduled Task</span>
         </a>
     </div>
+    {% if filter %}
+        {% include "partials/list_filter.html" %}
+    {% endif %}
     {% include "partials/table.html" %}
 {% endblock content %}

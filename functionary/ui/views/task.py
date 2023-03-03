@@ -14,7 +14,7 @@ from django_htmx import http
 
 from core.auth import Permission
 from core.models import Environment, Task
-from ui.tables.task import TaskListTable
+from ui.tables.task import TaskListFilter, TaskListTable
 
 from .generic import PermissionedDetailView, PermissionedListView
 
@@ -139,6 +139,7 @@ class TaskListView(PermissionedListView):
     model = Task
     ordering = ["-created_at"]
     table_class = TaskListTable
+    filterset_class = TaskListFilter
 
 
 class TaskDetailView(PermissionedDetailView):
