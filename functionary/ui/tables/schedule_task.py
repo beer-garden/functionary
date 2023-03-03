@@ -18,20 +18,17 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: reverse(
             "ui:scheduledtask-detail", kwargs={"pk": record.id}
         ),
-        attrs={"a": {"class": "text-decoration-none"}},
     )
     function = tables.Column(
         linkify=lambda record: reverse(
             "ui:function-detail", kwargs={"pk": record.function.id}
         ),
-        attrs={"a": {"class": "text-decoration-none"}},
     )
     last_run = tables.DateTimeColumn(
         accessor="most_recent_task__created_at",
         verbose_name="Last Run",
         linkify=lambda record: generateLastRunUrl(record),
         format=DATETIME_FORMAT,
-        attrs={"a": {"class": "text-decoration-none"}},
     )
     schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
     edit_button = tables.Column(

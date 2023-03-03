@@ -8,7 +8,6 @@ class TeamTable(tables.Table):
     team = tables.Column(
         accessor="name",
         linkify=lambda record: reverse("ui:team-detail", kwargs={"pk": record.id}),
-        attrs={"a": {"class": "text-decoration-none"}},
     )
 
     class Meta(BaseMeta):
