@@ -11,8 +11,12 @@ FIELDS = ("function", "status", "creator", "created_at")
 
 
 class TaskListFilter(django_filters.FilterSet):
-    function = django_filters.Filter(field_name="function__name", label="Function")
-    creator = django_filters.Filter(field_name="creator__username", label="Creator")
+    function = django_filters.Filter(
+        field_name="function__name", label="Function", lookup_expr="startswith"
+    )
+    creator = django_filters.Filter(
+        field_name="creator__username", label="Creator", lookup_expr="startswith"
+    )
     created_at_min = DateTimeFilter(
         field_name="created_at",
         label="Created after",

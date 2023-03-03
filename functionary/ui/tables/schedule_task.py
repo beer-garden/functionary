@@ -11,7 +11,10 @@ FIELDS = ("name", "function", "last_run", "schedule", "status")
 
 
 class ScheduledTaskFilter(django_filters.FilterSet):
-    function = django_filters.Filter(field_name="function__name", label="Function")
+    name = django_filters.Filter(label="Scheduled Task", lookup_expr="startswith")
+    function = django_filters.Filter(
+        field_name="function__name", label="Function", lookup_expr="startswith"
+    )
 
     class Meta:
         model = ScheduledTask
@@ -31,6 +34,7 @@ class ScheduledTaskTable(tables.Table):
             "ui:scheduledtask-detail", kwargs={"pk": record.id}
         ),
         attrs={"a": {"class": "text-decoration-none"}},
+        verbose_name="Scheduled Task",
     )
     function = tables.Column(
         linkify=lambda record: reverse(

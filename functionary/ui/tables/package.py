@@ -9,16 +9,14 @@ FIELDS = ("name", "summary")
 
 
 class PackageFilter(django_filters.FilterSet):
-    class Meta:
-        model = Package
-        fields = FIELDS
-        exclude = "summary"
+    name = django_filters.Filter(label="Package", lookup_expr="startswith")
 
 
 class PackageTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:package-detail", kwargs={"pk": record.id}),
         attrs={"a": {"class": "text-decoration-none"}},
+        verbose_name="Package",
     )
 
     class Meta(BaseMeta):

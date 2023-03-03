@@ -9,18 +9,17 @@ FIELDS = ("name", "package", "summary")
 
 
 class FunctionFilter(django_filters.FilterSet):
-    package = django_filters.Filter(field_name="package__name", label="Package")
-
-    class Meta:
-        model = Function
-        fields = FIELDS
-        exclude = "summary"
+    name = django_filters.Filter(label="Function", lookup_expr="startswith")
+    package = django_filters.Filter(
+        field_name="package__name", label="Package", lookup_expr="startswith"
+    )
 
 
 class FunctionTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:function-detail", kwargs={"pk": record.id}),
         attrs={"a": {"class": "text-decoration-none"}},
+        verbose_name="Function",
     )
     package = tables.Column(
         linkify=lambda record: reverse(
