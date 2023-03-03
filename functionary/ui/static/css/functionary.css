@@ -29,6 +29,11 @@
 .errors {
     color: red;
 }
+/* the :has() must be user enabled to work on firefox */
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/:has#browser_compatibility */
+div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {
+    white-space: pre;
+}
 .wrap-json,
 pre {
     overflow-x: auto;

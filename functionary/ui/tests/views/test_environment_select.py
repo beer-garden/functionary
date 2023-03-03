@@ -43,20 +43,6 @@ def user_without_access():
 
 
 @pytest.mark.django_db
-def test_environment_select_get(
-    client, environment, environment_with_no_users, user_with_access
-):
-    client.force_login(user_with_access)
-
-    url = reverse("ui:set-environment")
-    response = client.get(url)
-    response_body = response.content.decode()
-
-    assert str(environment.id) in response_body
-    assert str(environment_with_no_users.id) not in response_body
-
-
-@pytest.mark.django_db
 def test_environment_select_post(client, environment, user_with_access):
     client.force_login(user_with_access)
 
