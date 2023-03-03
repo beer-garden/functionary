@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
     {% with package.active_functions as functions %}
-        <nav aria-label="breadcrumbs">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="{% url 'ui:package-list' %}">Package List</a>
+                    <a class="text-decoration-none" href="{% url 'ui:package-list' %}">Package List</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">{{ package.render_name }}</li>
             </ol>
