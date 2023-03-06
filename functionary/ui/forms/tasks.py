@@ -137,14 +137,14 @@ class TaskParameterForm(Form):
                 field.widget.attrs.update(
                     {
                         "class": "form-control",
-                        "aria-describedby": param_name + "HelpBlock",
+                        "aria-describedby": f"{param_name}HelpBlock",
                     }
                 )
             else:
                 field.widget.attrs.update(
                     {
                         "class": "form-check-input",
-                        "aria-describedby": param_name + "HelpBlock",
+                        "aria-describedby": f"{param_name}HelpBlock",
                     }
                 )
 
