@@ -33,7 +33,7 @@ class ScheduledTaskUpdateView(PermissionedUpdateView):
         scheduled_task: ScheduledTask = context["scheduledtask"]
         context["update"] = True
         context["task_parameter_form"] = TaskParameterForm(
-            function=scheduled_task.function, initial=scheduled_task.parameters
+            tasked_object=scheduled_task.function, initial=scheduled_task.parameters
         )
         return context
 

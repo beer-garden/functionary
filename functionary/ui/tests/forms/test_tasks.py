@@ -33,7 +33,7 @@ def function(package):
 @pytest.mark.django_db
 def test_taskparametertemplateform_can_load_initial_values(function):
     form = TaskParameterTemplateForm(
-        function=function,
+        tasked_object=function,
         initial='{"int_param": {{var1}}, "json_param": {{var2}}}',
     )
 

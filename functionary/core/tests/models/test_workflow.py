@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from core.models import Function, Package, Team, User, Workflow, WorkflowRun
+from core.models import Function, Package, Task, Team, User, Workflow
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -92,10 +92,10 @@ def test_ordered_steps(workflow):
 
 
 @pytest.mark.django_db
-def test_workflow_run_parameters_validation(workflow):
-    """Invalid WorkflowRun parameters raises ValidationError"""
-    run = WorkflowRun(
-        workflow=workflow,
+def test_workflow_task_parameters_validation(workflow):
+    """Task with invalid parameters raises ValidationError"""
+    run = Task(
+        tasked_object=workflow,
         environment=workflow.environment,
         parameters={"wfprop1": "notanint"},
         creator=workflow.creator,

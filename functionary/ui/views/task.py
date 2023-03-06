@@ -137,6 +137,9 @@ def _get_result_context(context: dict, format: str) -> dict:
 
 class TaskListView(PermissionedListView):
     model = Task
+    queryset = Task.objects.select_related("tasked_type", "creator").prefetch_related(
+        "tasked_object"
+    )
     ordering = ["-created_at"]
     table_class = TaskListTable
     filterset_class = TaskListFilter
@@ -149,9 +152,7 @@ class TaskDetailView(PermissionedDetailView):
         return (
             super()
             .get_queryset()
-            .select_related(
-                "environment", "creator", "function", "taskresult", "environment__team"
-            )
+            .select_related("environment", "creator", "taskresult", "environment__team")
         )
 
     def get_context_data(self, **kwargs):

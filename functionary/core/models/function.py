@@ -1,6 +1,7 @@
 """ Function model """
 import uuid
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -44,6 +45,9 @@ class Function(models.Model):
     description = models.TextField(null=True)
     variables = models.JSONField(default=list, validators=[list_of_strings])
     return_type = models.CharField(max_length=64, null=True)
+    tasks = GenericRelation(
+        to="Task", content_type_field="tasked_type", object_id_field="tasked_id"
+    )
     active = models.BooleanField(default=True)
 
     class Meta:

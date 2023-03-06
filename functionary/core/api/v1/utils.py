@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from core.models import Function, FunctionParameter
+from core.models import Function, Workflow
 from core.utils.parameter import PARAMETER_TYPE
 
 PREFIX = "param"
@@ -56,11 +56,8 @@ def _cast_json_parameters(values: OrderedDict) -> None:
     Raises:
         ValidationError: When a JSON parameter is not valid JSON
     """
-    function: Function = values.get("function")
-
-    json_params: list[FunctionParameter] = function.parameters.filter(
-        parameter_type=PARAMETER_TYPE.JSON
-    )
+    tasked_object: Union[Function, Workflow] = values["tasked_object"]
+    json_params = tasked_object.parameters.filter(parameter_type=PARAMETER_TYPE.JSON)
 
     for json_param in json_params:
         try:

@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING
 
 from django.db import transaction
 
-from core.models import Workflow, WorkflowStep
+from core.models import WorkflowStep
 
 if TYPE_CHECKING:
-    from core.models import Function
+    from core.models import Function, Workflow
 
 
 def add_step(
-    workflow: Workflow,
+    workflow: "Workflow",
     name: str,
     function: "Function",
     parameter_template: str,

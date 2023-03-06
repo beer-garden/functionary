@@ -87,7 +87,7 @@ def test_execute_handles_optional_parameters(
     }
 
     admin_client.post(url, data)
-    task = Task.objects.get(function=function)
+    task = Task.objects.get(tasked_id=function.id)
 
     # Parameters that were not set should not be present
     assert integer_parameter.name not in task.parameters
@@ -123,4 +123,4 @@ def test_fail_file_upload(
 
     response = admin_client.post(url, data)
     assert response.status_code == 503
-    assert not Task.objects.filter(function=file_function).exists()
+    assert not Task.objects.filter(tasked_id=file_function.id).exists()

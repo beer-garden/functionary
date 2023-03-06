@@ -59,7 +59,7 @@ def inactive_function(package):
 @pytest.fixture
 def task(function, var1, var2, var3, environment, admin_user):
     return Task.objects.create(
-        function=function,
+        tasked_object=function,
         environment=environment,
         parameters={"prop1": "value1"},
         creator=admin_user,
@@ -67,7 +67,7 @@ def task(function, var1, var2, var3, environment, admin_user):
 
 
 @pytest.mark.django_db
-def test_list(task):
+def test_list(task: Task):
     """List all teams"""
     task_vars = task.variables.all()
     assert len(task_vars) == 1
@@ -78,7 +78,7 @@ def test_list(task):
 def test_task_function_must_be_active(inactive_function, environment, admin_user):
     with pytest.raises(ValidationError):
         task = Task(
-            function=inactive_function,
+            tasked_object=inactive_function,
             environment=environment,
             parameters={"prop1": "value1"},
             creator=admin_user,

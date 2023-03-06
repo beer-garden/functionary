@@ -6,7 +6,17 @@ from django.test.client import MULTIPART_CONTENT, Client
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import Environment, Function, Package, Task, TaskResult, Team
+from core.models import (
+    Environment,
+    Function,
+    Package,
+    Task,
+    TaskResult,
+    Team,
+    Workflow,
+    WorkflowParameter,
+    WorkflowStep,
+)
 from core.utils.minio import S3FileUploadError
 from core.utils.parameter import PARAMETER_TYPE
 
@@ -66,9 +76,9 @@ def file_function(package: Package) -> Function:
 @pytest.fixture
 def task(int_function, admin_user) -> Task:
     return Task.objects.create(
-        function=int_function,
+        tasked_object=int_function,
         environment=int_function.package.environment,
-        parameters={"prop1": "value1"},
+        parameters={"prop1": 1},
         creator=admin_user,
     )
 
@@ -78,7 +88,28 @@ def request_headers(environment: Environment) -> dict:
     return {"HTTP_X_ENVIRONMENT_ID": str(environment.id)}
 
 
-def test_valid_content_type(
+@pytest.fixture
+def workflow(int_function: Function, admin_user) -> Workflow:
+    _workflow = Workflow.objects.create(
+        environment=int_function.environment, name="workflow", creator=admin_user
+    )
+
+    WorkflowParameter.objects.create(
+        workflow=_workflow, name="param1", parameter_type=PARAMETER_TYPE.INTEGER
+    )
+
+    WorkflowStep.objects.create(
+        workflow=_workflow,
+        name="step1",
+        next=None,
+        function=int_function,
+        parameter_template='{"param1": "{{parameters.param1}}"}',
+    )
+
+    return _workflow
+
+
+def test_valid_tasked_type(
     admin_client: Client,
     int_function: Function,
     request_headers: dict,
@@ -257,7 +288,7 @@ def test_fail_file_upload(
 
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
     assert task_id is None
-    assert not Task.objects.filter(function=file_function).exists()
+    assert not Task.objects.filter(tasked_id=file_function.id).exists()
 
 
 def test_create_returns_400_for_invalid_parameters(
@@ -282,7 +313,7 @@ def test_create_returns_400_for_invalid_parameters(
     )
 
     assert response.status_code == 400
-    assert not Task.objects.filter(function=int_function).exists()
+    assert not Task.objects.filter(tasked_id=int_function.id).exists()
 
     invalid_json_input = {
         "function": json_function,
@@ -298,7 +329,7 @@ def test_create_returns_400_for_invalid_parameters(
             **request_headers,
         )
         assert response.status_code == 400
-        assert not Task.objects.filter(function=json_function).exists()
+        assert not Task.objects.filter(tasked_id=json_function.id).exists()
 
     task_input = {
         "function_name": "invalid_function_name",
@@ -372,3 +403,25 @@ def test_result_type_is_preserved(
     task_result.save()
     response = admin_client.get(url, **request_headers)
     assert type(response.data["result"]) is bool
+
+
+def test_workflow_task(admin_client: Client, request_headers: dict, workflow: Workflow):
+    """Create a Task for a Workflow"""
+    url = reverse("task-list")
+
+    assert not workflow.tasks.exists()
+
+    task_input = {
+        "workflow": str(workflow.id),
+        "parameters": json.dumps({"param1": 5}),
+    }
+
+    response = admin_client.post(
+        url,
+        data=task_input,
+        content_type=MULTIPART_CONTENT,
+        **request_headers,
+    )
+
+    assert response.status_code == 201
+    assert workflow.tasks.exists()
