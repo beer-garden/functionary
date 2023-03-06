@@ -28,26 +28,26 @@
         {% endif %}
         {% if function.description %}
             <div>
-                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description:</strong>
+                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
                 <p class="ps-4 py-2">{{ function.description }}</p>
             </div>
         {% elif function.summary %}
             <div>
-                <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Summary:</strong>
+                <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Summary</strong>
                 <p class="ps-4 py-2">{{ function.summary }}</p>
             </div>
         {% endif %}
         {% if function.return_type %}
             <div>
-                <strong class="fs-4"><i class="fa fa-right-from-bracket fa-sm fa-fw pe-1"></i>Return Type:</strong>
+                <strong class="fs-4"><i class="fa fa-right-from-bracket fa-sm fa-fw pe-1"></i>Return Type</strong>
                 <p class="ps-4 py-2">{{ function.return_type }}</p>
             </div>
         {% endif %}
         {% if form is not None %}
             <div>
                 {% if function.active %}
-                    <strong class="fs-4"><i class="fa fa-pencil-alt fa-sm fa-fw pe-1"></i>Create Task:</strong>
-                    <div class="ps-4">
+                    <strong class="fs-4"><i class="fa fa-pencil-alt fa-sm fa-fw pe-1"></i>Create Task</strong>
+                    <div class="ps-4 py-2">
                         <div class="row">
                             <div class="col-5">
                                 <form id="taskCreateForm"
