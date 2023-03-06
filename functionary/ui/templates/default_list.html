@@ -1,4 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+    {% if filter %}
+        {% include "partials/list_filter.html" %}
+    {% endif %}
     {% include "partials/table.html" %}
 {% endblock content %}

@@ -1,5 +1,5 @@
 from core.models import Package
-from ui.tables.package import PackageTable
+from ui.tables.package import PackageFilter, PackageTable
 
 from .generic import PermissionedDetailView, PermissionedListView
 
@@ -7,6 +7,7 @@ from .generic import PermissionedDetailView, PermissionedListView
 class PackageListView(PermissionedListView):
     model = Package
     table_class = PackageTable
+    filterset_class = PackageFilter
 
 
 class PackageDetailView(PermissionedDetailView):

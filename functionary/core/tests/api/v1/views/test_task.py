@@ -4,8 +4,10 @@ from io import BytesIO
 import pytest
 from django.test.client import MULTIPART_CONTENT, Client
 from django.urls import reverse
+from rest_framework import status
 
 from core.models import Environment, Function, Package, Task, TaskResult, Team
+from core.utils.minio import S3FileUploadError
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -195,7 +197,7 @@ def test_create_file_task(
 
     url = reverse("task-list")
 
-    mocker.patch("core.api.v1.views.task._upload_files", mock_file_upload)
+    mocker.patch("core.api.v1.views.task.handle_file_parameters", mock_file_upload)
 
     example_file = BytesIO(b"Hello World!")
     task_input = {"function": str(file_function.id), "prop1": example_file}
@@ -226,6 +228,36 @@ def test_create_file_task(
     assert response.status_code == 201
     assert task_id is not None
     assert Task.objects.filter(id=task_id).exists()
+
+
+def test_fail_file_upload(
+    mocker,
+    admin_client: Client,
+    file_function: Function,
+    request_headers: dict,
+):
+    def mock_file_upload(_task, _request):
+        """Mock the method of uploading a file to S3"""
+        raise S3FileUploadError("Failed to upload file")
+
+    url = reverse("task-list")
+
+    mocker.patch("core.api.v1.views.task.handle_file_parameters", mock_file_upload)
+
+    example_file = BytesIO(b"Hello World!")
+    task_input = {"function": str(file_function.id), "prop1": example_file}
+    response = admin_client.post(
+        url,
+        data=task_input,
+        content_type=MULTIPART_CONTENT,
+        **request_headers,
+    )
+
+    task_id = response.data.get("id")
+
+    assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+    assert task_id is None
+    assert not Task.objects.filter(function=file_function).exists()
 
 
 def test_create_returns_400_for_invalid_parameters(

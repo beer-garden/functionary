@@ -1,9 +1,13 @@
 """Tests function views"""
 
+from io import BytesIO
+
 import pytest
+from django.test.client import Client
 from django.urls import reverse
 
-from core.models import Function, Package, Task, Team
+from core.models import Function, FunctionParameter, Package, Task, Team
+from core.utils.minio import S3FileUploadError
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -28,7 +32,23 @@ def function(package):
 
 
 @pytest.fixture
-def integer_parameter(function):
+def file_function(package):
+    return Function.objects.create(
+        name="testfunction_file",
+        package=package,
+        environment=package.environment,
+    )
+
+
+@pytest.fixture
+def file_parameter(file_function: Function):
+    return file_function.parameters.create(
+        name="required_file", parameter_type=PARAMETER_TYPE.FILE, required=True
+    )
+
+
+@pytest.fixture
+def integer_parameter(function: Function):
     return function.parameters.create(
         name="optional_integer", parameter_type=PARAMETER_TYPE.INTEGER, required=False
     )
@@ -75,3 +95,32 @@ def test_execute_handles_optional_parameters(
 
     # The parameter that was set should be present
     assert text_parameter.name in task.parameters
+
+
+def test_fail_file_upload(
+    mocker,
+    admin_client: Client,
+    file_function: Function,
+    file_parameter: FunctionParameter,
+):
+    def mock_file_upload(_task, _request):
+        """Mock the method of uploading a file to S3"""
+        raise S3FileUploadError("Failed to upload file")
+
+    mocker.patch("ui.views.function.handle_file_parameters", mock_file_upload)
+
+    session = admin_client.session
+    session["environment_id"] = str(file_function.environment.id)
+    session.save()
+
+    url = reverse("ui:function-execute")
+
+    example_file = BytesIO(b"Hello World!")
+    data = {
+        "function_id": str(file_function.id),
+        f"task-parameter-{file_parameter.name}": example_file,
+    }
+
+    response = admin_client.post(url, data)
+    assert response.status_code == 503
+    assert not Task.objects.filter(function=file_function).exists()

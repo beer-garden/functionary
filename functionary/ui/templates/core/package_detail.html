@@ -1,52 +1,40 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% block content %}
     {% with package.active_functions as functions %}
-        <div class="column is-full">
-            <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
-                <ul>
-                    <li>
-                        <a href="{% url 'ui:package-list' %}">Package List</a>
-                    </li>
-                    <li class="is-active">
-                        <a href="#">{{ package.render_name }}</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-        <div class="column">
-            <div class="block">
-                <h1 class="title is-1">
-                    <p>
-                        <i class="fa fa-cubes"></i>
-                        <span>{{ package.render_name }}</span>
-                    </p>
-                </h1>
-            </div>
-            <div class="column has-addons">
-                {% if package.description %}
-                    <div class="field">
-                        <label class="label" for="desc">Description:</label>
-                        <span id="desc" class="ml-4">{{ package.description }}</span>
-                    </div>
-                {% elif package.summary %}
-                    <div class="field">
-                        <label class="label" for="desc">Summary:</label>
-                        <span id="desc" class="ml-4">{{ package.summary }}</span>
-                    </div>
-                {% endif %}
-                <div class="field">
-                    <label class="label" for="funcs">
-                        <i class="fa fa-cube"></i>&nbsp;Functions:
-                    </label>
-                    <ul id="funcs">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'ui:package-list' %}">Package List</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ package.render_name }}</li>
+            </ol>
+        </nav>
+        <h1 class="pt-2 pb-4">
+            <i class="fa fa-cubes fa-xl"></i>
+            {{ package.render_name }}
+        </h1>
+        <div class="vstack gap-4 py-2">
+            {% if package.description %}
+                <div>
+                    <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
+                    <p class="ps-4 py-2">{{ package.description }}</p>
+                </div>
+            {% elif package.summary %}
+                <div>
+                    <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Summary</strong>
+                    <p class="ps-4 py-2">{{ package.summary }}</p>
+                </div>
+            {% endif %}
+            <div>
+                <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw pe-1"></i>Functions</strong>
+                <div class="ps-4">
+                    <div id="funcs" class="list-group">
                         {% for function in functions %}
-                            <li class="block ml-4">
-                                <a href="{% url 'ui:function-detail' function.id %}">{{ function.render_name }}</a>
-                                <br/>
-                                <span class="ml-4">{{ function.summary }}</span>
-                            </li>
+                            <a href="{% url 'ui:function-detail' function.id %}"
+                               class="list-group-item list-group-item-action">{{ function.render_name }}</a>
+                            <p class="ms-4">{{ function.summary }}</p>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>

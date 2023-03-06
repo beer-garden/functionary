@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "django_htmx",
     "django_tables2",
+    "django_filters",
     "widget_tweaks",
     "core",
     "builder",

@@ -5,7 +5,7 @@ from io import BytesIO
 from django.conf import settings
 from django.http import HttpRequest
 from minio import Minio
-from minio.error import S3Error
+from minio.error import S3Error as MinioS3Error
 from urllib3.exceptions import MaxRetryError
 from urllib3.response import HTTPResponse
 
@@ -16,7 +16,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(getattr(logging, LOG_LEVEL))
 
 
-class S3ConnectionError(Exception):
+class S3Error(Exception):
+    pass
+
+
+class S3ConnectionError(S3Error):
+    pass
+
+
+class S3FileUploadError(S3Error):
     pass
 
 
@@ -48,24 +56,42 @@ class MinioInterface:
             self.bucket_name = bucket_name
             self._create_bucket()
         except MaxRetryError as err:
-            msg = f"Connection to S3 provider could not be established. Error: {err}"
-            logger.error(msg)
+            msg = "Connection to S3 provider could not be established."
+            logger.error(f"{msg} Error: {err}")
             raise S3ConnectionError(msg)
-        except S3Error as err:
-            msg = f"Error communicating with S3 provider: {err}"
-            logger.error(msg)
+        except MinioS3Error as err:
+            msg = "Error communicating with S3 provider."
+            logger.error(f"{msg} Error: {err}")
             raise S3ConnectionError(msg)
 
     def bucket_exists(self) -> bool:
         return self.client.bucket_exists(self.bucket_name)
 
     def put_file(self, file: BytesIO, length: int, filename: str) -> None:
-        _ = self.client.put_object(
-            bucket_name=self.bucket_name,
-            object_name=filename,
-            data=file,
-            length=length,
-        )
+        """Uploads file to bucket
+
+        Args:
+            file: The bytes to upload
+            length: The length of the file
+            filename: The name of the file
+
+        Returns:
+            None
+
+        Raises:
+            S3FileUploadError: Raised when file fails to get uploaded
+        """
+        try:
+            _ = self.client.put_object(
+                bucket_name=self.bucket_name,
+                object_name=filename,
+                data=file,
+                length=length,
+            )
+        except Exception as err:
+            err_msg = f"Failed to upload file: {filename}."
+            logger.error(f"{err_msg} Error: {err}")
+            raise S3FileUploadError(err_msg)
 
     def get_filenames(self) -> list[str]:
         objects = self.client.list_objects(self.bucket_name)
@@ -78,7 +104,7 @@ class MinioInterface:
         try:
             _ = self.client.stat_object(self.bucket_name, filename)
             return True
-        except S3Error:
+        except MinioS3Error:
             return False
 
     def get_object(self, filename: str) -> HTTPResponse:
@@ -135,6 +161,7 @@ def handle_file_parameters(
     Raises:
         S3ConnectionError: Raised when client is unable to connect or communicate
             with the configured S3 provider.
+        S3FileUploadError: Raised when file fails to get uploaded
     """
     if request.FILES:
         minio = MinioInterface(bucket_name=str(task.environment.id))
