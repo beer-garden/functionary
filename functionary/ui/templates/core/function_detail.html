@@ -15,7 +15,7 @@
             <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
         </ol>
     </nav>
-    <h1>
+    <h1 class="pt-2 pb-4">
         <i class="fa fa-cube fa-xl"></i>
         <span>{{ function.render_name }}</span>
     </h1>
@@ -48,31 +48,37 @@
                 {% if function.active %}
                     <strong class="fs-4"><i class="fa fa-pencil-alt fa-sm fa-fw pe-1"></i>Create Task:</strong>
                     <div class="ps-4">
-                        <form id="taskCreateForm"
-                              method="post"
-                              action="{% url 'ui:function-execute' %}"
-                              enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                            {{ form.non_field_errors }}
-                            {{ form }}
-                            {% if missing_variables %}
-                                <div class="alert alert-danger">
-                                    <p>Tasking this function may not work as expected; the following variables are missing:</p>
-                                    <ul>
-                                        {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
-                                    </ul>
-                                </div>
-                            {% endif %}
-                            <input class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
-                                   type="submit"
-                                   value="Execute"/>
-                        </form>
+                        <div class="row">
+                            <div class="col-5">
+                                <form id="taskCreateForm"
+                                      method="post"
+                                      action="{% url 'ui:function-execute' %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="function_id" value="{{ function.id }}"/>
+                                    {{ form.non_field_errors }}
+                                    {{ form }}
+                                </form>
+                            </div>
+                        </div>
+                        {% if missing_variables %}
+                            <div class="alert alert-danger">
+                                <p>Tasking this function may not work as expected; the following variables are missing:</p>
+                                <ul>
+                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                                type="submit"
+                                form="taskCreateForm">
+                            Execute
+                        </button>
                     </div>
                 {% endif %}
             </div>
         {% endif %}
-        <details open {% if not form %}open{% endif %}>
+        <details {% if not form %}open{% endif %}>
             <summary class="has-text-weight-bold">
                 Schema:
             </summary>
