@@ -39,7 +39,7 @@ class WorkflowStepCreateForm(forms.ModelForm):
         # Add htmx attributes to the function widget
         self.fields["function"].widget.attrs.update(
             {
-                "class": "input",
+                "class": "form-control",
                 "hx-get": reverse("ui:function-parameters"),
                 "hx-vals": '{"allow_template_variables": "true"}',
                 "hx-target": "#function-parameters",

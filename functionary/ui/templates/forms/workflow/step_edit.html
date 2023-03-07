@@ -20,10 +20,8 @@
             {% render_field form.function class="form-select" aria-label=form.function.label %}
             <div class="text-danger">{{ form.function.errors }}</div>
         </div>
+        <div class="mb-3"  id="function-parameters">{{ parameter_form }}</div>
         <div>{{ form.non_field_errors }}</div>
-        <div class="field">
-            <div id="function-parameters">{{ parameter_form }}</div>
-        </div>
         <div>{{ form.workflow }}</div>
         <div>{{ form.next }}</div>
     </form>
