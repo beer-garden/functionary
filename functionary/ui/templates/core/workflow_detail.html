@@ -13,14 +13,12 @@
             <i class="fa fa-diagram-next"></i>
             {{ workflow.name }}
         </h1>
-        <div>
-            <i class="fa fa-pencil-alt fa-lg text-info"
-               type="button"
-               title="Edit"
-               hx-target="body"
-               hx-swap="beforeend"
-               hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
-        </div>
+        <i class="fa fa-pencil-alt fa-lg text-info"
+           type="button"
+           title="Edit"
+           hx-target="body"
+           hx-swap="beforeend"
+           hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
     </div>
     <div class="vstack gap-4 py-2">
         <div>
