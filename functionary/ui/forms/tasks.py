@@ -134,7 +134,19 @@ class TaskParameterForm(Form):
 
             # Style all inputfields except the checkbox with the "input" class
             if param_type != PARAMETER_TYPE.BOOLEAN:
-                field.widget.attrs.update({"class": "input"})
+                field.widget.attrs.update(
+                    {
+                        "class": "form-control",
+                        "aria-describedby": f"{param_name}HelpBlock",
+                    }
+                )
+            else:
+                field.widget.attrs.update(
+                    {
+                        "class": "form-check-input",
+                        "aria-describedby": f"{param_name}HelpBlock",
+                    }
+                )
 
             self.fields[param_name] = field
 

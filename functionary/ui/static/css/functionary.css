@@ -53,3 +53,19 @@ tr.htmx-swapping td {
 body div aside {
     max-width: fit-content;
 }
+
+/* table sorting indicators */
+th.asc::after,
+th.desc::after {
+    font-family: var(--fa-style-family,"Font Awesome 6 Free");
+    color: var(--bs-primary);
+    font-size: 0.75em;
+    line-height: .05em;
+    padding-left: .5em;
+}
+th.asc::after {
+    content: '\f077';    /* chevron-up */
+}
+th.desc::after {
+    content: '\f078';    /* chevron-down */
+}

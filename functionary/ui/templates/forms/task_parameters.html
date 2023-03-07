@@ -1,13 +1,11 @@
 {% for field in form %}
-<div class="field">
-    <label class="label" for="{{ field.id_for_label }}">
-        <b {% if field.errors %}class="errors"{% endif %}>{{ field.label }}</b>: 
-        <span class="is-small has-text-grey-light">{{ field.field.label_suffix }}</span>
-        &nbsp;&nbsp;&nbsp;{{ field.help_text }}
-    </label>
-    <div class="control">
-        {{ field }}
+    <div class="mb-4">
+        <label class="form-label" for="{{ field.id_for_label }}">
+            <b {% if field.errors %}class="text-danger"{% endif %}>{{ field.label }}</b>:
+            <span class="text-muted">{{ field.field.label_suffix }}</span>
+        </label>
+        <div>{{ field }}</div>
+        <div id="{{ field.label }}HelpBlock" class="form-text">{{ field.help_text }}</div>
+        {{ field.errors }}
     </div>
-    {{ field.errors }}
-</div>
 {% endfor %}

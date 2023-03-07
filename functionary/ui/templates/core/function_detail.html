@@ -1,103 +1,96 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% load extras %}
 {% block content %}
-    <div class="column is-full">
-        <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
-            <ul>
-                <li>
-                    <a href="{% url 'ui:function-list' %}">Function List</a>
-                </li>
-                <li>
-                    <span class="icon mr-0 ml-2"><i class="fa fa-cubes"></i></span><a class="pl-0" href="{% url 'ui:package-detail' function.package.id %}">{{ function.package.render_name }}</a>
-                </li>
-                <li class="is-active">
-                    <a href="#">{{ function.render_name }}</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <div class="column">
-        <div class="block">
-            <h1 class="title is-1">
-                <p>
-                    <i class="fa fa-cube"></i>
-                    <span>{{ function.render_name }}</span>
-                </p>
-            </h1>
-        </div>
-        <div class="columns is-centered">
-            <div class="column has-text-centered">
-                {% if not function.active %}<div class="notification is-warning">This function is currently inactive</div>{% endif %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none" href="{% url 'ui:function-list' %}">Function List</a>
+            </li>
+            <li class="breadcrumb-item">
+                <i class="fa fa-cubes"></i>
+                <a class="text-decoration-none"
+                   href="{% url 'ui:package-detail' function.package.id %}">{{ function.package.render_name }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
+        </ol>
+    </nav>
+    <h1 class="pt-2 pb-4">
+        <i class="fa fa-cube fa-xl"></i>
+        <span>{{ function.render_name }}</span>
+    </h1>
+    <div class="vstack gap-4 py-2">
+        {% if not function.active %}
+            <div class="alert alert-warning text-center" role="alert">
+                <i class="fa fa-triangle-exclamation"></i>
+                This function is currently inactive
             </div>
-        </div>
+        {% endif %}
         {% if function.description %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Description:</label>
-                <div class="ml-4">
-                    <span id="desc">{{ function.description }}</span>
-                </div>
+            <div>
+                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
+                <p class="ps-4 py-2">{{ function.description }}</p>
             </div>
         {% elif function.summary %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Summary:</label>
-                <div class="ml-4">
-                    <span id="desc">{{ function.summary }}</span>
-                </div>
+            <div>
+                <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw pe-1"></i>Summary</strong>
+                <p class="ps-4 py-2">{{ function.summary }}</p>
             </div>
         {% endif %}
         {% if function.return_type %}
-            <div class="field ml-4">
-                <label class="label" for="desc">Return Type:</label>
-                <span class="ml-4">{{ function.return_type }}</span>
+            <div>
+                <strong class="fs-4"><i class="fa fa-right-from-bracket fa-sm fa-fw pe-1"></i>Return Type</strong>
+                <p class="ps-4 py-2">{{ function.return_type }}</p>
             </div>
         {% endif %}
         {% if form is not None %}
-            <div class="field ml-4">
+            <div>
                 {% if function.active %}
-                    <label class="label">Create Task:</label>
-                    <div class="ml-4">
-                        <form id="djangoForm"
-                              method="post"
-                              action="{% url 'ui:function-execute' %}"
-                              enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="has-background-white-ter">
-                                <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                                <div class="column has-addons">
+                    <strong class="fs-4"><i class="fa fa-pencil-alt fa-sm fa-fw pe-1"></i>Create Task</strong>
+                    <div class="ps-4 py-2">
+                        <div class="row">
+                            <div class="col-5">
+                                <form id="taskCreateForm"
+                                      method="post"
+                                      action="{% url 'ui:function-execute' %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="function_id" value="{{ function.id }}"/>
                                     {{ form.non_field_errors }}
                                     {{ form }}
-                                    {% if missing_variables %}
-                                        <div class="field ml-4 missing-variables has-background-danger-light has-text-danger">
-                                            <span>Tasking this function may not work as expected; the following variables are missing:</span>
-                                            <ul>
-                                                {% for missing in missing_variables %}
-                                                    <li>
-                                                        <span>{{ missing }}</span>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    {% endif %}
-                                </div>
+                                </form>
                             </div>
-                            <input class="button mt-2 {% if missing_variables %}is-warning{% else %}is-link{% endif %}"
-                                   type="submit"
-                                   value="Execute"/>
-                        </form>
+                        </div>
+                        {% if missing_variables %}
+                            <div class="alert alert-danger">
+                                <p>Tasking this function may not work as expected; the following variables are missing:</p>
+                                <ul>
+                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                                type="submit"
+                                form="taskCreateForm">
+                            Execute
+                        </button>
                     </div>
                 {% endif %}
             </div>
         {% endif %}
-        <div class="pt-3 ml-4">
-            <details class="pl-1" {% if not form %}open{% endif %}>
-                <summary class="has-text-weight-bold">
-                    Schema:
-                </summary>
-                <div class="p-4">
-                    <pre class="has-background-link-light">{{ function.schema | pretty_json }}</pre>
-                </div>
-            </details>
-        </div>
+        <details {% if not form %}open{% endif %}>
+            <summary class="has-text-weight-bold">
+                Schema:
+            </summary>
+            <div class="p-4">
+                <ol class="px-1 json-container wrap-json" id="json-result" />
+                <pre class="has-background-link-light">{{ function.schema | pretty_json }}</pre>
+            </div>
+        </details>
     </div>
+    <script data-task-result="{{ function.schema | pretty_json }}">
+        var parsed_result = JSON.parse(document.currentScript.dataset.taskResult)
+        var result_element = document.getElementById('json-result')
+        result_element.innerHTML = prettyPrintJson.toHtml(parsed_result, {"quoteKeys": true})
+    </script>
 {% endblock content %}

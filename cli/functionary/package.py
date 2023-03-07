@@ -95,28 +95,43 @@ def create_cmd(ctx, language, name, output_directory):
 
 @package_cmd.command()
 @click.argument("path", type=click.Path(exists=True))
+@click.option(
+    "--keep",
+    "-k",
+    is_flag=True,
+    help="Keep build artifacts after publishing, rather than cleaning them up",
+)
 @click.pass_context
-def publish(ctx, path):
+def publish(ctx, path, keep):
     """
-    Create an archive from the project and publish to the build server.
+    Publish a package to make it available in the currently active environment.
 
-    This will create an archive of the files at the given path and
-    then publish them to the build server for image creation.
-    Use the -t option to specify a token or set the FUNCTIONARY_TOKEN
-    environment variable after logging in to Functionary.
+    Use the -k option to keep the build artifacts
+    (found in $HOME/.functionary/builds) after publishing,
+    rather than cleaning it up.
     """
     host = get_config_value("host", raise_exception=True)
-
     full_path = pathlib.Path(path).resolve()
-    tarfile_name = full_path.joinpath(f"{full_path.name}.tar.gz")
-    with tarfile.open(str(tarfile_name), "w:gz") as tar:
+    tar_path = get_tar_path(full_path.name)
+
+    with tarfile.open(str(tar_path), "w:gz") as tar:
         tar.add(str(full_path), arcname="")
 
-    with open(tarfile_name, "rb") as upload_file:
-        click.echo(f"Publishing {str(tarfile_name)} package to {host}")
+    with open(tar_path, "rb") as upload_file:
+        click.echo(f"Publishing {str(tar_path)} package to {host}")
         response = post("publish", files={"package_contents": upload_file})
+        if keep is False:
+            os.remove(tar_path)
         id = response["id"]
         click.echo(f"Package upload complete\nBuild id: {id}")
+
+
+def get_tar_path(tar_name):
+    """Construct the path to the package tarball"""
+    tar_name = tar_name + ".tar.gz"
+    tar_path = pathlib.Path.joinpath(pathlib.Path.home(), ".functionary")
+    pathlib.Path(tar_path, "builds").mkdir(parents=True, exist_ok=True)
+    return pathlib.Path.joinpath(tar_path, "builds", tar_name)
 
 
 @package_cmd.command()
