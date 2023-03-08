@@ -3,7 +3,7 @@
     <!--TODO: A table is not really suitable for this data. This is just a
     placeholder to demonstrate the functionality-->
     <div id="tableSteps" class="table-container">
-        <table class="table table-striped">
+        <table class="table table-striped table-sm">
             <thead>
                 <tr>
                     <th scope="col"></th>
@@ -16,26 +16,28 @@
             <tbody id="steps">
                 {% for step in workflow.ordered_steps %}
                     <tr id="step-{{ step.id }}">
-                        {% with previous=step.previous next=step.next %}
-                            <td class="d-flex {% if previous is None %}justify-content-end{% elif next is None %}justify-content-start{% else %}justify-content-between{% endif %}">
-                                <button class="btn btn-small text-primary fa fa-chevron-up border-0"
-                                        type="button"
-                                        title="Move Step Up"
-                                        {% if previous is None %}hidden{% endif %}
-                                        hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
-                                        hx-target="#workflow-steps"
-                                        hx-swap="OuterHTML"
-                                        hx-vals='{"next": "{{ previous.id }}"}'/>
-                                <button class="btn btn-small text-primary fa fa-chevron-down border-0"
-                                        type="button"
-                                        title="Move Step Down"
-                                        {% if next is None %}hidden{% endif %}
-                                        hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
-                                        hx-target="#workflow-steps"
-                                        hx-swap="OuterHTML"
-                                        hx-vals='{"next": "{{ next.next.id }}"}'/>
-                            </td>
-                        {% endwith %}
+                        <td>
+                            {% with previous=step.previous next=step.next %}
+                                <div class="d-flex {% if previous is None %}justify-content-end{% elif next is None %}justify-content-start{% else %}justify-content-between{% endif %}">
+                                    <button class="btn btn-small text-primary fa fa-chevron-up border-0"
+                                            type="button"
+                                            title="Move Step Up"
+                                            {% if previous is None %}hidden{% endif %}
+                                            hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
+                                            hx-target="#workflow-steps"
+                                            hx-swap="OuterHTML"
+                                            hx-vals='{"next": "{{ previous.id }}"}'/>
+                                    <button class="btn btn-small text-primary fa fa-chevron-down border-0"
+                                            type="button"
+                                            title="Move Step Down"
+                                            {% if next is None %}hidden{% endif %}
+                                            hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
+                                            hx-target="#workflow-steps"
+                                            hx-swap="OuterHTML"
+                                            hx-vals='{"next": "{{ next.next.id }}"}'/>
+                                </div>
+                            {% endwith %}
+                        </td>
                         <td>{{ step.name }}</td>
                         <td>{{ step.function }}</td>
                         <td class="json-container">{{ step.parameter_template }}</td>
