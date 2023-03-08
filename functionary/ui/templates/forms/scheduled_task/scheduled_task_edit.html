@@ -40,76 +40,80 @@
                 </button>
             </div>
         {% endif %}
-        <form method="post"
-              action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
-              enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="vstack gap-4 py-2">
-                <div>
-                    <strong class="fs-4"><i class="fa fa-font fa-sm fa-fw pe-1"></i>Name</strong>
-                    <div class="ps-4 py-2">{% render_field form.name class="form-control" %}</div>
-                    <div class="text-danger">{{ form.name.errors }}</div>
-                </div>
-                {% if update %}
-                    <div>
-                        <strong class="fs-4"><i class="fa fa-heart-pulse fa-sm fa-fw pe-1"></i>Status</strong>
-                        <div class="ps-4 py-2">{% render_field form.status class="form-select" %}</div>
-                        <div class="text-danger">{{ form.status.errors }}</div>
-                    </div>
-                {% endif %}
-                <div>
-                    <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
-                    <div class="ps-4 py-2">{% render_field form.description class="form-control" %}</div>
-                    <div class="text-danger">{{ form.description.errors }}</div>
-                </div>
-                <div>
-                    <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw pe-1"></i>Function</strong>
-                    <div class="ps-4 py-2">
+        <div class="row">
+            <div class="col col-lg-10 col-xl-9 col-xxl-8">
+                <form method="post"
+                      action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="vstack gap-4 py-2">
+                        <div>
+                            <strong class="fs-4"><i class="fa fa-font fa-sm fa-fw pe-1"></i>Name</strong>
+                            <div class="ps-4 py-2">{% render_field form.name class="form-control" %}</div>
+                            <div class="text-danger">{{ form.name.errors }}</div>
+                        </div>
                         {% if update %}
-                            {% render_field form.function disabled=True class="form-select" %}
-                        {% else %}
-                            {{ form.function }}
-                        {% endif %}
-                        <div class="text-danger">{{ form.function.errors }}</div>
-                    </div>
-                </div>
-                <div>
-                    <strong class="fs-4"><i class="fa fa-business-time fa-sm fa-fw pe-1"></i>Crontab Schedule</strong>
-                    <div class="ps-4 py-2 vstack gap-4">
-                        {% for formItem in form %}
-                            {% if 'scheduled' in formItem.id_for_label %}
-                                <div class="form-floating">
-                                    {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" %}
-                                    <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
-                                    <div class="text-danger">{{ formItem.errors }}</div>
-                                    <div id="{{ formItem.id_for_label }}_errors"></div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div>
-                    <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw pe-1"></i>Parameters</strong>
-                    <div class="font-monospace ps-4 py-2" id="function-parameters">
-                        {% comment %} Render function param form if available. Else, lazy load. {% endcomment %}
-                        {% if task_parameter_form %}
-                            {{ task_parameter_form }}
-                        {% else %}
-                            <div hx-trigger="load"
-                                 hx-get="{% url 'ui:function-parameters' %}"
-                                 hx-vals='{"function": "{{ form.function.id }}"}'>
+                            <div>
+                                <strong class="fs-4"><i class="fa fa-heart-pulse fa-sm fa-fw pe-1"></i>Status</strong>
+                                <div class="ps-4 py-2">{% render_field form.status class="form-select" %}</div>
+                                <div class="text-danger">{{ form.status.errors }}</div>
                             </div>
                         {% endif %}
+                        <div>
+                            <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
+                            <div class="ps-4 py-2">{% render_field form.description class="form-control" %}</div>
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                        </div>
+                        <div>
+                            <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw pe-1"></i>Function</strong>
+                            <div class="ps-4 py-2">
+                                {% if update %}
+                                    {% render_field form.function disabled=True class="form-select" %}
+                                {% else %}
+                                    {% render_field form.function class="form-select" %}
+                                {% endif %}
+                                <div class="text-danger">{{ form.function.errors }}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="fs-4"><i class="fa fa-business-time fa-sm fa-fw pe-1"></i>Crontab Schedule</strong>
+                            <div class="ps-4 py-2 vstack gap-4">
+                                {% for formItem in form %}
+                                    {% if 'scheduled' in formItem.id_for_label %}
+                                        <div class="form-floating">
+                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" %}
+                                            <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
+                                            <div class="text-danger">{{ formItem.errors }}</div>
+                                            <div id="{{ formItem.id_for_label }}_errors"></div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div>
+                            <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw pe-1"></i>Parameters</strong>
+                            <div class="font-monospace ps-4 py-2" id="function-parameters">
+                                {% comment %} Render function param form if available. Else, lazy load. {% endcomment %}
+                                {% if task_parameter_form %}
+                                    {{ task_parameter_form }}
+                                {% else %}
+                                    <div hx-trigger="load"
+                                         hx-get="{% url 'ui:function-parameters' %}"
+                                         hx-vals='{"function": "{{ form.function.id }}"}'>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    {% if update %}
+                        <input type="hidden" name="function" value="{{ scheduledtask.function_id }}"/>
+                        <input class="btn btn-primary" type="submit" value="Update"/>
+                    {% else %}
+                        <input class="btn btn-primary" type="submit" value="Create"/>
+                    {% endif %}
+                </form>
             </div>
-            {% if update %}
-                <input type="hidden" name="function" value="{{ scheduledtask.function_id }}"/>
-                <input class="btn btn-primary" type="submit" value="Update"/>
-            {% else %}
-                <input class="btn btn-primary" type="submit" value="Create"/>
-            {% endif %}
-        </form>
+        </div>
     {% endif %}
     <!--what if no form?-->
 {% endblock content %}
