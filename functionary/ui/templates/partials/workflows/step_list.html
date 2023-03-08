@@ -24,7 +24,7 @@
                                             {% if previous is None %}hidden{% endif %}
                                             hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
                                             hx-target="#workflow-steps"
-                                            hx-swap="OuterHTML"
+                                            hx-swap="outerHTML"
                                             hx-vals='{"next": "{{ previous.id }}"}'/>
                                     <button class="btn btn-small text-primary fa fa-chevron-down border-0"
                                             id="step-{{ step.id }}-move-down"
@@ -33,7 +33,7 @@
                                             {% if next is None %}hidden{% endif %}
                                             hx-post="{% url 'ui:workflowstep-move' workflow.pk step.pk %}"
                                             hx-target="#workflow-steps"
-                                            hx-swap="OuterHTML"
+                                            hx-swap="outerHTML"
                                             hx-vals='{"next": "{{ next.next.id }}"}'/>
                                 </div>
                             {% endwith %}
