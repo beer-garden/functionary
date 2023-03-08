@@ -25,7 +25,13 @@
             <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
             <p id="desc" class="ps-4 py-2">{{ workflow.description }}</p>
         </div>
-        {% include "partials/workflows/parameter_list.html" %}
-        {% include "partials/workflows/step_list.html" %}
+        <div>
+            <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw pe-1"></i>Parameters</strong>
+            {% include "partials/workflows/parameter_list.html" %}
+        </div>
+        <div>
+            <strong class="fs-4"><i class="fa fa-stairs fa-sm fa-fw pe-1"></i>Steps</strong>
+            {% include "partials/workflows/step_list.html" %}
+        </div>
     </div>
 {% endblock content %}
