@@ -1,8 +1,8 @@
 {% for message in messages %}
-    <div class="alert alert-info alert-dismissible" role="alert">
+    <div class="alert alert-info alert-dismissible" role="alert" id="alert">
         {{ message }}
         <button class="btn-close"
                 type="button"
-                onclick="return this.parentNode.remove();"></button>
+                onclick="return document.querySelector('#alert').remove();"></button>
     </div>
 {% endfor %}
