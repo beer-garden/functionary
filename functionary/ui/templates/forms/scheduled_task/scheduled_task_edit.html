@@ -5,9 +5,15 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'ui:build-list' %}">Schedules List</a>
+                <a href="{% url 'ui:scheduledtask-list' %}">Schedules List</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">{{ scheduledtask.name }}</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if update %}
+                    {{ scheduledtask.name }}
+                {% else %}
+                    Create
+                {% endif %}
+            </li>
         </ol>
     </nav>
     <h1 class="pt-2 pb-4">
@@ -105,5 +111,5 @@
             {% endif %}
         </form>
     {% endif %}
-    <!--Error handling?-->
+    <!--what if no form?-->
 {% endblock content %}
