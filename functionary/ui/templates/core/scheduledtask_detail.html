@@ -30,8 +30,13 @@
             </p>
         </div>
         <div>
-            <strong class="fs-4"><i class="fa fa-heart-pulse fa-sm fa-fw pe-1"></i>Status</strong>
-            <p class="ps-4 py-2">{{ scheduledtask.status }}</p>
+            <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw pe-1"></i>Crontab</strong>
+            <span class="font-monospace px-3"
+                  id="status-color"
+                  title="{{ scheduledtask.status }}">
+                <i class="fa fa-heart-pulse fa-xs pe-1"></i>{{ scheduledtask.status }}
+            </span>
+            <p class="ps-4 py-2">{{ scheduledtask.periodic_task.crontab }}</p>
         </div>
         {% if scheduledtask.description %}
             <div>
@@ -44,10 +49,6 @@
             <p class="ps-4 py-2">
                 <a href="{% url 'ui:function-detail' scheduledtask.function.id %}">{{ scheduledtask.function.render_name }}</a>
             </p>
-        </div>
-        <div>
-            <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw pe-1"></i>Crontab</strong>
-            <p class="ps-4 py-2">{{ scheduledtask.periodic_task.crontab }}</p>
         </div>
         <div>
             <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw pe-1"></i>Parameters</strong>
