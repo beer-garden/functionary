@@ -16,7 +16,7 @@
             </li>
         </ol>
     </nav>
-    <h1 class="pt-2 pb-4">
+    <h1 class="py-2">
         <i class="fa fa-clock"></i>
         {% if update %}
             Update
@@ -46,7 +46,7 @@
                       action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
                       enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="vstack gap-4 py-2">
+                    <div class="vstack gap-2 py-2">
                         <div>
                             <strong class="fs-4"><i class="fa fa-font fa-sm fa-fw pe-1"></i>Name</strong>
                             <div class="ps-4 py-2">{% render_field form.name class="form-control" %}</div>
@@ -61,7 +61,7 @@
                         {% endif %}
                         <div>
                             <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
-                            <div class="ps-4 py-2">{% render_field form.description class="form-control" %}</div>
+                            <div class="ps-4 py-2">{% render_field form.description class="textarea form-control" rows=3 cols=40 %}</div>
                             <div class="text-danger">{{ form.description.errors }}</div>
                         </div>
                         <div>
@@ -81,7 +81,7 @@
                                 {% for formItem in form %}
                                     {% if 'scheduled' in formItem.id_for_label %}
                                         <div class="form-floating">
-                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" %}
+                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" aria-describedby="{{ formItem.label }}HelpError {{ formItem.id_for_label }}_errors" %}
                                             <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
                                             <div class="text-danger">{{ formItem.errors }}</div>
                                             <div id="{{ formItem.id_for_label }}_errors"></div>

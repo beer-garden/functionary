@@ -24,10 +24,10 @@
     color: black;
 }
 .errorlist > li {
-    color: red;
+    color: var(--bs-text-danger);
 }
 .errors {
-    color: red;
+    color: var(--bs-text-danger);
 }
 /* the :has() must be user enabled to work on firefox */
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/:has#browser_compatibility */
