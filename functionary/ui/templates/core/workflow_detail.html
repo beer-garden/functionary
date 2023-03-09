@@ -1,24 +1,37 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% block content %}
-    <div class="block mt-5">
-        <h1 class="title is-2">
-            <p>
-                <i class="fa fa-diagram-next"></i>
-                <span>{{ workflow.name }}</span>
-                <button class="button is-small is-white has-text-info mr-2 mt-4 fa fa-pencil-alt"
-                        type="button"
-                        title="Edit"
-                        hx-target="body"
-                        hx-swap="beforeend"
-                        hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"/>
-            </p>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ui:workflow-list' %}">Workflow List</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ workflow.name }}</li>
+        </ol>
+    </nav>
+    <div class="hstack gap-3 pt-2 pb-4">
+        <h1>
+            <i class="fa fa-diagram-next"></i>
+            {{ workflow.name }}
         </h1>
+        <i class="fa fa-pencil-alt fa-lg text-info"
+           type="button"
+           title="Edit"
+           hx-target="body"
+           hx-swap="beforeend"
+           hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
     </div>
-    <div class="block">
-        <span id="desc">{{ workflow.description }}</span>
+    <div class="vstack gap-4 py-2">
+        <div>
+            <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
+            <p id="desc" class="ps-4 py-2">{{ workflow.description }}</p>
+        </div>
+        <div>
+            <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw pe-1"></i>Parameters</strong>
+            {% include "partials/workflows/parameter_list.html" %}
+        </div>
+        <div>
+            <strong class="fs-4"><i class="fa fa-stairs fa-sm fa-fw pe-1"></i>Steps</strong>
+            {% include "partials/workflows/step_list.html" %}
+        </div>
     </div>
-    <hr/>
-    <div class="block">{% include "partials/workflows/parameter_list.html" %}</div>
-    <hr/>
-    <div class="block">{% include "partials/workflows/step_list.html" %}</div>
 {% endblock content %}

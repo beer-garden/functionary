@@ -1,43 +1,31 @@
-{# djlint: off #}
-{% extends "partials/modal_old.html" %}
+{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-
 {% block modal_title %}
     Workflow Step
 {% endblock modal_title %}
-
-{% block form_declaration %}
-    {% if workflowstep %}
-        <form id="step-form" method="post" hx-post="{% url 'ui:workflowstep-edit' view.kwargs.workflow_pk workflowstep.pk %}" hx-target="#form-modal" hx-swap="outerHTML" enctype="multipart/form-data">
-    {% else %}
-        <form id="step-form" method="post" hx-post="{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}" hx-target="#form-modal" hx-swap="outerHTML" enctype="multipart/form-data">
-    {% endif %}
-{% endblock form_declaration %}
-
 {% block modal_content %}
-    <div class="field">
-        <label class="label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-        <div class="control">{% render_field form.name class="input" %}</div>
+    <form id="step-form"
+          method="post"
+          hx-post="{% if workflowstep %}{% url 'ui:workflowstep-edit' view.kwargs.workflow_pk workflowstep.pk %}{% else %}{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}{% endif %}"
+          hx-target="#form-modal"
+          hx-swap="outerHTML"
+          enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+            {% render_field form.name class="form-control" placeholder=form.name.label %}
+            <div class="text-danger">{{ form.name.errors }}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.function.id_for_label }}">{{ form.function.label }}</label>
+            {% render_field form.function class="form-select" aria-label=form.function.label %}
+            <div class="text-danger">{{ form.function.errors }}</div>
+        </div>
+        <div class="mb-3" id="function-parameters">{{ parameter_form }}</div>
         <div>{{ form.non_field_errors }}</div>
-        <div>{{ form.name.errors }}</div>
-    </div>
-    <div class="field">
-        <label class="label" for="{{ form.function.id_for_label }}">{{ form.function.label }}</label>
-        <div class="control select">{{ form.function }}</div>
-        <div>{{ form.function.errors }}</div>
-    </div>
-    <div class="field">
-        <div id="function-parameters">{{ parameter_form }}</div>
-    </div>
-    <div>{{form.workflow}}</div>
-    <div>{{form.next}}</div>
-{% endblock modal_content %}
-
-{% block modal_footer %}
-    <button class="button" type="submit" value="Save">Save</button>
-{% endblock modal_footer %}
-
-{% block form_end %}
+        <div>{{ form.workflow }}</div>
+        <div>{{ form.next }}</div>
     </form>
-{% endblock form_end %}
-{# djlint: on #}
+{% endblock modal_content %}
+{% block modal_footer %}
+    <button class="btn btn-primary" type="submit" form="step-form" value="Save">Save</button>
+{% endblock modal_footer %}

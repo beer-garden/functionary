@@ -1,43 +1,46 @@
-<h2 class="title is-4">Parameters</h2>
-<table class="table is-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody id="parameters">
-        {% for parameter in workflow.parameters.all %}
-            <tr>
-                <td>{{ parameter.name }}</td>
-                <td>{{ parameter.description }}</td>
-                <td>{{ parameter.parameter_type }}</td>
-                <td class="has-text-centered">
-                    {% if parameter.required %}<i class="fa fa-check"/>{% endif %}
-                </td>
-                <td hx-target="closest tr" hx-swap="outerHTML">
-                    <button class="button is-small mr-2 is-white has-text-info fa fa-pencil-alt"
-                            type="button"
-                            title="Edit"
-                            hx-target="body"
-                            hx-swap="beforeend"
-                            hx-get="{% url 'ui:workflowparameter-edit' workflow.pk parameter.pk %}"/>
-                    <button class="button is-small is-white has-text-danger fa fa-trash"
-                            type="button"
-                            title="Delete"
-                            hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk parameter.pk %}"/>
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<button class="button is-small"
-        type="button"
-        hx-target="body"
-        hx-swap="beforeend"
-        hx-get="{% url 'ui:workflowparameter-create' workflow.pk %}">
-    <span class="mr-2">Add</span><span class="fa fa-plus"/>
-</button>
+<div id="tableParameter" class="ps-4 py-2">
+    <div class="table-container">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Type</th>
+                    <th scope="col" class="text-center">Required</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="parameters">
+                {% for parameter in workflow.parameters.all %}
+                    <tr>
+                        <td>{{ parameter.name }}</td>
+                        <td>{{ parameter.description }}</td>
+                        <td>{{ parameter.parameter_type }}</td>
+                        <td class="text-center">
+                            {% if parameter.required %}<i class="fa fa-check"/>{% endif %}
+                        </td>
+                        <td hx-target="closest tr" hx-swap="outerHTML">
+                            <button class="btn btn-small text-info fa fa-pencil-alt"
+                                    type="button"
+                                    title="Edit"
+                                    hx-target="body"
+                                    hx-swap="beforeend"
+                                    hx-get="{% url 'ui:workflowparameter-edit' workflow.pk parameter.pk %}"/>
+                            <button class="btn btn-small text-danger fa fa-trash"
+                                    type="button"
+                                    title="Delete"
+                                    hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk parameter.pk %}"/>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-primary fa-plus"
+            type="button"
+            hx-target="body"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowparameter-create' workflow.pk %}">
+        Add
+    </button>
+</div>
