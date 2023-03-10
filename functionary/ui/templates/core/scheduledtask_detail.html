@@ -21,6 +21,12 @@
            hx-swap="beforeend"
            hx-get="{% url 'ui:scheduledtask-update' scheduledtask.id %}?id={{ workflow.id }}"></i>
     </div>
+    {% if scheduledtask.description %}
+        <div>
+            <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
+            <p class="ps-4 py-2">{{ scheduledtask.description }}</p>
+        </div>
+    {% endif %}
     <div class="vstack gap-2 py-2">
         <div>
             <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw pe-1"></i>Creator</strong>
@@ -38,12 +44,6 @@
             </span>
             <p class="ps-4 py-2">{{ scheduledtask.periodic_task.crontab }}</p>
         </div>
-        {% if scheduledtask.description %}
-            <div>
-                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
-                <p class="ps-4 py-2">{{ scheduledtask.description }}</p>
-            </div>
-        {% endif %}
         <div>
             <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw pe-1"></i>Function</strong>
             <p class="ps-4 py-2">
