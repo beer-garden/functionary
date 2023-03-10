@@ -66,14 +66,16 @@
                         {% endif %}
                         <div>
                             <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw pe-1"></i>Crontab Schedule</strong>
-                            <div class="ps-4 py-2 vstack gap-4">
-                                {% for formItem in form %}
-                                    {% if 'scheduled' in formItem.id_for_label %}
-                                        <div class="form-floating">
-                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" aria-describedby="{{ formItem.label }}HelpError {{ formItem.id_for_label }}_errors" %}
-                                            <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
-                                            <div class="text-danger">{{ formItem.errors }}</div>
-                                            <div id="{{ formItem.id_for_label }}_errors"></div>
+                            <div class="row ps-4 py-2 g-1">
+                                {% for form_item in form %}
+                                    {% if 'scheduled' in form_item.id_for_label %}
+                                        <div class="col">
+                                            <div class="form-floating" title="{{ form_item.label }}">
+                                                {% render_field form_item class="form-control" id="{{ form_item.id_for_label }}-input" aria-describedby="{{ form_item.label }}HelpError {{ form_item.id_for_label }}_errors" %}
+                                                <label for="{{ form_item.id_for_label }}-input" class="col-form-label-sm">{{ form_item.label }}</label>
+                                                <div class="text-danger">{{ form_item.errors }}</div>
+                                                <div id="{{ form_item.id_for_label }}_errors"></div>
+                                            </div>
                                         </div>
                                     {% endif %}
                                 {% endfor %}
