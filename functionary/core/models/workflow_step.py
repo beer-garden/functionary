@@ -115,6 +115,6 @@ class WorkflowStep(models.Model):
                 workflow_step=self, step_task=task, workflow_task=workflow_task
             )
 
-            start_task(task)
+        start_task(task)
 
         return task
