@@ -60,6 +60,21 @@
                             </div>
                         {% endif %}
                         <div>
+                            <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw pe-1"></i>Crontab Schedule</strong>
+                            <div class="ps-4 py-2 vstack gap-4">
+                                {% for formItem in form %}
+                                    {% if 'scheduled' in formItem.id_for_label %}
+                                        <div class="form-floating">
+                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" aria-describedby="{{ formItem.label }}HelpError {{ formItem.id_for_label }}_errors" %}
+                                            <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
+                                            <div class="text-danger">{{ formItem.errors }}</div>
+                                            <div id="{{ formItem.id_for_label }}_errors"></div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div>
                             <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw pe-1"></i>Description</strong>
                             <div class="ps-4 py-2">{% render_field form.description class="textarea form-control" rows=3 cols=40 %}</div>
                             <div class="text-danger">{{ form.description.errors }}</div>
@@ -73,21 +88,6 @@
                                     {% render_field form.function class="form-select" %}
                                 {% endif %}
                                 <div class="text-danger">{{ form.function.errors }}</div>
-                            </div>
-                        </div>
-                        <div>
-                            <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw pe-1"></i>Crontab Schedule</strong>
-                            <div class="ps-4 py-2 vstack gap-4">
-                                {% for formItem in form %}
-                                    {% if 'scheduled' in formItem.id_for_label %}
-                                        <div class="form-floating">
-                                            {% render_field formItem class="form-control" id="{{ formItem.id_for_label }}-input" aria-describedby="{{ formItem.label }}HelpError {{ formItem.id_for_label }}_errors" %}
-                                            <label for="{{ formItem.id_for_label }}-input">{{ formItem.label }}</label>
-                                            <div class="text-danger">{{ formItem.errors }}</div>
-                                            <div id="{{ formItem.id_for_label }}_errors"></div>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
                             </div>
                         </div>
                         <div>
