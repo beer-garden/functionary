@@ -16,7 +16,7 @@
           hx-post="{% if variable %}{% url 'ui:variable-update' variable.id parent_id %}{% else %}{% url 'ui:variable-create' parent_id %}{% endif %}"
           {% if not variable %}hx-params="not environment, team"{% endif %}>
         {% csrf_token %}
-        {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
         <div class="mb-3">
             <label for="name-input"
                    class="form-label {% if form.name.errors %}text-danger{% endif %}">Name</label>
