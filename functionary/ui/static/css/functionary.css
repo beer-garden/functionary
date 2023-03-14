@@ -71,6 +71,9 @@ tr.htmx-swapping td {
 body div aside {
     max-width: fit-content;
 }
+.modal-backdrop {
+    background-color: var(--bs-backdrop-bg) !important;
+}
 
 /* table sorting indicators */
 th.asc::after,
