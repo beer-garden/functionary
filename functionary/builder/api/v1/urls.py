@@ -8,5 +8,5 @@ router.register(r"builds", views.BuildViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("publish", views.PublishView.as_view()),
+    path("publish", views.PublishView.as_view(), name="publish"),
 ]

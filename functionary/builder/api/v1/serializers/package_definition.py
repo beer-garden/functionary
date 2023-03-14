@@ -58,7 +58,7 @@ class PackageDefinitionSerializer(serializers.Serializer):
     environment = serializers.DictField(
         child=serializers.CharField(), required=False, read_only=True
     )
-    functions = FunctionSerializer(many=True)
+    functions = FunctionSerializer(many=True, allow_empty=False)
 
 
 class PackageDefinitionWithVersionSerializer(serializers.Serializer):
