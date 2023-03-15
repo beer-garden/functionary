@@ -4,7 +4,6 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from django_htmx import http
 
 from core.auth import Permission
 from core.models import Environment, Team, Variable
