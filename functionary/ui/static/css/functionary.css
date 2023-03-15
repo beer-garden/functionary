@@ -71,8 +71,9 @@ tr.htmx-swapping td {
 body div aside {
     max-width: fit-content;
 }
-.modal-backdrop {
-    background-color: var(--bs-backdrop-bg) !important;
+/* Re-apply backdrop color because table wipes it */
+table .modal-backdrop {
+    background-color: var(--bs-backdrop-bg);
 }
 
 /* table sorting indicators */

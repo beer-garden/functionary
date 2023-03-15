@@ -23,13 +23,17 @@
             <strong class="fs-4"><i class="fa fa-cubes fa-sm fa-fw me-1"></i>Packages</strong>
             <div class="ms-4 my-2">
                 <div id="packages" class="list-group list-group-flush">
-                    {% for package in packages %}
-                        <a href="{% url 'ui:package-detail' package.id %}"
-                           class="list-group-item list-group-item-action">
-                            <p class="fw-bold mb-0">{{ package.render_name }}</p>
-                            <p class="ms-4 mb-0">{{ package.summary }}</p>
-                        </a>
-                    {% endfor %}
+                    {% if packages %}
+                        {% for package in packages %}
+                            <a href="{% url 'ui:package-detail' package.id %}"
+                               class="list-group-item list-group-item-action">
+                                <p class="fw-bold mb-0">{{ package.render_name }}</p>
+                                <p class="ms-4 mb-0">{{ package.summary }}</p>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <p class="font-monospace">None</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
