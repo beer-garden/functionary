@@ -1,50 +1,43 @@
-
-{% extends "partials/modal_old.html" %}
-
+{% extends "partials/modal.html" %}
+{% load widget_tweaks %}
 {% block modal_title %}
-    Add User
-{% endblock %}
-
+    Add Role
+{% endblock modal_title %}
 {% block modal_description %}
     Assign role to user for this team.
-{% endblock %}
-
-{% block form_declaration %}
-    <form hx-post="{% url 'ui:teamuserrole-create' team_id %}" method="post" hx-swap="outerHTML" hx-target="#form-modal">
-{% endblock %}
-
+{% endblock modal_description %}
 {% block modal_content %}
-{% csrf_token %}
-<div class="columns is-multiline">
-    {% if form.non_field_errors %}
-    <div class="ml-3">
-        {{ form.non_field_errors }}
-    </div>
-    {% endif %} 
-    <div class="field column is-half">
-            <label class="{% if form.user.errors %}errors{% endif %} label" for="user">User:</label>
-            <input class="input is-medium" name="user" id="user" list="user-list"
-            hx-get="{% url 'ui:get-users' %}"
-            hx-trigger="keyup changed delay:500ms"
-            hx-swap="outerHTML"
-            hx-target="#user-list-block"/>
+    <form hx-post="{% url 'ui:teamuserrole-create' team_id %}"
+          method="post"
+          id="user-add-modal-form"
+          hx-swap="outerHTML"
+          hx-target="#form-modal">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="mb-3">
+            <label class="{% if form.user.errors %}text-danger{% endif %} form-label"
+                   for="user">User</label>
+            <input class="form-control"
+                   name="user"
+                   id="user"
+                   list="user-list"
+                   hx-get="{% url 'ui:get-users' %}"
+                   hx-trigger="keyup changed delay:500ms"
+                   hx-swap="outerHTML"
+                   hx-target="#user-list-block"/>
             {% include "partials/teams/user_list.html" with usernames=usernames %}
-        <input type="hidden" name="team" value="{{ team_id }}"/>
-        {{ form.user.errors }}
-    </div>
-    <div class="field column">
-        <label class="{% if form.role.errors %}errors{% endif %} label" for="{{ form.role.id_for_label }}">Role:</label>
-        <div class="select is-medium is-fullwidth">
-            {{ form.role }}
+            <input type="hidden" name="team" value="{{ team_id }}"/>
+            <div class="text-danger">{{ form.user.errors }}</div>
         </div>
-    </div>
-</div>
-{% endblock %}
-
+        <div class="mb-3">
+            <label class="{% if form.role.errors %}text-danger{% endif %} form-label"
+                   for="{{ form.role.id_for_label }}">
+                Role
+            </label>
+            {% render_field form.role class="form-select" id=form.role.id_for_label aria-label=form.role.label %}
+        </div>
+    </form>
+{% endblock modal_content %}
 {% block modal_footer %}
-    <button class="button is-link is-medium" type="submit" value="Add User">Add User</button>
-{% endblock %}
-
-{% block form_end %}
-</form>
-{% endblock %}
+    <button class="btn btn-primary" type="submit" form="user-add-modal-form">Add Role</button>
+{% endblock modal_footer %}

@@ -41,15 +41,6 @@
                     </div>
                 </div>
             </div>
-            <ul id="users">
-                {% for u in user_details %}
-                    <li class="block ml-4">
-                        <p>
-                            {{ u.first_name }} {{ u.last_name }} <span class="has-text-grey-light">({{ u.username }})</span>
-                        </p>
-                    </li>
-                {% endfor %}
-            </ul>
         {% else %}
             {% include "partials/teams/team_management.html" %}
         {% endif %}
