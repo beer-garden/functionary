@@ -1,60 +1,58 @@
-{% extends "base_bulma.html" %}
+{% extends "base.html" %}
 {% block content %}
-    <div class="column is-full">
-        <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
-            <ul>
-                <li>
-                    <a href="{% url 'ui:team-list' %}">Team List</a>
-                </li>
-                <li class="is-active">
-                    <a href="#">{{ team.name }}</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <div class="column">
-        <div class="block">
-            <h1 class="title is-1">
-                <p>
-                    <i class="fa fa-users"></i>
-                    <span>{{ team.name }}</span>
-                </p>
-            </h1>
-        </div>
-        <div class="column has-addons">
-            <div class="field">
-                <label class="label" for="envs">
-                    <i class="fa fa-building"></i>&nbsp;Environments:
-                </label>
-                <ul id="envs">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none" href="{% url 'ui:team-list' %}">Team List</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ team.name }}</li>
+        </ol>
+    </nav>
+    <h1 class="pt-2 mb-4">
+        <i class="fa fa-users"></i>
+        <span>{{ team.name }}</span>
+    </h1>
+    <div class="vstack gap-2 my-2">
+        <div>
+            <strong class="fs-4"><i class="fa fa-building fa-sm fa-fw me-1"></i>Environments</strong>
+            <div class="ms-4 my-2">
+                <div id="envs" class="list-group list-group-flush">
                     {% for env in environments %}
-                        <li class="block ml-4">
-                            <a href="{% url 'ui:environment-detail' env.id %}">{{ env.name }}</a>
-                            <br/>
-                            {{ env.description }}
-                        </li>
+                        <a href="{% url 'ui:environment-detail' env.id %}"
+                           class="list-group-item list-group-item-action">
+                            <p class="fw-bold mb-0">{{ env.name }}</p>
+                            <p class="ms-4 mb-0">{{ env.description }}</p>
+                        </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
-            <div class="field">
-                {% if not team_create_perm %}
-                    <label class="label" for="users">
-                        <i class="fa fa-user"></i>&nbsp;Users:
-                    </label>
-                    <ul id="users">
-                        {% for u in user_details %}
-                            <li class="block ml-4">
-                                <p>
-                                    {{ u.first_name }} {{ u.last_name }} <span class="has-text-grey-light">({{ u.username }})</span>
-                                </p>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    {% include "partials/teams/team_management.html" %}
-                {% endif %}
-            </div>
-            {% include 'partials/variables_section.html' with parent_object=team parent_id=team.id %}
         </div>
+        {% if not team_create_perm %}
+            <div>
+                <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw me-1"></i>Users</strong>
+                <div class="ms-4 my-2">
+                    <div id="users" class="list-group list-group-flush">
+                        {% for u in user_details %}
+                            <p class="list-group-item fw-bold mb-0">
+                                {{ u.first_name }} {{ u.last_name }}
+                                <span class="text-muted">({{ u.username }})</span>
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <ul id="users">
+                {% for u in user_details %}
+                    <li class="block ml-4">
+                        <p>
+                            {{ u.first_name }} {{ u.last_name }} <span class="has-text-grey-light">({{ u.username }})</span>
+                        </p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            {% include "partials/teams/team_management.html" %}
+        {% endif %}
+        {% include "partials/variables_section.html" with parent_object=team parent_id=team.id %}
     </div>
 {% endblock content %}
