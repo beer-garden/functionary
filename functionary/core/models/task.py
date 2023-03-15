@@ -3,6 +3,7 @@ import uuid
 from json import JSONDecodeError
 from typing import TYPE_CHECKING, Optional, Union
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -118,24 +119,6 @@ class Task(models.Model):
         self._clean_parameters()
         self._clean_tasked_object()
 
-    def _update_status(self, status: str) -> None:
-        """Set the status if necessary and save"""
-        if self.status != status:
-            self.status = status
-            self.save()
-
-    def complete(self) -> None:
-        """Set the status to COMPLETE"""
-        self._update_status(Task.COMPLETE)
-
-    def error(self) -> None:
-        """Set the status to ERROR"""
-        self._update_status(Task.ERROR)
-
-    def in_progress(self) -> None:
-        """Set the status to IN_PROGRESS"""
-        self._update_status(Task.IN_PROGRESS)
-
     # TODO: Sort out what to do with this since it does not apply to workflows.
     @property
     def raw_result(self) -> Optional[str]:
@@ -172,10 +155,28 @@ class Task(models.Model):
 
     @property
     def function(self) -> "Function":
-        """Alias for tasked_object, mostly for type hinting purposes"""
-        return self.tasked_object  # type: ignore
+        """Alias for tasked_object, mostly for type hinting purposes
+
+        Raises:
+            ObjectDoesNotExist: The tasked_object for this task is not a Function
+        """
+        Function = apps.get_model("core", "Function")
+
+        if type(self.tasked_object) == Function:
+            return self.tasked_object
+        else:
+            raise ObjectDoesNotExist("task_object is not a Function")
 
     @property
     def workflow(self) -> "Workflow":
-        """Alias for tasked_object, mostly for type hinting purposes"""
-        return self.tasked_object  # type: ignore
+        """Alias for tasked_object, mostly for type hinting purposes
+
+        Raises:
+            ObjectDoesNotExist: The tasked_object for this task is not a Workflow
+        """
+        Workflow = apps.get_model("core", "Workflow")
+
+        if type(self.tasked_object) == Workflow:
+            return self.tasked_object
+        else:
+            raise ObjectDoesNotExist("task_object is not a Workflow")

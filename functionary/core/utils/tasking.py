@@ -171,9 +171,11 @@ def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None
             if next_step := workflow_run_step.workflow_step.next:
                 next_step.execute(workflow_task=workflow_task)
             else:
-                workflow_task.complete()
+                workflow_task.status = Task.COMPLETE
+                task.save()
         case Task.ERROR:
-            workflow_task.error()
+            workflow_task.status = Task.ERROR
+            task.save()
 
 
 def _handle_file_parameters(task: Task) -> None:
@@ -238,7 +240,8 @@ def start_task(task: Task) -> None:
     if task.status != Task.PENDING:
         raise InvalidStatus(f"Task with status f{task.status} cannot be started")
 
-    task.in_progress()
+    task.status = Task.IN_PROGRESS
+    task.save()
 
     tasked_type_class = task.tasked_type.model_class()
 

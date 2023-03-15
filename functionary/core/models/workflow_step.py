@@ -102,7 +102,6 @@ class WorkflowStep(models.Model):
 
         with transaction.atomic():
             run_context = self._get_run_context(workflow_task)
-            workflow_task.in_progress()
 
             task = Task.objects.create(
                 creator=workflow_task.creator,
