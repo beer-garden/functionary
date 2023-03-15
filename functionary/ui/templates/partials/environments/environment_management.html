@@ -22,14 +22,14 @@
                             <td>
                                 {% if u.environment_user_role_id %}
                                     <button class="btn btn-small text-info fa fa-pencil-alt"
-                                            title="Edit"
+                                            title="Edit user"
                                             type="button"
                                             hx-get="{% url 'ui:environmentuserrole-update' environment_id u.environment_user_role_id %}"
                                             hx-target="#update-user-modal">
                                     </button>
                                 {% else %}
-                                    <button class="btn btn-small text-info fa fa-pencil-alt"
-                                            title="Create"
+                                    <button class="btn btn-small text-info fa fa-plus"
+                                            title="Create role"
                                             type="button"
                                             hx-get="{% url 'ui:environmentuserrole-create' environment_id %}"
                                             hx-vals='{"user_id": "{{ u.user.id }}"}'
