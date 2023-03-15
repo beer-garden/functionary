@@ -36,8 +36,8 @@ def _generate_task_message(task: Task) -> dict:
     variables = {var.name: var.value for var in task.variables}
     return {
         "id": str(task.id),
-        "package": task.tasked_object.package.full_image_name,
-        "function": task.tasked_object.name,
+        "package": task.function.package.full_image_name,
+        "function": task.function.name,
         "function_parameters": task.parameters,
         "variables": variables,
     }
