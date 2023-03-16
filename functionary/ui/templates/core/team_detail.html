@@ -20,8 +20,7 @@
                     {% for env in environments %}
                         <a href="{% url 'ui:environment-detail' env.id %}"
                            class="list-group-item list-group-item-action">
-                            <p class="fw-bold mb-0">{{ env.name }}</p>
-                            <p class="ms-4 mb-0">{{ env.description }}</p>
+                            <p class="mb-0">{{ env.name }}</p>
                         </a>
                     {% endfor %}
                 </div>
