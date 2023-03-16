@@ -16,7 +16,6 @@
         {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
         <div class="mb-3">
             <label class="form-label" for="user">User</label>
-            <label class="label" for="username-field">User:</label>
             <input id="user"
                    class="form-control"
                    disabled
@@ -36,7 +35,7 @@
     </form>
 {% endblock modal_content %}
 {% block modal_footer %}
-    <button class="btn btn-primary" type="submit" value="Add User">
+    <button class="btn btn-primary" type="submit" form="user-update-modal-form">
         {% if create_user %}
             Add User
         {% else %}

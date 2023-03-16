@@ -22,7 +22,7 @@
                                         title="Edit user"
                                         type="button"
                                         hx-get="{% url 'ui:teamuserrole-update' team_id u.team_user_role_id %}"
-                                        hx-target="#update-user-modal">
+                                        hx-target="#user-modal">
                                 </button>
                                 <button class="btn btn-small text-danger fa fa-trash"
                                         title="Delete"
@@ -38,10 +38,10 @@
                 </tbody>
             </table>
         </div>
-        <div id="update-user-modal"></div>
+        <div id="user-modal"></div>
         <button class="btn btn-primary fa-plus"
                 type="button"
-                hx-target="#add-user-modal"
+                hx-target="#user-modal"
                 hx-trigger="click"
                 hx-get="{% url 'ui:teamuserrole-create' team_id %}">
             Add

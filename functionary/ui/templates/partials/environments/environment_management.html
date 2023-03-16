@@ -25,7 +25,7 @@
                                             title="Edit user"
                                             type="button"
                                             hx-get="{% url 'ui:environmentuserrole-update' environment_id u.environment_user_role_id %}"
-                                            hx-target="#update-user-modal">
+                                            hx-target="#user-modal">
                                     </button>
                                 {% else %}
                                     <button class="btn btn-small text-info fa fa-plus"
@@ -33,7 +33,7 @@
                                             type="button"
                                             hx-get="{% url 'ui:environmentuserrole-create' environment_id %}"
                                             hx-vals='{"user_id": "{{ u.user.id }}"}'
-                                            hx-target="#update-user-modal">
+                                            hx-target="#user-modal">
                                     </button>
                                 {% endif %}
                                 {% if u.environment_user_role_id %}
@@ -50,11 +50,10 @@
                 </tbody>
             </table>
         </div>
-        <div id="add-user-modal"></div>
-        <div id="update-user-modal"></div>
+        <div id="user-modal"></div>
         <button class="btn btn-primary fa-plus"
                 type="button"
-                hx-target="#add-user-modal"
+                hx-target="#user-modal"
                 hx-trigger="click"
                 hx-get="{% url 'ui:environmentuserrole-create' environment_id %}">
             Add
