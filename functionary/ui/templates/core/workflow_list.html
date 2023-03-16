@@ -3,6 +3,7 @@
     <div class="d-flex justify-content-end">
         {% if request.session.user_can_create_workflow %}
             <button class="btn btn-primary mb-3"
+                    type="button"
                     hx-target="body"
                     hx-swap="beforeend"
                     hx-get="{% url 'ui:workflow-create' %}">
