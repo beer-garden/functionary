@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Hello {{ user.username }}!</h1>
+  <h2>Hello {{ user.username }}!</h2>
   {% if not user.environments %}
     <p>
       You are not a member of any environments. Please contact an administrator to be assigned to an environment to start using Functionary.
