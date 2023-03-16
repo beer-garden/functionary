@@ -14,6 +14,7 @@ from django.views.decorators.http import require_GET, require_POST
 from core.auth import Permission
 from core.models import Environment, Function, Task
 from core.utils.minio import S3Error, handle_file_parameters
+from core.utils.tasking import start_task
 from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
 from ui.tables.function import FunctionFilter, FunctionTable
 
@@ -83,13 +84,13 @@ def execute(request: HttpRequest) -> HttpResponse:
             task = Task(
                 environment=env,
                 creator=request.user,
-                function=func,
+                tasked_object=func,
                 parameters=form.cleaned_data,
                 return_type=func.return_type,
             )
             task.clean()
             handle_file_parameters(task, request)
-            task.save()
+            start_task(task)
 
             # Redirect to the newly created task:
             return HttpResponseRedirect(reverse("ui:task-detail", args=(task.id,)))
@@ -144,5 +145,5 @@ def function_parameters(request: HttpRequest) -> HttpResponse:
 
     function = get_object_or_404(Function, id=function_id, environment=env)
 
-    form = form_class(function=function)
+    form = form_class(tasked_object=function)
     return render(request, form.template_name, {"form": form})

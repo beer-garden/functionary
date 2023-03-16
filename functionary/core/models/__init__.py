@@ -12,6 +12,5 @@ from .user import User  # noqa
 from .user_role import EnvironmentUserRole, TeamUserRole  # noqa
 from .variable import Variable  # noqa
 from .workflow import Workflow  # noqa
-from .workflow_run import WorkflowRun  # noqa
 from .workflow_run_step import WorkflowRunStep  # noqa
 from .workflow_step import WorkflowStep  # noqa

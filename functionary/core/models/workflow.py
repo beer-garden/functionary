@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 
@@ -25,6 +26,10 @@ class Workflow(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tasks = GenericRelation(
+        to="Task", content_type_field="tasked_type", object_id_field="tasked_id"
+    )
+    active = models.BooleanField(default=True)
 
     class Meta:
         constraints = [
@@ -42,6 +47,12 @@ class Workflow(models.Model):
                 name="workflow_created_at",
             ),
         ]
+
+    @property
+    def steps(self):
+        """Convenience alias for workflowstep_set"""
+        # Provides better static type checking than using related_name
+        return self.workflowstep_set  # type: ignore
 
     @property
     def first_step(self):
@@ -68,4 +79,13 @@ class Workflow(models.Model):
     def parameters(self):
         """Convenience alias for workflowparameter_set"""
         # Provides better static type checking than using related_name
-        return self.workflowparameter_set
+        return self.workflowparameter_set  # type: ignore
+
+    def deactivate(self):
+        """Deactivate the workflow and pause any associated scheduled tasks"""
+        self.active = False
+        self.save()
+
+        # TODO: Once scheduled_tasks support workflows come back and do something like:
+        # for scheduled_task in self.scheduled_tasks.all():
+        #     scheduled_task.pause()

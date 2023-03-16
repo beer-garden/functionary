@@ -49,6 +49,9 @@ div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {
 #status-color[title="ARCHIVED"]{
     color: var(--bs-dark);
 }
+datalist{
+    z-index: 1500;
+}
 .wrap-json,
 pre {
     overflow-x: auto;
@@ -67,6 +70,10 @@ tr.htmx-swapping td {
 }
 body div aside {
     max-width: fit-content;
+}
+/* Re-apply backdrop color because table wipes it */
+table .modal-backdrop {
+    background-color: var(--bs-backdrop-bg);
 }
 
 /* table sorting indicators */

@@ -23,7 +23,7 @@ from core.utils.parameter import PARAMETER_TYPE
 if TYPE_CHECKING:
     from django.http import QueryDict
 
-    from core.models import Function
+    from core.models import Function, Workflow
 
 
 class HTMLDateInput(DateInput):
@@ -86,7 +86,7 @@ class TaskParameterForm(Form):
     and correct input types to be used for validation.
 
     Attributes:
-        function: Function instance for which to generate the form
+        tasked_object: Function instance for which to generate the form
         data: dict of data submitted to the form
         initial: dict of initial values that the form fields should be populated with
         prefix: Prefix to apply to the form field ids. Set this if the default value
@@ -97,7 +97,7 @@ class TaskParameterForm(Form):
 
     def __init__(
         self,
-        function: "Function",
+        tasked_object: Union["Function", "Workflow"],
         data: dict | None = None,
         initial: dict | None = None,
         prefix: str = "task-parameter",
@@ -108,7 +108,7 @@ class TaskParameterForm(Form):
         if initial is None:
             initial = {}
 
-        for parameter in function.parameters.all():
+        for parameter in tasked_object.parameters.all():
             param_name = parameter.name
             param_type = parameter.parameter_type
             initial_value = initial.get(param_name, None) or parameter.default
@@ -205,7 +205,7 @@ class TaskParameterTemplateForm(TaskParameterForm):
 
     def __init__(
         self,
-        function: "Function",
+        tasked_object: Union["Function", "Workflow"],
         data: Optional["QueryDict"] = None,
         initial: Optional[str] = None,
         **kwargs,
@@ -221,7 +221,9 @@ class TaskParameterTemplateForm(TaskParameterForm):
             json.loads(self._stringify_template_variables(initial)) if initial else {}
         )
 
-        super().__init__(function=function, data=data, initial=initial_data, **kwargs)
+        super().__init__(
+            tasked_object=tasked_object, data=data, initial=initial_data, **kwargs
+        )
 
     def get_field_info(
         self, parameter_type: str, input_value: str | None

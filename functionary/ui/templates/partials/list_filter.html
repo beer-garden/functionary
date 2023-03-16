@@ -1,5 +1,5 @@
 {% load widget_tweaks %}
-<form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block" class="form row">
+<form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block" class="form row flex-nowrap">
     {% for field in filter.form %}
         <div class="col-auto mb-3 ">
             <label for=field.id_for_label class="form-label">{{ field.label }}</label>

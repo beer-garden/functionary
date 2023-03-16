@@ -47,7 +47,7 @@ class WorkflowStepUpdateView(PermissionedUpdateView):
 
         function = Function.objects.get(id=self.request.POST.get("function"))
         parameter_form = TaskParameterTemplateForm(
-            function=function, data=self.request.POST
+            tasked_object=function, data=self.request.POST
         )
         step_form = self.get_form()
 

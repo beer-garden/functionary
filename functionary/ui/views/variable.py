@@ -4,7 +4,6 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
-from django_htmx import http
 
 from core.auth import Permission
 from core.models import Environment, Team, Variable
@@ -19,19 +18,36 @@ def _get_parent(parent_id):
     return parent.get() if parent else None
 
 
+def _add_perms(context, request, obj):
+    context["var_update"] = request.user.has_perm(Permission.VARIABLE_UPDATE, obj)
+    context["var_delete"] = request.user.has_perm(Permission.VARIABLE_DELETE, obj)
+    return context
+
+
 def _render_variable_row(request, parent_id, variable):
     context = {
         "parent_id": parent_id,
         "variable": variable,
     }
-    context["var_update"] = request.user.has_perm(Permission.VARIABLE_UPDATE, variable)
-    context["var_delete"] = request.user.has_perm(Permission.VARIABLE_DELETE, variable)
+    context = _add_perms(context, request, variable)
 
     return render(request, "partials/variable_row.html", context)
 
 
+def _render_variable_rows(request, parent_id=None, parent=None):
+    parent = parent or _get_parent(parent_id)
+    context = {
+        "parent_id": parent_id,
+        "variables": parent.vars,
+    }
+    context = _add_perms(context, request, parent)
+
+    return render(request, "partials/variable_rows.html", context)
+
+
 def _render_variable_form(request, form, parent_id, variable=None, add=False):
     context = {"form": form, "variable": variable, "parent_id": parent_id, "add": add}
+
     if variable:
         context["pk"] = variable.id
 
@@ -48,12 +64,7 @@ def all_variables(request, parent_id):
             "parent_id": parent_id,
             "variables": parent_object.vars,
         }
-        context["var_update"] = request.user.has_perm(
-            Permission.VARIABLE_UPDATE, parent_object
-        )
-        context["var_delete"] = request.user.has_perm(
-            Permission.VARIABLE_DELETE, parent_object
-        )
+        context = _add_perms(context, request, parent_object)
 
         return render(request, "partials/variable_rows.html", context)
     return HttpResponseForbidden()
@@ -86,7 +97,7 @@ class VariableView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         if form.is_valid():
             form.save()
-            return http.trigger_client_event(HttpResponse(""), "newVariable")
+            return _render_variable_rows(request, parent=parent, parent_id=parent_id)
 
         return _render_variable_form(request, form, parent_id, add=True)
 
@@ -121,7 +132,7 @@ class UpdateVariableView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         if form.is_valid():
             form.save()
-            return _render_variable_row(request, parent_id, variable)
+            return _render_variable_rows(request, parent_id=parent_id)
 
         return _render_variable_form(request, form, parent_id, variable)
 

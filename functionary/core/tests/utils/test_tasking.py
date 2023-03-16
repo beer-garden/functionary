@@ -51,7 +51,7 @@ def function(package):
 @pytest.fixture
 def task(function, environment, admin_user):
     return Task.objects.create(
-        function=function,
+        tasked_object=function,
         environment=environment,
         parameters={},
         creator=admin_user,

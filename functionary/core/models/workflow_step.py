@@ -1,6 +1,5 @@
 import json
 import uuid
-from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -8,10 +7,7 @@ from django.db import models, transaction
 from django.template import Context, Template
 
 from core.models import Task, WorkflowRunStep
-
-if TYPE_CHECKING:
-    from core.models import WorkflowRun
-
+from core.utils.tasking import start_task
 
 VALID_STEP_NAME = RegexValidator(
     regex=r"^\w+$",
@@ -37,9 +33,7 @@ class WorkflowStep(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    workflow = models.ForeignKey(
-        to="Workflow", on_delete=models.CASCADE, related_name="steps"
-    )
+    workflow = models.ForeignKey(to="Workflow", on_delete=models.CASCADE)
     name = models.CharField(max_length=64, validators=[VALID_STEP_NAME])
     next = models.ForeignKey(
         to="WorkflowStep", blank=True, null=True, on_delete=models.PROTECT
@@ -59,7 +53,7 @@ class WorkflowStep(models.Model):
         """Uses a given Context to resolve the parameter_template into a parameters
         dict
         """
-
+        # TODO: Disable autoescape rather than doing the .replace
         resolved_parameters = (
             Template(self.parameter_template or "{}")
             .render(context)
@@ -68,31 +62,30 @@ class WorkflowStep(models.Model):
 
         return json.loads(resolved_parameters)
 
-    def execute(self, workflow_run: "WorkflowRun") -> Task:
-        """Executes a Task based on this step's function and parameters
+    def _get_run_context(self, workflow_run: "Task") -> Context:
+        """Generates a context for resolving tasking parameters.
 
         Args:
-            workflow_run: The WorkflowRun that the task belongs to
+            workflow_run: a Task associated with a specific run of a workflow
 
         Returns:
-            The executed Task
+            A Context containing data from all WorkflowRunSteps that have
+            occurred for this workflow run
         """
+        context = {"parameters": {}}
 
-        with transaction.atomic():
-            run_context = workflow_run.get_context()
+        parameters = workflow_run.parameters or {}
+        for key, value in parameters.items():
+            context["parameters"][key] = json.dumps(value)
 
-            task = Task(
-                creator=workflow_run.creator,
-                environment=self.workflow.environment,
-                function=self.function,
-                parameters=self._get_parameters(run_context),
-            ).save()
+        for step in workflow_run.steps.all():
+            name = step.workflow_step.name
+            task = step.step_task
 
-            WorkflowRunStep.objects.create(
-                task=task, workflow_step=self, workflow_run=workflow_run
-            )
+            context[name] = {}
+            context[name]["result"] = task.result
 
-        return task
+        return Context(context)
 
     def clean(self):
         if self.workflow.environment != self.function.package.environment:
@@ -103,3 +96,24 @@ class WorkflowStep(models.Model):
         """Returns the step preceding this one in the workflow. For the first step in
         the workflow, returns None."""
         return self.workflowstep_set.filter(next=self).first()
+
+    def execute(self, workflow_task: "Task") -> "Task":
+        """Execute this workflow step as part of the supplied workflow task"""
+
+        with transaction.atomic():
+            run_context = self._get_run_context(workflow_task)
+
+            task = Task.objects.create(
+                creator=workflow_task.creator,
+                environment=self.workflow.environment,
+                tasked_object=self.function,
+                parameters=self._get_parameters(run_context),
+            )
+
+            WorkflowRunStep.objects.create(
+                workflow_step=self, step_task=task, workflow_task=workflow_task
+            )
+
+        start_task(task)
+
+        return task

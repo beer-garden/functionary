@@ -7,10 +7,12 @@ from django.conf import settings
 from core.celery import app
 from core.models import (
     Environment,
+    Function,
     ScheduledTask,
     Task,
     TaskLog,
     TaskResult,
+    Workflow,
     WorkflowRunStep,
 )
 from core.utils.messaging import get_route, send_message
@@ -19,6 +21,14 @@ from core.utils.parameter import PARAMETER_TYPE
 
 logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
+
+
+class InvalidStatus(Exception):
+    pass
+
+
+class InvalidContentObject(Exception):
+    pass
 
 
 def _generate_task_message(task: Task) -> dict:
@@ -65,9 +75,11 @@ def publish_task(task_id: UUID) -> None:
     """
     logger.debug(f"Publishing message for Task: {task_id}")
 
-    task = Task.objects.select_related(
-        "function", "function__package", "environment"
-    ).get(id=task_id)
+    task = (
+        Task.objects.select_related("environment")
+        .prefetch_related("tasked_object")
+        .get(id=task_id)
+    )
 
     _handle_file_parameters(task)
 
@@ -88,7 +100,7 @@ def record_task_result(task_result_message: dict) -> None:
     result = task_result_message["result"]
 
     try:
-        task = Task.objects.select_related("function", "environment").get(id=task_id)
+        task = Task.objects.get(id=task_id)
     except Task.DoesNotExist:
         logger.error("Unable to record results for task %s: task not found", task_id)
         return
@@ -103,7 +115,7 @@ def record_task_result(task_result_message: dict) -> None:
     _update_task_status(task, status)
 
     # If this task is part of a WorkflowRun continue it or update its status
-    if workflow_run_step := WorkflowRunStep.objects.filter(task=task):
+    if workflow_run_step := WorkflowRunStep.objects.filter(step_task=task):
         _handle_workflow_run(workflow_run_step.get(), task)
 
 
@@ -127,12 +139,13 @@ def run_scheduled_task(scheduled_task_id: str) -> None:
     task = Task.objects.create(
         environment=scheduled_task.environment,
         creator=scheduled_task.creator,
-        function=scheduled_task.function,
+        tasked_object=scheduled_task.function,
         return_type=scheduled_task.function.return_type,
         parameters=scheduled_task.parameters,
         scheduled_task=scheduled_task,
     )
 
+    start_task(task)
     scheduled_task.update_most_recent_task(task)
 
 
@@ -151,16 +164,18 @@ def _update_task_status(task: Task, status: int) -> None:
 
 def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None:
     """Start the next task for a WorkflowRun or update its status as appropriate"""
-    workflow_run = workflow_run_step.workflow_run
+    workflow_task = workflow_run_step.workflow_task
 
     match task.status:
         case Task.COMPLETE:
             if next_step := workflow_run_step.workflow_step.next:
-                next_step.execute(workflow_run=workflow_run)
+                next_step.execute(workflow_task=workflow_task)
             else:
-                workflow_run.complete()
+                workflow_task.status = Task.COMPLETE
+                task.save()
         case Task.ERROR:
-            workflow_run.error()
+            workflow_task.status = Task.ERROR
+            task.save()
 
 
 def _handle_file_parameters(task: Task) -> None:
@@ -171,7 +186,7 @@ def _handle_file_parameters(task: Task) -> None:
     before a task is sent to the runner. The task should not
     save the presigned URL to its database entry.
 
-    Arguments:
+    Args:
         task: The task that is about to be sent to the runner
 
     Returns:
@@ -180,7 +195,7 @@ def _handle_file_parameters(task: Task) -> None:
     environment = task.environment
     parameters = task.parameters
 
-    for parameter in task.function.parameters.filter(
+    for parameter in task.tasked_object.parameters.filter(
         parameter_type=PARAMETER_TYPE.FILE, name__in=parameters.keys()
     ):
         param_name = parameter.name
@@ -193,3 +208,48 @@ def _get_presigned_url(filename: str, environment: Environment) -> str:
     minio = MinioInterface(bucket_name=str(environment.id))
     presigned_url = minio.get_presigned_url(filename)
     return presigned_url
+
+
+def _start_function_task(task: Task) -> None:
+    """Publishes the task for execution"""
+    publish_task.delay(task.id)
+
+
+def _start_workflow_task(task: Task) -> None:
+    """Starts the workflow run associated with the given task"""
+    task.workflow.first_step.execute(workflow_task=task)
+
+
+def start_task(task: Task) -> None:
+    """Start the provided task
+
+    Starts a Task by executing the necessary steps for its tasked_object. The task
+    status will be set to PENDING and the task will be saved as part of this process.
+
+    Args:
+        task: Task to start
+
+    Returns:
+        None
+
+    Raises:
+        InvalidContentType: The tasked_object associated with the task is of an
+                            unrecognized type
+        InvalidStatus: The task cannot be started based on its current status
+    """
+    if task.status != Task.PENDING:
+        raise InvalidStatus(f"Task with status f{task.status} cannot be started")
+
+    task.status = Task.IN_PROGRESS
+    task.save()
+
+    tasked_type_class = task.tasked_type.model_class()
+
+    if tasked_type_class is Function:
+        _start_function_task(task)
+    elif tasked_type_class is Workflow:
+        _start_workflow_task(task)
+    else:
+        raise InvalidContentObject(
+            f"Handling for content type {tasked_type_class} is undefined"
+        )

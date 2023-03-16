@@ -1,5 +1,3 @@
-from typing import Union
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_spectacular.utils import (
@@ -17,8 +15,9 @@ from rest_framework.response import Response
 from core.api import HEADER_PARAMETERS
 from core.api.permissions import HasEnvironmentPermissionForAction
 from core.api.v1.serializers import (
-    TaskCreateByIdSerializer,
-    TaskCreateByNameSerializer,
+    TaskCreateByFunctionIdSerializer,
+    TaskCreateByFunctionNameSerializer,
+    TaskCreateByWorkflowIdSerializer,
     TaskCreateResponseSerializer,
     TaskLogSerializer,
     TaskResultSerializer,
@@ -28,6 +27,7 @@ from core.api.v1.utils import PREFIX, SEPARATOR, get_parameter_name
 from core.api.viewsets import EnvironmentGenericViewSet
 from core.models import Task, TaskResult
 from core.utils.minio import S3Error, handle_file_parameters
+from core.utils.tasking import start_task
 
 RENDER_PREFIX = f"{PREFIX}{SEPARATOR}".replace("\\", "")
 
@@ -51,10 +51,13 @@ class TaskViewSet(
 
     def get_serializer_class(self):
         if self.action == "create":
-            if "function_name" in self.request.data.keys():
-                return TaskCreateByNameSerializer
+            input_keys = self.request.data.keys()
+            if "function_name" in input_keys:
+                return TaskCreateByFunctionNameSerializer
+            elif "workflow" in input_keys:
+                return TaskCreateByWorkflowIdSerializer
             else:
-                return TaskCreateByIdSerializer
+                return TaskCreateByFunctionIdSerializer
         else:
             return self.serializer_class
 
@@ -71,8 +74,9 @@ class TaskViewSet(
         request=PolymorphicProxySerializer(
             component_name="TaskCreate",
             serializers={
-                "create_by_id": TaskCreateByIdSerializer,
-                "create_by_name": TaskCreateByNameSerializer,
+                "function_by_id": TaskCreateByFunctionIdSerializer,
+                "function_by_name": TaskCreateByFunctionNameSerializer,
+                "workflow_by_id": TaskCreateByWorkflowIdSerializer,
             },
             resource_type_field_name=None,
         ),
@@ -87,10 +91,7 @@ class TaskViewSet(
         # Remove list elements that wrap singular values when multipart content
         data = request.data.dict()
 
-        request_serializer: Union[
-            TaskCreateByIdSerializer, TaskCreateByNameSerializer
-        ] = self.get_serializer(data=data)
-
+        request_serializer: serializers.Serializer = self.get_serializer(data=data)
         request_serializer.is_valid(raise_exception=True)
 
         # TODO: Add API error handling when file upload fails.
@@ -104,6 +105,7 @@ class TaskViewSet(
             task.clean()
             _handle_file_parameters(request, task)
             task.save()
+            start_task(task)
         except (ValidationError, DjangoValidationError) as err:
             raise serializers.ValidationError(serializers.as_serializer_error(err))
         except S3Error as err:
