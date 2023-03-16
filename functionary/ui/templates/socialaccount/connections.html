@@ -9,7 +9,7 @@
     Account Connections
 {% endblock title %}
 {% block content %}
-    <h1>Account Connections</h1>
+    <h2>Account Connections</h2>
     {% configured_providers as socialaccount_providers %}
     {% if not socialaccount_providers %}
         <p>No third party accounts available to connect</p>
@@ -44,20 +44,18 @@
                                                    type="hidden"
                                                    name="account"
                                                    value="{{ existing_account.id }}"/>
-                                            <button class="btn btn-sm border-0 btn-outline"
+                                            <button class="btn btn-sm fa fa-unlink text-danger"
                                                     title="Disconnect {{ provider_pair.name }} account"
                                                     type="submit"
                                                     hx-params="id_account_{{ existing_account.id }}">
-                                                <i class="fa fa-unlink text-danger" />
                                             </button>
                                         {% else %}
-                                            <button class="btn btn-sm border-0 btn-outline"
+                                            <button class="btn btn-sm fa fa-plus text-success"
                                                     type="submit"
                                                     title="Connect {{ provider_pair.name }} account"
                                                     hx-target="#connect_modal"
                                                     hx-swap="innerHTML"
                                                     hx-get="{% provider_login_url provider_pair.provider.id process="connect" scope=scope auth_params=auth_params %}">
-                                                <i class="fa fa-plus text-success" />
                                             </button>
                                         {% endif %}
                                     </td>

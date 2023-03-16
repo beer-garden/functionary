@@ -15,10 +15,10 @@
             <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
         </ol>
     </nav>
-    <h1 class="mt-2 mb-4">
-        <i class="fa fa-cube fa-xl"></i>
+    <h2 class="mt-2 mb-4">
+        <i class="fa fa-cube"></i>
         <span>{{ function.render_name }}</span>
-    </h1>
+    </h2>
     <div class="vstack gap-2 my-2">
         {% if not function.active %}
             <div class="alert alert-warning text-center" role="alert">
@@ -82,7 +82,7 @@
             <summary class="has-text-weight-bold">
                 Schema:
             </summary>
-            <div class="p-4">
+            <div class="m-4">
                 <ol class="mx-1 json-container wrap-json" id="json-result" />
                 <pre class="has-background-link-light">{{ function.schema | pretty_json }}</pre>
             </div>
