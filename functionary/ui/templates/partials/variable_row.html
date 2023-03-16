@@ -10,7 +10,7 @@
         {% endif %}
     </td>
     <td>
-        {% if var_update %}
+        {% if request.session.user_can_update_variable %}
             <button class="btn btn-small text-info fa fa-pencil-alt"
                     type="button"
                     title="Edit"
@@ -18,7 +18,7 @@
                     hx-swap="beforeend"
                     hx-get="{% url 'ui:variable-update' pk=variable.id parent_id=parent_id %}"/>
         {% endif %}
-        {% if var_delete %}
+        {% if request.session.user_can_delete_variable %}
             <button class="btn btn-small text-danger fa fa-trash"
                     type="button"
                     title="Delete"

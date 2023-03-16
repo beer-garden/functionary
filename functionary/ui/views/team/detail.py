@@ -17,21 +17,9 @@ class TeamDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         # Sort users by their username
         user_details.sort(key=lambda x: x["user"].username)
 
-        context["team_create_perm"] = self.request.user.has_perm(
-            Permission.TEAM_UPDATE, team
-        )
         context["team_id"] = str(team.id)
         context["environments"] = team.environments.all()
         context["user_details"] = user_details
-        context["var_create"] = self.request.user.has_perm(
-            Permission.VARIABLE_CREATE, team
-        )
-        context["var_update"] = self.request.user.has_perm(
-            Permission.VARIABLE_UPDATE, team
-        )
-        context["var_delete"] = self.request.user.has_perm(
-            Permission.VARIABLE_DELETE, team
-        )
         context["variables"] = (
             team.vars
             if self.request.user.has_perm(Permission.VARIABLE_READ, team)

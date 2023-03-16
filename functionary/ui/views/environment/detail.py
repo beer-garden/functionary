@@ -16,20 +16,8 @@ class EnvironmentDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         env = self.get_object()
 
         context["packages"] = Package.objects.filter(environment=env)
-        context["environment_create_perm"] = self.request.user.has_perm(
-            Permission.ENVIRONMENT_UPDATE, env
-        )
         context["user_details"] = get_users(env)
         context["environment_id"] = str(env.id)
-        context["var_create"] = self.request.user.has_perm(
-            Permission.VARIABLE_CREATE, env
-        )
-        context["var_update"] = self.request.user.has_perm(
-            Permission.VARIABLE_UPDATE, env
-        )
-        context["var_delete"] = self.request.user.has_perm(
-            Permission.VARIABLE_DELETE, env
-        )
         context["variables"] = (
             env.vars
             if self.request.user.has_perm(Permission.VARIABLE_READ, env)

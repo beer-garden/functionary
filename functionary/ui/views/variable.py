@@ -18,18 +18,11 @@ def _get_parent(parent_id):
     return parent.get() if parent else None
 
 
-def _add_perms(context, request, obj):
-    context["var_update"] = request.user.has_perm(Permission.VARIABLE_UPDATE, obj)
-    context["var_delete"] = request.user.has_perm(Permission.VARIABLE_DELETE, obj)
-    return context
-
-
 def _render_variable_row(request, parent_id, variable):
     context = {
         "parent_id": parent_id,
         "variable": variable,
     }
-    context = _add_perms(context, request, variable)
 
     return render(request, "partials/variable_row.html", context)
 
@@ -40,7 +33,6 @@ def _render_variable_rows(request, parent_id=None, parent=None):
         "parent_id": parent_id,
         "variables": parent.vars,
     }
-    context = _add_perms(context, request, parent)
 
     return render(request, "partials/variable_rows.html", context)
 
@@ -64,7 +56,6 @@ def all_variables(request, parent_id):
             "parent_id": parent_id,
             "variables": parent_object.vars,
         }
-        context = _add_perms(context, request, parent_object)
 
         return render(request, "partials/variable_rows.html", context)
     return HttpResponseForbidden()
