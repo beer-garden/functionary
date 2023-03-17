@@ -43,7 +43,10 @@
     </form>
 {% endblock modal_content %}
 {% block modal_footer %}
-    <button class="btn btn-primary" form="variable-modal-form" type="submit">
+    <button class="btn btn-primary"
+            form="variable-modal-form"
+            type="submit"
+            title="{% if variable %}Update{% else %}Add{% endif %}">
         {% if variable %}
             Update
         {% else %}

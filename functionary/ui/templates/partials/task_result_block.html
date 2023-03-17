@@ -6,16 +6,22 @@
                     <ul class="pagination">
                         <li class="page-item {% if output_format != "table" and output_format != "log" %}active{% endif %}">
                             <button hx-get="{% url 'ui:task-results' task.id %}?output=display_raw"
-                                    class="page-link">Raw</button>
+                                    class="page-link"
+                                    title="Raw">Raw</button>
                         </li>
                         {% if show_output_selector %}
                             <li class="page-item {% if output_format == "table" %}active{% endif %}">
                                 <button hx-get="{% url 'ui:task-results' task.id %}?output=display_table"
-                                        class="page-link">Table</button>
+                                        class="page-link"
+                                        title="Table">
+                                    Table
+                                </button>
                             </li>
                         {% endif %}
                         <li class="page-item {% if output_format == "log" %}active{% endif %}">
-                            <button hx-get="{% url 'ui:task-log' pk=task.id %}" class="page-link">Log</button>
+                            <button hx-get="{% url 'ui:task-log' pk=task.id %}"
+                                    class="page-link"
+                                    title="Log">Log</button>
                         </li>
                     </ul>
                 </div>

@@ -9,6 +9,6 @@
           action="{% url 'openid_login' %}">
         {% csrf_token %}
         {{ form.as_p }}
-        <button class="btn btn-primary" type="submit">Sign In</button>
+        <button class="btn btn-primary" type="submit" title="Sign In">Sign In</button>
     </form>
 {% endblock content %}

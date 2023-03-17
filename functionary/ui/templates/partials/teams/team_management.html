@@ -1,5 +1,7 @@
 <div>
-    <strong class="fs-4"><i class="fa fa-user fa-sm fa-fw me-1"></i>Users</strong>
+    <h3 class="fw-semibold">
+        <i class="fa fa-user fa-sm fa-fw me-1"></i>Users
+    </h3>
     <div class="ms-4 my-2">
         <div class="table-container">
             <table class="table table-striped table-sm">
@@ -46,6 +48,7 @@
         {% if request.session.user_can_create_userrole %}
             <button class="btn btn-primary fa-plus"
                     type="button"
+                    title="Add Team"
                     hx-target="#user-modal"
                     hx-trigger="click"
                     hx-get="{% url 'ui:teamuserrole-create' team_id %}">
