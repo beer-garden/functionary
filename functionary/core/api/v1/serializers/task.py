@@ -1,11 +1,24 @@
 """ Task serializers """
 from collections import OrderedDict
 
-from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework import serializers
 
-from core.api.v1.utils import cast_parameters, parse_parameters
+from core.api.v1.utils import PREFIX
 from core.models import Function, Task, Workflow
+from core.utils.parameter import PARAMETER_TYPE
+
+field_types = {
+    PARAMETER_TYPE.BOOLEAN: serializers.BooleanField,
+    PARAMETER_TYPE.DATE: serializers.DateField,
+    PARAMETER_TYPE.DATETIME: serializers.DateTimeField,
+    PARAMETER_TYPE.FILE: serializers.FileField,
+    PARAMETER_TYPE.FLOAT: serializers.FloatField,
+    PARAMETER_TYPE.INTEGER: serializers.IntegerField,
+    PARAMETER_TYPE.JSON: serializers.JSONField,
+    PARAMETER_TYPE.STRING: serializers.CharField,
+    PARAMETER_TYPE.TEXT: serializers.CharField,
+}
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -16,112 +29,38 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TaskCreateBaseSerializerMixin:
-    """Mixin for common components of Task creation serializers"""
+class TaskParameterSerializer(serializers.Serializer):
+    """Serializer for handling task parameters"""
+
+    def __init__(self, tasked_object: Function | Workflow, *args, **kwargs):
+        """Custom init that takes a taskable object to determine parameter fields that
+        should be added to the serializer.
+        """
+        super().__init__(*args, **kwargs)
+
+        for parameter in tasked_object.parameters.all():
+            field_class = field_types[parameter.parameter_type]
+            self.fields[f"param.{parameter.name}"] = field_class(
+                required=parameter.required
+            )
+
+    def _set_parameters(self, data: dict) -> None:
+        """Renames param to parameters and converts and file parameter values to str"""
+        if PREFIX not in data:
+            return
+
+        data["parameters"] = data.pop(PREFIX)
+
+        for param in list(data["parameters"].keys()):
+            value = data["parameters"][param]
+
+            if type(value) == InMemoryUploadedFile:
+                data["parameters"][param] = value.name
 
     def to_internal_value(self, data) -> OrderedDict:
-        parse_parameters(data)
-        ret = super().to_internal_value(data)
-        self.get_tasked_object(ret)
-        cast_parameters(ret)
-        return ret
-
-    def create(self, validated_data):
-        """Custom create that calls clean() on the task instance"""
-
-        try:
-            Task(**validated_data).clean()
-        except ValidationError as exc:
-            raise serializers.ValidationError(serializers.as_serializer_error(exc))
-
-        return super().create(validated_data)
-
-
-class TaskCreateByFunctionIdSerializer(
-    TaskCreateBaseSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for creating a Task using the function id"""
-
-    function = serializers.UUIDField()
-
-    class Meta:
-        model = Task
-        fields = ["function", "parameters"]
-
-    def get_tasked_object(self, values: OrderedDict) -> None:
-        """Set the tasked_object from the provided function id"""
-        function_id = values.pop("function")
-
-        try:
-            function: Function = Function.objects.get(id=function_id)
-            values["tasked_object"] = function
-        except Function.DoesNotExist:
-            exception_map = {
-                "function": (f"Could not find function with id {function_id}")
-            }
-            exc = ValidationError(exception_map)
-            raise serializers.ValidationError(serializers.as_serializer_error(exc))
-
-
-class TaskCreateByFunctionNameSerializer(
-    TaskCreateBaseSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for creating a Task using the function and package name"""
-
-    function_name = serializers.CharField()
-    package_name = serializers.CharField()
-
-    class Meta:
-        model = Task
-        fields = ["function_name", "package_name", "parameters"]
-
-    def get_tasked_object(self, values: OrderedDict) -> None:
-        """Set the tasked_object based on the supplied function_name and
-        package_name
-        """
-        function_name = values.pop("function_name")
-        package_name = values.pop("package_name")
-
-        try:
-            function = Function.objects.get(
-                name=function_name,
-                package__name=package_name,
-            )
-            values["tasked_object"] = function
-        except Function.DoesNotExist:
-            exception_map = {
-                "function_name": (
-                    f"No function {function_name} found for package {package_name}"
-                )
-            }
-            exc = ValidationError(exception_map)
-            raise serializers.ValidationError(serializers.as_serializer_error(exc))
-
-
-class TaskCreateByWorkflowIdSerializer(
-    TaskCreateBaseSerializerMixin, serializers.ModelSerializer
-):
-    """Serializer for creating a Task using the Workflow id"""
-
-    workflow = serializers.UUIDField()
-
-    class Meta:
-        model = Task
-        fields = ["workflow", "parameters"]
-
-    def get_tasked_object(self, values: OrderedDict) -> None:
-        """Set the tasked_object from the provided workflow id"""
-        workflow_id = values.pop("workflow")
-
-        try:
-            workflow: Workflow = Workflow.objects.get(id=workflow_id)
-            values["tasked_object"] = workflow
-        except Workflow.DoesNotExist:
-            exception_map = {
-                "workflow": (f"Could not find workflow with id {workflow_id}")
-            }
-            exc = ValidationError(exception_map)
-            raise serializers.ValidationError(serializers.as_serializer_error(exc))
+        internal_value = super().to_internal_value(data)
+        self._set_parameters(internal_value)
+        return internal_value
 
 
 class TaskCreateResponseSerializer(serializers.ModelSerializer):

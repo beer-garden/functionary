@@ -172,10 +172,10 @@ def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None
                 next_step.execute(workflow_task=workflow_task)
             else:
                 workflow_task.status = Task.COMPLETE
-                task.save()
+                workflow_task.save()
         case Task.ERROR:
             workflow_task.status = Task.ERROR
-            task.save()
+            workflow_task.save()
 
 
 def _handle_file_parameters(task: Task) -> None:
