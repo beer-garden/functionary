@@ -20,7 +20,7 @@
                             <td>{{ u.role }}</td>
                             <td>{{ u.origin }}</td>
                             <td>
-                                {% if request.session.user_can_update_environment %}
+                                {% if request.session.user_can_update_userrole %}
                                     {% if u.environment_user_role_id %}
                                         <button class="btn btn-small text-info fa fa-pencil-alt"
                                                 title="Edit user"
