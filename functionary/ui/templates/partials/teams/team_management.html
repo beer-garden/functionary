@@ -18,20 +18,24 @@
                             <td>{{ u.user.username }}</td>
                             <td>{{ u.role }}</td>
                             <td>
-                                <button class="btn btn-small text-info fa fa-pencil-alt"
-                                        title="Edit user"
-                                        type="button"
-                                        hx-get="{% url 'ui:teamuserrole-update' team_id u.team_user_role_id %}"
-                                        hx-target="#user-modal">
-                                </button>
-                                <button class="btn btn-small text-danger fa fa-trash"
-                                        title="Delete"
-                                        type="button"
-                                        hx-target="closest tr"
-                                        hx-swap="outerHTML swap:1s"
-                                        hx-post="{% url 'ui:teamuserrole-delete' team_id u.team_user_role_id %}"
-                                        hx-confirm="Are you sure you want to remove {{ u.user.username }}'s role from this team?">
-                                </button>
+                                {% if request.session.user_can_update_team %}
+                                    <button class="btn btn-small text-info fa fa-pencil-alt"
+                                            title="Edit user"
+                                            type="button"
+                                            hx-get="{% url 'ui:teamuserrole-update' team_id u.team_user_role_id %}"
+                                            hx-target="#user-modal">
+                                    </button>
+                                {% endif %}
+                                {% if request.session.user_can_delete_team %}
+                                    <button class="btn btn-small text-danger fa fa-trash"
+                                            title="Delete"
+                                            type="button"
+                                            hx-target="closest tr"
+                                            hx-swap="outerHTML swap:1s"
+                                            hx-post="{% url 'ui:teamuserrole-delete' team_id u.team_user_role_id %}"
+                                            hx-confirm="Are you sure you want to remove {{ u.user.username }}'s role from this team?">
+                                    </button>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -39,12 +43,14 @@
             </table>
         </div>
         <div id="user-modal"></div>
-        <button class="btn btn-primary fa-plus"
-                type="button"
-                hx-target="#user-modal"
-                hx-trigger="click"
-                hx-get="{% url 'ui:teamuserrole-create' team_id %}">
-            Add
-        </button>
+        {% if request.session.user_can_create_team %}
+            <button class="btn btn-primary fa-plus"
+                    type="button"
+                    hx-target="#user-modal"
+                    hx-trigger="click"
+                    hx-get="{% url 'ui:teamuserrole-create' team_id %}">
+                Add
+            </button>
+        {% endif %}
     </div>
 </div>
