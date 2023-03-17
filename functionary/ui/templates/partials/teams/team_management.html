@@ -18,7 +18,7 @@
                             <td>{{ u.user.username }}</td>
                             <td>{{ u.role }}</td>
                             <td>
-                                {% if request.session.user_can_update_team %}
+                                {% if request.session.user_can_update_userrole %}
                                     <button class="btn btn-small text-info fa fa-pencil-alt"
                                             title="Edit user"
                                             type="button"
