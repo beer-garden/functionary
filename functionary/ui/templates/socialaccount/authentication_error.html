@@ -5,16 +5,24 @@
 {% endblock title %}
 {% block content %}
     <h2>Third Party Login Failure</h2>
-    <p>An error occurred while attempting to login via your {{ auth_error.provider | capfirst }} account.</p>
+    <div class="alert alert-danger text-center my-4" role="alert">
+        <span>An error occurred while attempting to login via your {{ auth_error.provider | capfirst }} account.</span>
+    </div>
     {% if debug %}
         {% unwrap_exception as unwrapped %}
         <div class="row">
             <div class="col-3">
                 <p class="fw-bold">Failure Reason:</p>
+            </div>
+            <div class="col">
+                <p class="text-monospace">{{ unwrapped.reason }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
                 <p class="fw-bold">Message:</p>
             </div>
-            <div class="col-9">
-                <p class="text-monospace">{{ unwrapped.reason }}</p>
+            <div class="col">
                 <p>{{ unwrapped.message }}</p>
             </div>
         </div>
