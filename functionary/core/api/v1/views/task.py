@@ -144,7 +144,7 @@ class TaskViewSet(
         if len(invalid_parameters) > 0:
             raise ValidationError(
                 f"Invalid parameters provided: {invalid_parameters}. "
-                f"Remember to use the {RENDER_PREFIX} prefix for tasking parameters."
+                f"Remember to use the '{RENDER_PREFIX}' prefix for tasking parameters."
             )
 
     @extend_schema(
