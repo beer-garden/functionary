@@ -105,6 +105,9 @@ class TaskParameterForm(Form):
     ):
         super().__init__(data=data, prefix=prefix, **kwargs)
 
+        self.tasked_object = tasked_object
+        full_prefix = f"{prefix}-" if prefix else ""
+
         if initial is None:
             initial = {}
 
@@ -112,9 +115,11 @@ class TaskParameterForm(Form):
             param_name = parameter.name
             param_type = parameter.parameter_type
             initial_value = initial.get(param_name, None) or parameter.default
-            input_value = data.get(f"{self.prefix}-{param_name}") if data else None
+            input_value = data.get(f"{full_prefix}{param_name}") if data else None
 
-            field_class, widget = self.get_field_info(param_type, input_value)
+            field_class, widget = self.get_field_info(
+                param_type, input_value or initial_value
+            )
 
             if not field_class:
                 raise ValueError(f"Unknown field type for {param_name}: {param_type}")
@@ -193,15 +198,60 @@ class TaskParameterTemplateForm(TaskParameterForm):
         """Converts the template variables in the parameter template to strings so
         that the template can be safely jsonified.
         """
-        return re.sub(r"{{([\w\.]+)}}", r'"{{\1}}"', parameter_template)
+        # Add quotes around {{template_variables}}
+        json_safe_template = re.sub(
+            r'"(\w+)": {{([\w\.]+)}}', r'"\1": "{{\2}}"', parameter_template
+        )
+
+        # Now strip the quotes from nested json so that it remains a single json string
+        # For example:
+        #   '{"nested": {{parameters.json_param}}}'
+        # rather than:
+        #   '{"nested": "{{paramters.json_param}}"}'
+        template_dict = json.loads(json_safe_template)
+        for name in list(template_dict.keys()):
+            value = template_dict[name]
+            if isinstance(value, dict):
+                template_dict[name] = re.sub(
+                    r'"{{([\w\.]*)}}"', r"{{\1}}", json.dumps(value)
+                )
+
+        return template_dict
 
     def _build_parameter_template(self, parameters: dict) -> str:
-        """Undo the template variable stringification that was required to jsonify
-        the template. The resulting string is one that can be rendered as a django
-        template"""
-        json_data = json.dumps(parameters)
+        """Construct the parameter template that can be rendered with a django Context
+        to form the task parameters.
+        """
+        str_types = [
+            PARAMETER_TYPE.STRING,
+            PARAMETER_TYPE.TEXT,
+            PARAMETER_TYPE.DATE,
+            PARAMETER_TYPE.DATETIME,
+        ]
 
-        return re.sub(r'"{{([\w\.]*)}}"', r"{{\1}}", json_data)
+        parameter_types = {
+            type_map[0]: type_map[1]
+            for type_map in self.tasked_object.parameters.values_list(
+                "name", "parameter_type"
+            )
+        }
+
+        template = []
+
+        for name, value in parameters.items():
+            template_value = (
+                value
+                if (
+                    isinstance(value, str)
+                    and value.startswith("{")
+                    and not parameter_types[name] in str_types
+                )
+                else json.dumps(value)
+            )
+
+            template.append(f'"{name}": {template_value}')
+
+        return "{" + ", ".join(template) + "}"
 
     def __init__(
         self,
@@ -217,9 +267,7 @@ class TaskParameterTemplateForm(TaskParameterForm):
             data: Form submission data
             initial: Initial values to populate the form fields with on render
         """
-        initial_data = (
-            json.loads(self._stringify_template_variables(initial)) if initial else {}
-        )
+        initial_data = self._stringify_template_variables(initial) if initial else {}
 
         super().__init__(
             tasked_object=tasked_object, data=data, initial=initial_data, **kwargs
@@ -242,7 +290,7 @@ class TaskParameterTemplateForm(TaskParameterForm):
         ]:
             widget = TextInput
 
-            if input_value and re.match(r"{{[\w\.]+}}", input_value):
+            if isinstance(input_value, str) and re.search(r"{{[\w\.]+}}", input_value):
                 field_class = CharField
 
         return field_class, widget

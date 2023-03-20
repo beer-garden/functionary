@@ -53,7 +53,6 @@ class WorkflowStep(models.Model):
         """Uses a given Context to resolve the parameter_template into a parameters
         dict
         """
-        # TODO: Disable autoescape rather than doing the .replace
         resolved_parameters = (
             Template(self.parameter_template or "{}")
             .render(context)
@@ -75,8 +74,11 @@ class WorkflowStep(models.Model):
         context = {"parameters": {}}
 
         parameters = workflow_run.parameters or {}
+
         for key, value in parameters.items():
-            context["parameters"][key] = json.dumps(value)
+            context["parameters"][key] = (
+                json.dumps(value) if isinstance(value, dict) else value
+            )
 
         for step in workflow_run.steps.all():
             name = step.workflow_step.name
