@@ -60,7 +60,7 @@
                         {% if update %}
                             <div>
                                 <strong class="fs-4"><i class="fa fa-heart-pulse fa-sm fa-fw me-1"></i>Status</strong>
-                                <div class="ms-4 my-2">{% render_field form.status class="form-select" %}</div>
+                                <div class="ms-4 my-2">{% render_field form.status class="form-select" role="menu" %}</div>
                                 <div class="text-danger">{{ form.status.errors }}</div>
                             </div>
                         {% endif %}
@@ -85,9 +85,9 @@
                             <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw me-1"></i>Function</strong>
                             <div class="ms-4 my-2">
                                 {% if update %}
-                                    {% render_field form.function disabled=True class="form-select" %}
+                                    {% render_field form.function disabled=True class="form-select" role="menu" %}
                                 {% else %}
-                                    {% render_field form.function class="form-select" %}
+                                    {% render_field form.function class="form-select" role="menu" %}
                                 {% endif %}
                                 <div class="text-danger">{{ form.function.errors }}</div>
                             </div>

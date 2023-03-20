@@ -98,7 +98,9 @@ class ScheduledTaskForm(ModelForm):
             if field not in ["status", "function"]:
                 self.fields[field].widget.attrs.update({"class": "form-control"})
             else:
-                self.fields[field].widget.attrs.update({"class": "form-select-control"})
+                self.fields[field].widget.attrs.update(
+                    {"class": "form-select-control", "role": "menu"}
+                )
 
         self.fields["function"].widget.attrs.update(
             {

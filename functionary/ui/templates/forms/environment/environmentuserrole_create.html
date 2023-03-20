@@ -41,7 +41,7 @@
                    for="{{ form.role.id_for_label }}">
                 Role
             </label>
-            {% render_field form.role class="form-select" aria-label=form.role.label %}
+            {% render_field form.role class="form-select" aria-label=form.role.label role="menu" %}
             <div class="text-danger">{{ form.role.errors }}</div>
         </div>
     </form>

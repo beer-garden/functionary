@@ -4,7 +4,7 @@
             name="environment_id"
             aria-label="Environment select"
             class="form-select form-select-md bg-primary text-light border-0"
-            role="button"
+            role="listbox"
             hx-trigger="change"
             hx-post="{% url 'ui:set-environment' %}"
             hx-swap="none">
@@ -15,6 +15,7 @@
             <optgroup label="{{ team }}">
                 {% for env in envs %}
                     <option value="{{ env.id }}"
+                            role="option"
                             {% if environment_id == env.id|stringformat:'s' %}selected{% endif %}>
                         {{ env.name }}
                     </option>

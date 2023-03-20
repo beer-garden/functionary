@@ -23,7 +23,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label" for="{{ form.parameter_type.id_for_label }}">{{ form.parameter_type.label }}</label>
-            {% render_field form.parameter_type class="form-select" aria-label=form.parameter_type.label %}
+            {% render_field form.parameter_type class="form-select" aria-label=form.parameter_type.label role="menu" %}
             <div class="text-danger">{{ form.parameter_type.errors }}</div>
         </div>
         <div class="mb-3">
