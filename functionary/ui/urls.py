@@ -133,11 +133,6 @@ environment_urlpatterns = [
         name="environment-detail",
     ),
     path(
-        "environment_list/",
-        (environment.EnvironmentListView.as_view()),
-        name="environment-list",
-    ),
-    path(
         "environment/<uuid:environment_pk>/user_role/create",
         (environment.EnvironmentUserRoleCreateView.as_view()),
         name="environmentuserrole-create",
