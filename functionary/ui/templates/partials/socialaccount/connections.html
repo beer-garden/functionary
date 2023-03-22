@@ -1,9 +1,11 @@
 {% load socialaccount %}
 {% load social_helper %}
 <div id="social_account_connections">
-    <strong class="fs-4"><i class="fa fa-id-card fa-sm fa-fw pe-1"></i>Account Connections</strong>
+    <h3 class="fw-semibold">
+        <i class="fa fa-id-card fa-sm fa-fw pe-1"></i>Account Connections
+    </h3>
     <div class="ps-4">
-        <div class="col-9 py-1">
+        <div class="col-9 my-1">
             {% configured_providers as socialaccount_providers %}
             {% if not socialaccount_providers %}
                 <p>No third party accounts available to connect</p>

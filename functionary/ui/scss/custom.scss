@@ -16,6 +16,9 @@ $display-font-sizes: (1: 7rem, 2: 4rem);
 /*------------------
   Colors
   ------------------*/
+$white: #FFFFFF;
+$gray-200: #e9ecef; // Bootstrap default definition
+
 $primary: #3E5F8E;
 $secondary: #FFFFFF;
 $danger: #8A1B19;
@@ -32,9 +35,10 @@ $dark: #343E40;
   ------------------*/
 $enable-rfs: false; // Disable Responsive Font Sizes
 
-$navbar-dark-color: $secondary;
-$navbar-dark-hover-color: #D3DAE4; // Slight deviation from default for compliance
+$navbar-dark-color: rgba($gray-200, .75);
+$navbar-dark-hover-color: $primary;
 $navbar-dark-brand-color: $secondary;
+$navbar-dark-active-color: $white;
 
 $hr-border-color: $secondary;
 $breadcrumb-divider: quote(">");

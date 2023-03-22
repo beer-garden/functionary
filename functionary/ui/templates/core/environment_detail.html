@@ -8,13 +8,15 @@
             <li class="breadcrumb-item active" aria-current="page">{{ environment.name }}</li>
         </ol>
     </nav>
-    <h1 class="mt-2 mb-4">
+    <h2 class="mt-2 mb-4">
         <i class="fa fa-building"></i>
         {{ environment.name }}
-    </h1>
+    </h2>
     <div class="vstack gap-2 my-2">
         <div>
-            <strong class="fs-4"><i class="fa fa-users fa-sm fa-fw me-1"></i>Team</strong>
+            <h3 class="fw-semibold">
+                <i class="fa fa-users fa-sm fa-fw me-1"></i>Team
+            </h3>
             <p class="ms-4 my-2">
                 <a href="{% url 'ui:team-detail' pk=environment.team.id %}">{{ environment.team.name }}</a>
             </p>
@@ -23,7 +25,9 @@
         {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
         {% if packages %}
             <div>
-                <strong class="fs-4"><i class="fa fa-cubes fa-sm fa-fw me-1"></i>Packages</strong>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-cubes fa-sm fa-fw me-1"></i>Packages
+                </h3>
                 <div class="ms-4 my-2">
                     <div id="packages" class="list-group list-group-flush">
                         {% for package in packages %}

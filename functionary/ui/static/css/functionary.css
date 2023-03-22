@@ -29,6 +29,15 @@
 .errors {
     color: var(--bs-text-danger);
 }
+details > summary {
+    font-size: 1.75rem;
+}
+details > summary > * {
+    display: inline;
+}
+.navbar-nav .nav-link:not(.active):hover, .navbar-nav .nav-link:not(.active):focus {
+    background-color: var(--bs-nav-link-color);
+}
 /* the :has() must be user enabled to work on firefox */
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/:has#browser_compatibility */
 div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {

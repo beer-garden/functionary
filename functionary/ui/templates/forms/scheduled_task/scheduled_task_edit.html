@@ -16,7 +16,7 @@
             </li>
         </ol>
     </nav>
-    <h1 class="my-2">
+    <h2 class="my-2">
         <i class="fa fa-clock"></i>
         {% if update %}
             Update
@@ -24,7 +24,7 @@
             Create
         {% endif %}
         Schedule
-    </h1>
+    </h2>
     {% if form %}
         {% if form.non_field_errors %}
             <div id="scheduled-task-alert"
@@ -34,6 +34,7 @@
                 {{ form.non_field_errors }}
                 <button type="button"
                         class="btn-close"
+                        title="Close"
                         data-bs-dismiss="alert"
                         onclick="document.querySelector('#scheduled-task-alert').remove();"
                         aria-label="Close">
@@ -48,24 +49,32 @@
                     {% csrf_token %}
                     <div class="vstack gap-2 my-2">
                         <div>
-                            <strong class="fs-4"><i class="fa fa-font fa-sm fa-fw me-1"></i>Name</strong>
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-font fa-sm fa-fw me-1"></i>Name
+                            </h3>
                             <div class="ms-4 my-2">{% render_field form.name class="form-control" %}</div>
                             <div class="text-danger">{{ form.name.errors }}</div>
                         </div>
                         <div>
-                            <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description</strong>
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                            </h3>
                             <div class="ms-4 my-2">{% render_field form.description class="textarea form-control" rows=3 cols=40 %}</div>
                             <div class="text-danger">{{ form.description.errors }}</div>
                         </div>
                         {% if update %}
                             <div>
-                                <strong class="fs-4"><i class="fa fa-heart-pulse fa-sm fa-fw me-1"></i>Status</strong>
+                                <h3 class="fw-semibold">
+                                    <i class="fa fa-heart-pulse fa-sm fa-fw me-1"></i>Status
+                                </h3>
                                 <div class="ms-4 my-2">{% render_field form.status class="form-select" role="menu" %}</div>
                                 <div class="text-danger">{{ form.status.errors }}</div>
                             </div>
                         {% endif %}
                         <div>
-                            <strong class="fs-4"><i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab Schedule</strong>
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab Schedule
+                            </h3>
                             <div class="row ms-4 my-2 g-1">
                                 {% for form_item in form %}
                                     {% if 'scheduled' in form_item.id_for_label %}
@@ -82,7 +91,9 @@
                             </div>
                         </div>
                         <div>
-                            <strong class="fs-4"><i class="fa fa-cube fa-sm fa-fw me-1"></i>Function</strong>
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-cube fa-sm fa-fw me-1"></i>Function
+                            </h3>
                             <div class="ms-4 my-2">
                                 {% if update %}
                                     {% render_field form.function disabled=True class="form-select" role="menu" %}
@@ -93,7 +104,9 @@
                             </div>
                         </div>
                         <div>
-                            <strong class="fs-4"><i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters</strong>
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                            </h3>
                             <div class="font-monospace ms-4 my-2" id="function-parameters">
                                 {% comment %} Render function param form if available. Else, lazy load. {% endcomment %}
                                 {% if task_parameter_form %}

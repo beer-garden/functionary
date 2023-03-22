@@ -15,10 +15,10 @@
             <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
         </ol>
     </nav>
-    <h1 class="mt-2 mb-4">
+    <h2 class="mt-2 mb-4">
         <i class="fa fa-cube"></i>
         <span>{{ function.render_name }}</span>
-    </h1>
+    </h2>
     <div class="vstack gap-2 my-2">
         {% if not function.active %}
             <div class="alert alert-warning text-center" role="alert">
@@ -28,25 +28,33 @@
         {% endif %}
         {% if function.description %}
             <div>
-                <strong class="fs-4"><i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description</strong>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                </h3>
                 <p class="ms-4 my-2">{{ function.description }}</p>
             </div>
         {% elif function.summary %}
             <div>
-                <strong class="fs-4"><i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary</strong>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
+                </h3>
                 <p class="ms-4 my-2">{{ function.summary }}</p>
             </div>
         {% endif %}
         {% if function.return_type %}
             <div>
-                <strong class="fs-4"><i class="fa fa-right-from-bracket fa-sm fa-fw me-1"></i>Return Type</strong>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-right-from-bracket fa-sm fa-fw me-1"></i>Return Type
+                </h3>
                 <p class="ms-4 my-2">{{ function.return_type }}</p>
             </div>
         {% endif %}
         {% if form is not None %}
             <div>
                 {% if function.active %}
-                    <strong class="fs-4"><i class="fa fa-pencil-alt fa-sm fa-fw me-1"></i>Create Task</strong>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-pencil-alt fa-sm fa-fw me-1"></i>Create Task
+                    </h3>
                     <div class="ms-4 my-2">
                         <div class="row">
                             <div class="col col-lg-10 col-xl-9 col-xxl-8">
@@ -71,6 +79,7 @@
                         {% endif %}
                         <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
                                 type="submit"
+                                title="Execute"
                                 form="taskCreateForm">
                             Execute
                         </button>
@@ -79,8 +88,8 @@
             </div>
         {% endif %}
         <details {% if not form %}open{% endif %}>
-            <summary class="has-text-weight-bold">
-                Schema:
+            <summary>
+                <h3 class="fw-semibold">Schema</h3>
             </summary>
             <div class="m-4">
                 <ol class="mx-1 json-container wrap-json" id="json-result" />

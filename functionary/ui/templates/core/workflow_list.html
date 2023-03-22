@@ -2,12 +2,13 @@
 {% block content %}
     <div class="d-flex justify-content-end">
         {% if request.session.user_can_create_workflow %}
-            <button class="btn btn-primary mb-3"
+            <button class="btn btn-primary mb-3 fa-plus"
+                    type="button"
+                    title="Create New Workflow"
                     hx-target="body"
                     hx-swap="beforeend"
                     hx-get="{% url 'ui:workflow-create' %}">
-                <i class="fa fa-solid fa-plus"></i>
-                <span>Create New Workflow</span>
+                Create New Workflow
             </button>
         {% else %}
             <!--add a spacer when the button is not present-->

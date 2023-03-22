@@ -2,11 +2,10 @@
 {% load static %}
 {% block content %}
     <div class="d-flex justify-content-end">
-        <a class="btn btn-primary mb-3"
+        <a class="btn btn-primary mb-3 fa-plus"
            role="button"
            href="{% url 'ui:scheduledtask-create' %}">
-            <i class="fa fa-solid fa-plus"></i>
-            <span>Create New Scheduled Task</span>
+            Create New Scheduled Task
         </a>
     </div>
     {% if filter %}

@@ -46,7 +46,7 @@
         </script>
         <div class="container-fluid">
             <div class="row flex-nowrap">
-                <div class="col-auto px-lg-3 px-md-2 px-2 bg-primary shadow">
+                <div class="col-auto px-lg-3 px-2 bg-primary shadow">
                     <div class="d-flex flex-column vh-100 sticky-top">
                         {% if user.is_authenticated %}
                             <nav class="navbar navbar-dark nav-pills flex-column mb-auto">
@@ -59,36 +59,46 @@
                                 <hr class="w-100" />
                                 <div class="d-none d-md-inline">{% include "forms/environment_selector.html" %}</div>
                                 <div class="navbar-nav">
-                                    <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
+                                    <a class="nav-link px-2" href="{% url 'ui:task-list' %}" title="Tasking">
                                         <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Tasking</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:build-list' %}">
+                                    <a class="nav-link px-2" href="{% url 'ui:build-list' %}" title="Builds">
                                         <i class="fa fa-lg fa-wrench fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Builds</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:package-list' %}">
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:package-list' %}"
+                                       title="Packages">
                                         <i class="fa fa-lg fa-cubes fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Packages</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:function-list' %}">
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:function-list' %}"
+                                       title="Functions">
                                         <i class="fa fa-lg fa-cube fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Functions</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:workflow-list' %}">
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:workflow-list' %}"
+                                       title="Workflows">
                                         <i class="fa fa-lg fa-diagram-next fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Workflows</span>
                                     </a>
-                                    <a class="nav-link px-0" href="{% url 'ui:scheduledtask-list' %}">
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:scheduledtask-list' %}"
+                                       title="Schedules">
                                         <i class="fa fa-lg fa-clock fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Schedules</span>
                                     </a>
                                     {% if user.is_superuser %}
-                                        <a class="nav-link px-0" href="{% url 'ui:environment-list' %}">
+                                        <a class="nav-link px-2"
+                                           href="{% url 'ui:environment-list' %}"
+                                           title="Environments">
                                             <i class="fa fa-lg fa-building fa-fw"></i>
                                             <span class="ms-1 d-none d-md-inline">Environments</span>
                                         </a>
-                                        <a class="nav-link px-0" href="{% url 'ui:team-list' %}">
+                                        <a class="nav-link px-2" href="{% url 'ui:team-list' %}" title="Teams">
                                             <i class="fa fa-lg fa-users fa-fw"></i>
                                             <span class="ms-1 d-none d-md-inline">Teams</span>
                                         </a>
@@ -98,13 +108,15 @@
                             <hr/>
                             <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-md-5">
                                 <div class="navbar-nav">
-                                    <a class="nav-link px-0" href="{% url 'ui:account-detail' %}">
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:account-detail' %}"
+                                       title="User Account Details">
                                         <i class="fa fa-lg fa-user fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">{{ user }}</span>
                                     </a>
                                     <form method="post" action="{% url 'account_logout' %}">
                                         {% csrf_token %}
-                                        <button class="btn nav-link px-0" type="submit">
+                                        <button class="btn nav-link px-2" type="submit" title="Logout">
                                             <i class="fa fa-lg fa-door-open fa-fw"></i>
                                             <span class="ms-1 d-none d-md-inline">Logout</span>
                                         </button>

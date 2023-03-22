@@ -27,7 +27,10 @@
     </form>
 {% endblock modal_content %}
 {% block modal_footer %}
-    <button class="btn btn-primary" type="submit" form="workflow-form">
+    <button class="btn btn-primary"
+            type="submit"
+            form="workflow-form"
+            title="{% if workflow %}Save{% else %}Next{% endif %}">
         {% if workflow %}
             Save
         {% else %}

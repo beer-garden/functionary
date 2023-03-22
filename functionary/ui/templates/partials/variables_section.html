@@ -1,6 +1,8 @@
 {% load django_htmx %}
 <div id="variable_section">
-    <strong class="fs-4"><i class="fa fa-tags fa-sm fa-fw me-1"></i>Variables</strong>
+    <h3 class="fw-semibold">
+        <i class="fa fa-tags fa-sm fa-fw me-1"></i>Variables
+    </h3>
     <div class="ms-4 my-2">
         <div class="table-container">
             <table class="table table-striped table-sm">
@@ -17,6 +19,7 @@
         {% if request.session.user_can_create_variable %}
             <button class="btn btn-primary fa-plus"
                     type="button"
+                    title="Add Variable"
                     hx-target="#variable-list"
                     hx-swap="beforeend"
                     hx-post="{% url 'ui:variable-create' parent_id=parent_object.id %}?all=true">
