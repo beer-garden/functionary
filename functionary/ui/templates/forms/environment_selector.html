@@ -1,26 +1,62 @@
-{% csrf_token %}
-{% with request.session.environment_id as environment_id %}
-    <select id="env_select"
-            name="environment_id"
-            aria-label="Environment select"
-            class="form-select form-select-md bg-primary text-light border-0"
-            role="listbox"
-            hx-trigger="change"
-            hx-post="{% url 'ui:set-environment' %}"
-            hx-swap="none">
-        <option disabled value="-1">
-            Choose
-        </option>
-        {% for team, envs in user_environments.items %}
-            <optgroup label="{{ team }}">
-                {% for env in envs %}
-                    <option value="{{ env.id }}"
-                            role="option"
-                            {% if environment_id == env.id|stringformat:'s' %}selected{% endif %}>
-                        {{ env.name }}
-                    </option>
+<div class="input-group">
+    {% with request.session.environment_id as environment_id %}
+        <button type="button"
+                class="btn btn-primary"
+                title="Change Environment"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="true"
+                aria-expanded="false">
+            <i class="fa fa-lg fa-building fa-fw"></i>
+            <span class="ms-1 d-none d-md-inline" id="btnLabel">
+                {% for team, envs in user_environments.items %}
+                    {% for env in envs %}
+                        {% if environment_id == env.id|stringformat:'s' %}
+                            {{ env.name }}
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            </optgroup>
-        {% endfor %}
-    </select>
-{% endwith %}
+            </span>
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <button class="dropdown-item disabled" type="button">Choose...</button>
+            </li>
+            {% for team, envs in user_environments.items %}
+                <li>
+                    <span class="dropdown-header" type="button">{{ team }}</span>
+                </li>
+                {% for env in envs %}
+                    <li>
+                        <button class="dropdown-item"
+                                type="button"
+                                title="{{ env.name }}"
+                                {% if environment_id == env.id|stringformat:'s' %}active{% endif %}
+                                hx-post="{% url 'ui:set-environment' %}"
+                                hx-vals='{"environment_id": "{{ env.id }}"}'
+                                hx-swap="none">
+                            {{ env.name }}
+                        </button>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endwith %}
+    <button type="button"
+            title="Management"
+            class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        <i class="fa fa-ellipsis"></i>
+        <span class="visually-hidden">Toggle Dropdown</span>
+    </button>
+    <div class="dropdown-menu">
+        <a href="#" class="dropdown-item">Manage Environment</a>
+        <a href="#" class="dropdown-item">Manage Team</a>
+    </div>
+</div>
+<script type="module">
+    import 'bootstrap'
+    const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
+    const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
+</script>

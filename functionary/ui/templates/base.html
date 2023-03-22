@@ -37,6 +37,13 @@
         <script src="{% static 'js/highlight-menu-item.js' %}" defer></script>
     </head>
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <script type="importmap">
+            {
+              "imports": {
+                "bootstrap": "{% static 'js/bootstrap.bundle.min.js' %}"
+              }
+            }
+        </script>
         <div class="container-fluid">
             <div class="row flex-nowrap">
                 <div class="col-auto px-lg-3 px-md-2 px-2 bg-primary shadow">
@@ -50,7 +57,7 @@
                                     </h1>
                                 </a>
                                 <hr class="w-100" />
-                                <div class="d-none d-md-inline">{% include "partials/env_selector.html" %}</div>
+                                <div class="d-none d-md-inline">{% include "forms/environment_selector.html" %}</div>
                                 <div class="navbar-nav">
                                     <a class="nav-link px-0" href="{% url 'ui:task-list' %}">
                                         <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
@@ -132,6 +139,11 @@
                     alert(event.detail.xhr.responseText)
                 }
             });
+        </script>
+        <script type="module">
+            import { Dropdown } from 'bootstrap'
+            const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
+            const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new Dropdown(dropdownToggleEl))
         </script>
     </body>
 </html>
