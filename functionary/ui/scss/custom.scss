@@ -16,13 +16,17 @@ $display-font-sizes: (1: 7rem, 2: 4rem);
 /*------------------
   Colors
   ------------------*/
+// Standard colors
 $white: #FFFFFF;
-$gray-200: #e9ecef; // Bootstrap default definition
 
+// Bootstrap default definitions
+$gray-200: #e9ecef;
+$link-hover-color: #324C72;
+
+// Custom definitions
 $primary: #3E5F8E;
 $secondary: #FFFFFF;
 $danger: #8A1B19;
-// $danger-text: #8A1B19;
 $warning: #FFA270;
 $warning-text: #CC4700;
 $info: #407f87;
@@ -39,6 +43,15 @@ $navbar-dark-color: rgba($gray-200, .75);
 $navbar-dark-hover-color: $primary;
 $navbar-dark-brand-color: $secondary;
 $navbar-dark-active-color: $white;
+
+$dropdown-dark-bg: $link-hover-color;
+$dropdown-dark-link-color: $navbar-dark-color;
+$dropdown-dark-color: $navbar-dark-color;
+$dropdown-dark-header-color: $white;
+$dropdown-dark-link-hover-color: $link-hover-color;
+$dropdown-dark-link-hover-bg: $navbar-dark-color;
+$dropdown-dark-link-active-color: $white;
+$dropdown-dark-link-active-bg: $link-hover-color;
 
 $hr-border-color: $secondary;
 $breadcrumb-divider: quote(">");

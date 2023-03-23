@@ -56,8 +56,8 @@
                                         <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
                                     </h1>
                                 </a>
-                                <hr class="w-100" />
                                 <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
+                                <hr class="w-100" />
                                 <div class="navbar-nav">
                                     <a class="nav-link px-2 w-100"
                                        href="{% url 'ui:task-list' %}"
@@ -95,12 +95,6 @@
                                         <i class="fa fa-lg fa-clock fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Schedules</span>
                                     </a>
-                                    {% if user.is_superuser %}
-                                        <a class="nav-link px-2" href="{% url 'ui:team-list' %}" title="Teams">
-                                            <i class="fa fa-lg fa-users fa-fw"></i>
-                                            <span class="ms-1 d-none d-md-inline">Teams</span>
-                                        </a>
-                                    {% endif %}
                                 </div>
                             </nav>
                             <hr/>

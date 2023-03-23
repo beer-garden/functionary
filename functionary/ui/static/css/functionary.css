@@ -39,7 +39,7 @@ details > summary > * {
     color: var(--bs-navbar-color);
 }
 .navbar .btn:hover,
-.navbar .btn:focus {
+.navbar .btn.show {
     background-color: var(--bs-navbar-color);
     color: var(--bs-primary);
 }

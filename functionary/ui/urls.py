@@ -198,7 +198,6 @@ scheduling_urlpatterns = [
 ]
 
 team_urlpatterns = [
-    path("team_list/", (team.TeamListView.as_view()), name="team-list"),
     path(
         "team/<uuid:pk>",
         (team.TeamDetailView.as_view()),
