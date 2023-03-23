@@ -1,6 +1,6 @@
 import pytest
 
-from core.models import Function, Package, Task, Team, User, Workflow
+from core.models import Function, Package, Task, TaskResult, Team, User, Workflow
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -150,3 +150,48 @@ def test_workflow_step_generates_correct_task_parameters_for_str(workflow, funct
     step_task = workflow_step.execute(workflow_task)
 
     assert step_task.parameters["func_str_param"] == f'fun quote: "{quote}"'
+
+
+@pytest.mark.django_db
+def test_workflow_step_properly_escapes_task_results(workflow, function):
+    """Results from previous steps in the workflow are properly escaped"""
+    step1_template = (
+        '{"func_str_param": "fun quote: \\"{{parameters.wf_str_param}}\\""}'
+    )
+    step2_template = '{"func_str_param": "another quote: \\"{{step1.result}}\\""}'
+
+    workflow_step2 = workflow.steps.create(
+        name="step2",
+        function=function,
+        parameter_template=step2_template,
+    )
+
+    workflow_step1 = workflow.steps.create(
+        name="step1",
+        function=function,
+        parameter_template=step1_template,
+        next=workflow_step2,
+    )
+
+    quote = 'This "quote" has quotes"'
+    workflow_task_params = {"wf_str_param": quote}
+
+    workflow_task = Task.objects.create(
+        tasked_object=workflow,
+        creator=workflow.creator,
+        environment=workflow.environment,
+        parameters=workflow_task_params,
+    )
+
+    step1_task = workflow_step1.execute(workflow_task)
+    step1_task.status = Task.COMPLETE
+    step1_task.save()
+
+    TaskResult.objects.create(task=step1_task, result=f'fun quote: "{quote}"')
+
+    step2_task = workflow_step2.execute(workflow_task)
+
+    assert (
+        step2_task.parameters["func_str_param"]
+        == f'another quote: "{step1_task.result}"'
+    )
