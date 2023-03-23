@@ -137,7 +137,7 @@ def test_workflow_step_generates_correct_task_parameters_for_str(workflow, funct
         parameter_template=parameter_template,
     )
 
-    quote = "This is the quote"
+    quote = 'This "quote" has quotes"'
     workflow_task_params = {"wf_str_param": quote}
 
     workflow_task = Task.objects.create(

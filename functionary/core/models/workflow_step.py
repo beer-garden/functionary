@@ -61,6 +61,10 @@ class WorkflowStep(models.Model):
 
         return json.loads(resolved_parameters)
 
+    def _escape(self, value):
+        """Escapes characters to prepare for use in json"""
+        return value.replace('"', '\\"') if isinstance(value, str) else value
+
     def _get_run_context(self, workflow_run: "Task") -> Context:
         """Generates a context for resolving tasking parameters.
 
@@ -77,7 +81,7 @@ class WorkflowStep(models.Model):
 
         for key, value in parameters.items():
             context["parameters"][key] = (
-                json.dumps(value) if isinstance(value, dict) else value
+                json.dumps(value) if isinstance(value, dict) else self._escape(value)
             )
 
         for step in workflow_run.steps.all():
