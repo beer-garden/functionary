@@ -3,16 +3,16 @@ from django.core.exceptions import ValidationError
 from django.http import (
     HttpRequest,
     HttpResponse,
+    HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
-    QueryDict,
 )
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from core.auth import Permission
-from core.models import Environment, Function, Task
+from core.models import Environment, Function, Task, Workflow
 from core.utils.minio import S3Error, handle_file_parameters
 from core.utils.tasking import start_task
 from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
@@ -45,8 +45,7 @@ class FunctionDetailView(PermissionedDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         function = self.object
-        env = function.package.environment
-        form = None
+        env = function.environment
 
         missing_variables = []
         if function.variables:
@@ -54,29 +53,38 @@ class FunctionDetailView(PermissionedDetailView):
             missing_variables = [
                 var for var in function.variables if var not in all_vars
             ]
-        context["missing_variables"] = missing_variables
-        if self.request.user.has_perm(Permission.TASK_CREATE, env):
-            form = TaskParameterForm(function)
 
-        context["form"] = form.render("forms/task_parameters.html") if form else None
+        context["missing_variables"] = missing_variables
+
+        if self.request.user.has_perm(Permission.TASK_CREATE, env):
+            context["form"] = TaskParameterForm(function)
+
         return context
 
 
 @require_POST
 @login_required
 def execute(request: HttpRequest) -> HttpResponse:
-    func = None
-    form = None
     status_code = None
-
     env = Environment.objects.get(id=request.session.get("environment_id"))
+
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
-    data: QueryDict = request.POST.copy()
-    func = get_object_or_404(Function, id=data.get("function_id"))
+    data = request.POST
 
-    form = TaskParameterForm(func, data, files=request.FILES)
+    if tasked_object_id := data.get("function_id"):
+        tasked_object = get_object_or_404(
+            Function, id=tasked_object_id, environment=env
+        )
+    elif tasked_object_id := data.get("workflow_id"):
+        tasked_object = get_object_or_404(
+            Workflow, id=tasked_object_id, environment=env
+        )
+    else:
+        return HttpResponseBadRequest("function_id or workflow_id is required")
+
+    form = TaskParameterForm(tasked_object, data, files=request.FILES)
 
     if form.is_valid():
         # Clean the task fields before saving the Task
@@ -85,9 +93,9 @@ def execute(request: HttpRequest) -> HttpResponse:
             task = Task(
                 environment=env,
                 creator=request.user,
-                tasked_object=func,
+                tasked_object=tasked_object,
                 parameters=form.cleaned_data,
-                return_type=func.return_type,
+                return_type=getattr(tasked_object, "return_type", None),
             )
             task.clean()
             handle_file_parameters(task, request)
@@ -114,8 +122,17 @@ def execute(request: HttpRequest) -> HttpResponse:
                 ),
             )
 
-    args = {"form": form, "function": func}
-    return render(request, "core/function_detail.html", args, status=status_code)
+    context = {}
+    context["form"] = form
+
+    if isinstance(tasked_object, Function):
+        context["function"] = tasked_object
+        template = "core/function_detail.html"
+    else:
+        context["workflow"] = tasked_object
+        template = "core/workflow_task.html"
+
+    return render(request, template, context, status=status_code)
 
 
 @require_GET
