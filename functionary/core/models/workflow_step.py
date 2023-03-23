@@ -53,14 +53,17 @@ class WorkflowStep(models.Model):
         """Uses a given Context to resolve the parameter_template into a parameters
         dict
         """
-        # TODO: Disable autoescape rather than doing the .replace
-        resolved_parameters = (
-            Template(self.parameter_template or "{}")
-            .render(context)
-            .replace("&quot;", '"')
-        )
+        resolved_parameters = Template(self.parameter_template or "{}").render(context)
 
         return json.loads(resolved_parameters)
+
+    def _escape(self, value):
+        """Escapes characters to prepare for use in json"""
+        return value.replace('"', '\\"') if isinstance(value, str) else value
+
+    def _get_json_safe_value(self, value):
+        """Converts a value into something json safe for use in the context"""
+        return json.dumps(value) if isinstance(value, dict) else self._escape(value)
 
     def _get_run_context(self, workflow_run: "Task") -> Context:
         """Generates a context for resolving tasking parameters.
@@ -75,17 +78,18 @@ class WorkflowStep(models.Model):
         context = {"parameters": {}}
 
         parameters = workflow_run.parameters or {}
+
         for key, value in parameters.items():
-            context["parameters"][key] = json.dumps(value)
+            context["parameters"][key] = self._get_json_safe_value(value)
 
         for step in workflow_run.steps.all():
             name = step.workflow_step.name
             task = step.step_task
 
             context[name] = {}
-            context[name]["result"] = task.result
+            context[name]["result"] = self._get_json_safe_value(task.result)
 
-        return Context(context)
+        return Context(context, autoescape=False)
 
     def clean(self):
         if self.workflow.environment != self.function.package.environment:
