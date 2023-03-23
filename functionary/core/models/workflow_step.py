@@ -53,11 +53,7 @@ class WorkflowStep(models.Model):
         """Uses a given Context to resolve the parameter_template into a parameters
         dict
         """
-        resolved_parameters = (
-            Template(self.parameter_template or "{}")
-            .render(context)
-            .replace("&quot;", '"')
-        )
+        resolved_parameters = Template(self.parameter_template or "{}").render(context)
 
         return json.loads(resolved_parameters)
 
@@ -93,7 +89,7 @@ class WorkflowStep(models.Model):
             context[name] = {}
             context[name]["result"] = self._get_json_safe_value(task.result)
 
-        return Context(context)
+        return Context(context, autoescape=False)
 
     def clean(self):
         if self.workflow.environment != self.function.package.environment:
