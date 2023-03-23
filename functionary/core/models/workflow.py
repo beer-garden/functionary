@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
+from core.utils.parameter import get_schema
+
 
 class Workflow(models.Model):
     """A Workflow defines a series of tasks to be executed in sequence.
@@ -80,6 +82,11 @@ class Workflow(models.Model):
         """Convenience alias for workflowparameter_set"""
         # Provides better static type checking than using related_name
         return self.workflowparameter_set  # type: ignore
+
+    @property
+    def schema(self) -> dict:
+        """Workflow definition schema"""
+        return get_schema(self)
 
     def deactivate(self):
         """Deactivate the workflow and pause any associated scheduled tasks"""

@@ -16,7 +16,7 @@
             <form >
                 {% csrf_token %}
                 <span class="col-7 font-monospace d-none" data-token="{{ token.key }}">{{ token.key }}</span>
-                <span id="masked_token" class="col-7 font-monospace">****************************************</span>
+                <span id="masked_token" class="col-7 font-monospace">••••••••••••••••••••••••••••••••••••••••</span>
                 <button class="btn btn-sm border-0 btn-outline"
                         type="submit"
                         title="Regenerate Token"
