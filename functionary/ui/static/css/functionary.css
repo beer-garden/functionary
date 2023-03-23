@@ -53,8 +53,8 @@ details > summary > * {
 div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {
     white-space: pre;
 }
-.dropdown-toggle::after {
-    display: none !important;
+.navbar .dropdown-toggle::after {
+    display: none;
 }
 #status-color[title="PENDING"]{
     color: var(--bs-info);
