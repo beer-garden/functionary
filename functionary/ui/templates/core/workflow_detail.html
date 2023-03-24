@@ -21,23 +21,29 @@
            hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
     </div>
     <div class="vstack gap-2 my-2">
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-            </h3>
-            <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-            </h3>
-            {% include "partials/workflows/parameter_list.html" %}
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-            </h3>
-            {% include "partials/workflows/step_list.html" %}
-        </div>
+        {% if workflow.description %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                </h3>
+                <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
+            </div>
+        {% endif %}
+        {% if workflow.parameter %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                </h3>
+                {% include "partials/workflows/parameter_list.html" %}
+            </div>
+        {% endif %}
+        {% if workflow.ordered_steps %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+                </h3>
+                {% include "partials/workflows/step_list.html" %}
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}

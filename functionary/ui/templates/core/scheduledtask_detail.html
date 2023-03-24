@@ -48,7 +48,11 @@
                   title="{{ scheduledtask.status }}">
                 <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
             </span>
-            <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
+            {% if scheduledtask.periodic_task.crontab %}
+                <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
+            {% else %}
+                <p class="text-monospace">none</p>
+            {% endif %}
         </div>
         <div>
             <h3 class="fw-semibold">
@@ -58,36 +62,40 @@
                 <a href="{% url 'ui:function-detail' scheduledtask.function.id %}">{{ scheduledtask.function.render_name }}</a>
             </p>
         </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-            </h3>
-            <p class="font-monospace ms-4 my-2" id="params">{{ scheduledtask.parameters | pprint }}</p>
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-clock-rotate-left fa-sm fa-fw me-1"></i>Recent History
-            </h3>
-            <div class="ms-4 my-2 table-container">
-                <table class="table table-sm table-striped">
-                    <thead>
-                        <tr>
-                            <th>Ran at</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for task in history %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'ui:task-detail' task.id %}">{{ task.created_at }}</a>
-                                </td>
-                                <td>{{ task.status }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        {% if scheduledtask.parameters %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                </h3>
+                <p class="font-monospace ms-4 my-2" id="params">{{ scheduledtask.parameters | pprint }}</p>
             </div>
-        </div>
+        {% endif %}
+        {% if history %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-clock-rotate-left fa-sm fa-fw me-1"></i>Recent History
+                </h3>
+                <div class="ms-4 my-2 table-container">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ran at</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in history %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'ui:task-detail' task.id %}">{{ task.created_at }}</a>
+                                    </td>
+                                    <td>{{ task.status }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}

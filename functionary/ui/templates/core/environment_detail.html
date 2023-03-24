@@ -21,8 +21,12 @@
                 <a href="{% url 'ui:team-detail' pk=environment.team.id %}">{{ environment.team.name }}</a>
             </p>
         </div>
-        {% include "partials/environments/environment_management.html" %}
-        {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
+        {% if user_details %}
+            {% include "partials/environments/environment_management.html" %}
+        {% endif %}
+        {% if variables %}
+            {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
+        {% endif %}
         {% if packages %}
             <div>
                 <h3 class="fw-semibold">
