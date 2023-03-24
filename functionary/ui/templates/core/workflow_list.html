@@ -15,9 +15,10 @@
                hx-get="{% url 'ui:workflow-create' %}">
                 Create Workflow
             </a>
-        </div>
-        {% if filter %}
-            {% include "partials/list_filter.html" %}
         {% endif %}
-        {% include "partials/table.html" %}
-    {% endblock content %}
+    </div>
+    {% if filter %}
+        {% include "partials/list_filter.html" %}
+    {% endif %}
+    {% include "partials/table.html" %}
+{% endblock content %}
