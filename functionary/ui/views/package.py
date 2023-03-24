@@ -9,6 +9,12 @@ class PackageListView(PermissionedListView):
     table_class = PackageTable
     filterset_class = PackageFilter
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb"] = "Package List"
+
+        return context
+
 
 class PackageDetailView(PermissionedDetailView):
     model = Package

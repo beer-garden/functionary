@@ -144,6 +144,12 @@ class TaskListView(PermissionedListView):
     table_class = TaskListTable
     filterset_class = TaskListFilter
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb"] = "Task List"
+
+        return context
+
 
 class TaskDetailView(PermissionedDetailView):
     model = Task

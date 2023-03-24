@@ -28,6 +28,12 @@ class FunctionListView(PermissionedListView):
     filterset_class = FunctionFilter
     queryset = Function.objects.select_related("package")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb"] = "Function List"
+
+        return context
+
 
 class FunctionDetailView(PermissionedDetailView):
     model = Function

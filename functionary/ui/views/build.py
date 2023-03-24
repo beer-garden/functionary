@@ -13,6 +13,12 @@ class BuildListView(PermissionedListView):
     filterset_class = BuildFilter
     queryset = Build.objects.select_related("package", "creator")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumb"] = "Build List"
+
+        return context
+
 
 class BuildDetailView(PermissionedDetailView):
     model = Build
