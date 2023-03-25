@@ -29,6 +29,9 @@
 .errors {
     color: var(--bs-text-danger);
 }
+.json-string {
+    color: #7a7a00;
+}
 details > summary {
     font-size: 1.75rem;
 }
