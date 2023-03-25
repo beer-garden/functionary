@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load extras %}
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -62,7 +63,9 @@
             <h3 class="fw-semibold">
                 <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
             </h3>
-            <p class="font-monospace ms-4 my-2" id="params">{{ scheduledtask.parameters | pprint }}</p>
+            <div class="my-2">
+                <ol class="json-container wrap-json" id="json-result" />
+            </div>
         </div>
         <div>
             <h3 class="fw-semibold">
@@ -90,4 +93,9 @@
             </div>
         </div>
     </div>
+    <script data-task-result="{{ scheduledtask.parameters | pretty_json }}">
+        var parsed_result = JSON.parse(document.currentScript.dataset.taskResult)
+        var result_element = document.getElementById('json-result')
+        result_element.innerHTML = prettyPrintJson.toHtml(parsed_result, {"quoteKeys": true})
+    </script>
 {% endblock content %}
