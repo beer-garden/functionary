@@ -48,11 +48,9 @@
                   title="{{ scheduledtask.status }}">
                 <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
             </span>
-            {% if scheduledtask.periodic_task.crontab %}
-                <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
-            {% else %}
-                <p class="text-monospace">none</p>
-            {% endif %}
+            <div class="ms-4 my-2">
+                <p>{{ scheduledtask.periodic_task.crontab }}</p>
+            </div>
         </div>
         <div>
             <h3 class="fw-semibold">

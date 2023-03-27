@@ -37,13 +37,11 @@
                 {% include "partials/workflows/parameter_list.html" %}
             </div>
         {% endif %}
-        {% if workflow.ordered_steps %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-                </h3>
-                {% include "partials/workflows/step_list.html" %}
-            </div>
-        {% endif %}
+        <div>
+            <h3 class="fw-semibold">
+                <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+            </h3>
+            {% include "partials/workflows/step_list.html" %}
+        </div>
     </div>
 {% endblock content %}

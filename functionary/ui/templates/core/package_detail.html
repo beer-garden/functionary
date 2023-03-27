@@ -29,12 +29,12 @@
                     <p class="ms-4 my-2">{{ package.summary }}</p>
                 </div>
             {% endif %}
-            {% if functions %}
-                <div>
-                    <h3 class="fw-semibold">
-                        <i class="fa fa-cube fa-sm fa-fw me-1"></i>Functions
-                    </h3>
-                    <div class="ms-4 my-2">
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-cube fa-sm fa-fw me-1"></i>Functions
+                </h3>
+                <div class="ms-4 my-2">
+                    {% if functions %}
                         <div id="funcs" class="list-group list-group-flush">
                             {% for function in functions %}
                                 <a href="{% url 'ui:function-detail' function.id %}"
@@ -44,9 +44,11 @@
                                 </a>
                             {% endfor %}
                         </div>
-                    </div>
+                    {% else %}
+                        <p class="text-monospace">No functions defined</p>
+                    {% endif %}
                 </div>
-            {% endif %}
+            </div>
         </div>
     {% endwith %}
 {% endblock content %}
