@@ -14,7 +14,7 @@
                 <ul class="dropdown-menu shadow-lg dropdown-menu-dark">
                     {% for team, envs in user_environments.items %}
                         <li>
-                            <span class="dropdown-header" type="button">{{ team }}</span>
+                            <span class="dropdown-header"><i class="fa fa-sm fa-users fa-fw me-1"></i>{{ team }}</span>
                         </li>
                         {% for env in envs %}
                             <li>
@@ -25,10 +25,15 @@
                                         hx-post="{% url 'ui:set-environment' %}"
                                         hx-vals='{"environment_id": "{{ env.id }}"}'
                                         hx-swap="none">
-                                    {{ env.name }}
+                                    <span class="ms-3">{{ env.name }}</span>
                                 </button>
                             </li>
                         {% endfor %}
+                        {% if not forloop.last %}
+                            <li>
+                                <hr class="dropdown-divider text-light" />
+                            </li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
                 <button type="button"
@@ -43,11 +48,11 @@
                     <a href="{% url 'ui:environment-detail' pk=environment_id %}"
                        class="dropdown-item"
                        title="Manage Environment">
-                        <i class="fa fa-lg fa-building fa-fw me-1"></i>Manage Environment</a>
+                        <i class="fa fa-sm fa-building fa-fw me-1"></i>Manage Environment</a>
                     <a href="{% url 'ui:team-detail' pk=env.team.id %}"
                        class="dropdown-item"
                        title="Manage Team">
-                        <i class="fa fa-lg fa-users fa-fw me-1"></i>Manage Team</a>
+                        <i class="fa fa-sm fa-users fa-fw me-1"></i>Manage Team</a>
                 </div>
             {% endif %}
         {% endfor %}
