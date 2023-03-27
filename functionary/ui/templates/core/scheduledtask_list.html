@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div class="d-flex justify-content-end">
-        <a class="btn btn-primary mb-3 fa-plus"
+    <div class="d-flex justify-content-between">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Schedule List</li>
+            </ol>
+        </nav>
+        <a class="btn btn-primary fa-plus"
+           title="Create New Scheduled Task"
            role="button"
            href="{% url 'ui:scheduledtask-create' %}">
-            Create New Scheduled Task
+            Create Scheduled Task
         </a>
     </div>
     {% if filter %}

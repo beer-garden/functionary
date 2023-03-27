@@ -1,18 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-between">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Workflow List</li>
+            </ol>
+        </nav>
         {% if request.session.user_can_create_workflow %}
-            <button class="btn btn-primary mb-3 fa-plus"
-                    type="button"
-                    title="Create New Workflow"
-                    hx-target="body"
-                    hx-swap="beforeend"
-                    hx-get="{% url 'ui:workflow-create' %}">
-                Create New Workflow
-            </button>
-        {% else %}
-            <!--add a spacer when the button is not present-->
-            <div class="mb-5"></div>
+            <a class="btn btn-primary fa-plus"
+               type="button"
+               title="Create New Workflow"
+               hx-target="body"
+               hx-swap="beforeend"
+               hx-get="{% url 'ui:workflow-create' %}">
+                Create Workflow
+            </a>
         {% endif %}
     </div>
     {% if filter %}

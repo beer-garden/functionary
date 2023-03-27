@@ -21,12 +21,14 @@
            hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
     </div>
     <div class="vstack gap-2 my-2">
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-            </h3>
-            <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
-        </div>
+        {% if workflow.description %}
+            <div>
+                <h3 class="fw-semibold">
+                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                </h3>
+                <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
+            </div>
+        {% endif %}
         <div>
             <h3 class="fw-semibold">
                 <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
