@@ -58,8 +58,8 @@ class ScheduledTaskTable(tables.Table):
 
     def render_edit_button(self, value, record):
         return format_html(
-            '<a class="btn btn-small fa fa-pencil-alt text-info" '
-            f'role="button" '
-            f'href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
-            "</a>"
+            f'<a class="btn btn-small singletonActive" role="button"'
+            f' href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
+            f'<span class="fa fa-pencil-alt text-info"></span>'
+            f"</a>"
         )

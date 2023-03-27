@@ -10,5 +10,4 @@ from .parameter.edit import (  # noqa
 from .step.create import WorkflowStepCreateView  # noqa
 from .step.delete import WorkflowStepDeleteView  # noqa
 from .step.update import WorkflowStepUpdateView, move_workflow_step  # noqa
-from .task import WorkflowTaskCreateView  # noqa
 from .update import WorkflowUpdateView  # noqa
