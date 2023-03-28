@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+import sys
 import tarfile
 
 import click
@@ -11,7 +12,7 @@ from rich.text import Text
 from .client import get, post
 from .config import get_config_value
 from .parser import parse
-from .utils import flatten, format_results
+from .utils import check_changes, flatten, format_results, sort_functions_by_package
 
 
 def create_languages() -> list[str]:
@@ -101,15 +102,31 @@ def create_cmd(ctx, language, name, output_directory):
     is_flag=True,
     help="Keep build artifacts after publishing, rather than cleaning them up",
 )
+@click.option(
+    "-y",
+    "skip_confirm",
+    is_flag=True,
+    help="Bypass confirmation of changes and immediately publish",
+)
 @click.pass_context
-def publish(ctx, path, keep):
+def publish(ctx, path, keep, skip_confirm):
     """
     Publish a package to make it available in the currently active environment.
 
     Use the -k option to keep the build artifacts
     (found in $HOME/.functionary/builds) after publishing,
     rather than cleaning it up.
+
+    Use the -y flag to bypass the confirmation of changes and publish.
     """
+    validate_package(path)
+    changes = check_changes(path + "/package.yaml")
+    if not changes:
+        print("There were no changes.")
+    if not skip_confirm:
+        confirm = input("Continue [y|N]? ").lower()
+        if confirm not in ("y", "yes"):
+            sys.exit(1)
     host = get_config_value("host", raise_exception=True)
     full_path = pathlib.Path(path).resolve()
     tar_path = get_tar_path(full_path.name)
@@ -124,6 +141,11 @@ def publish(ctx, path, keep):
             os.remove(tar_path)
         id = response["id"]
         click.echo(f"Package upload complete\nBuild id: {id}")
+
+
+def validate_package(path):
+    if not os.path.exists(path + "/package.yaml"):
+        raise click.ClickException("No package.yaml in " + path)
 
 
 def get_tar_path(tar_name):
@@ -169,39 +191,36 @@ def list(ctx):
     """
     packages = get("packages")
     functions = get("functions")
-    functions_lookup = {}
-
-    for function in functions:
-        package_id = function["package"]
-        function_dict = {}
-        function_dict["Function"] = function["name"]
-        function_dict["Display Name"] = function["display_name"]
-
-        # Use the summary if available to keep the table tidy, otherwise
-        # use the description
-        if not (description := function.get("summary", None)):
-            description = function["description"]
-        function_dict["Description"] = description if description else ""
-
-        if package_id in functions_lookup:
-            functions_lookup[package_id].append(function_dict)
-        else:
-            functions_lookup[package_id] = [function_dict]
+    function_lookup = sort_functions_by_package(functions)
 
     for package in packages:
         name = package["name"]
         id = package["id"]
         # Use the description since there's more room if it's available,
         # otherwise use the summary
-        if not (description := package.get("description", None)):
-            description = package["summary"]
-        associated_functions = functions_lookup[id]
+        if not (package_description := package.get("description", None)):
+            package_description = package["summary"]
+
+        associated_functions = []
+        for function in function_lookup[id]:
+            function_dict = {}
+            function_dict["Function"] = function["name"]
+            function_dict["Display Name"] = function["display_name"]
+
+            # Use the summary if available to keep the table tidy, otherwise
+            # use the description
+            if not (function_description := function.get("summary", None)):
+                function_description = function["description"]
+            function_dict["Description"] = (
+                function_description if function_description else ""
+            )
+            associated_functions.append(function_dict)
 
         title = Text(f"{name}", style="bold blue")
 
         # Don't show if there's no package summary or description
-        if description:
-            title.append(f"\n{description}", style="blue dim")
+        if package_description:
+            title.append(f"\n{package_description}", style="blue dim")
         format_results(associated_functions, title=title)
         click.echo("\n")
 

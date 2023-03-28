@@ -5,6 +5,7 @@ import pytest
 import requests
 from click.testing import CliRunner
 
+from functionary import package
 from functionary.config import save_config_value
 from functionary.package import get_tar_path, publish
 
@@ -27,9 +28,19 @@ def response_200(*args, **kwargs):
     return response
 
 
+def validate_package_mock(path):
+    return None
+
+
+def check_changes_mock(path):
+    return True
+
+
 @pytest.mark.usefixtures("config")
 def test_publish_with_keep(fakefs, monkeypatch):
     """Call publish with --keep : Keep build artifacts rather than cleaning them up"""
+    monkeypatch.setattr(package, "validate_package", validate_package_mock)
+    monkeypatch.setattr(package, "check_changes", check_changes_mock)
     monkeypatch.setattr(requests, "post", response_200)
     os.environ["HOME"] = "/tmp/test_home"
     fakefs.create_file(pathlib.Path.home() / "tar_this.txt")
@@ -38,13 +49,15 @@ def test_publish_with_keep(fakefs, monkeypatch):
     save_config_value("host", host)
 
     runner = CliRunner()
-    runner.invoke(publish, [str(pathlib.Path.home()), "--keep"])
+    runner.invoke(publish, [str(pathlib.Path.home()), "--keep", "-y"])
     assert os.path.isfile(get_tar_path(pathlib.Path.home().name))
 
 
 @pytest.mark.usefixtures("config")
 def test_publish_without_keep(fakefs, monkeypatch):
     """Call publish without --keep : Cleaning up build artifacts after publishing"""
+    monkeypatch.setattr(package, "validate_package", validate_package_mock)
+    monkeypatch.setattr(package, "check_changes", check_changes_mock)
     monkeypatch.setattr(requests, "post", response_200)
     os.environ["HOME"] = "/tmp/test_home"
     fakefs.create_file(pathlib.Path.home() / "tar_this.txt")

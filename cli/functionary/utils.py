@@ -1,7 +1,11 @@
 import datetime
 
+import yaml
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
+
+from .client import get
 
 
 def flatten(results, object_fields):
@@ -88,4 +92,150 @@ def format_results(results, title="", excluded_fields=[]):
             row_data.append(str(value) if value else None)
         table.add_row(*row_data)
         first_row = False
+    console.print(table)
+
+
+def _get_package_functions(path):
+    """Returns list of dictionary of functions in the package.yaml"""
+    with open(path, "r") as package_yaml:
+        package_definition = yaml.safe_load(package_yaml)
+    return package_definition["package"]
+
+
+def _get_functions_for_package(package_name):
+    """
+    Takes in package_name, returns functions associated with package
+    """
+    packages = get("packages")
+    functions = get("functions")
+    if not packages or not functions:
+        return {}
+    package_id = _get_package_id(packages, package_name)
+    if package_id is None:
+        return {}
+    package_functions = sort_functions_by_package(functions)
+    return package_functions[package_id]
+
+
+def _get_package_id(packages, package_name):
+    """
+    Takes in packages, desired package_name, returns associated package id
+    """
+    for package in packages:
+        if package["name"] == package_name:
+            return package["id"]
+
+
+def sort_functions_by_package(functions):
+    """
+    Sorts functions by their package id
+    """
+    functions_lookup = {}
+    for function in functions:
+        package_id = function["package"]
+        if package_id in functions_lookup:
+            functions_lookup[package_id].append(function)
+        else:
+            functions_lookup[package_id] = [function]
+    return functions_lookup
+
+
+def check_changes(path):
+    """
+    Checks for discrepancies between the package.yaml and the API functions, returns
+    whether or not changes occurred
+    """
+    packagefunctions = _get_package_functions(path)["functions"]
+    apifunctions = _get_functions_for_package(_get_package_functions(path)["name"])
+
+    if not apifunctions:
+        newfunctions = packagefunctions
+        removedfunctions = {}
+        updatedfunctions = {}
+    else:
+        newfunctions = new_functions(packagefunctions, apifunctions)
+        removedfunctions = removed_functions(packagefunctions, apifunctions)
+        updatedfunctions = updated_functions(packagefunctions, apifunctions)
+
+    if newfunctions:
+        bullet_list(newfunctions, "New functions")
+    if removedfunctions:
+        bullet_list(removedfunctions, "Removed Functions")
+    if updatedfunctions:
+        _format_updated_functions(updatedfunctions, "Updated Functions")
+
+    return bool(newfunctions or removedfunctions or updatedfunctions)
+
+
+def new_functions(packagefunctions, apifunctions):
+    """
+    Compares package functions to api functions will return list of new functions
+    """
+    newfunctions = packagefunctions.copy()
+    for packagefunction in packagefunctions:
+        for apifunction in apifunctions:
+            if packagefunction.get("name") == apifunction.get("name"):
+                newfunctions.remove(packagefunction)
+                break
+    return newfunctions
+
+
+def removed_functions(packagefunctions, apifunctions):
+    """
+    Compares package functions to api functions will return list of removed functions
+    """
+    removedfunctions = apifunctions.copy()
+    for apifunction in apifunctions:
+        for packagefunction in packagefunctions:
+            if apifunction.get("name") == packagefunction.get("name"):
+                removedfunctions.remove(apifunction)
+                break
+    return removedfunctions
+
+
+def updated_functions(packagefunctions, apifunctions):
+    """
+    Compares package functions to api functions will return dictionary of updated
+    function names and the changed fields
+    """
+    updatedfunctions = {}
+    for packagefunction in packagefunctions:
+        changedfield = []
+        for apifunction in apifunctions:
+            if packagefunction.get("name") == apifunction.get("name"):
+                for key in packagefunction.keys():
+                    if key in {"parameters", "variables"}:
+                        continue
+                    if packagefunction[key] != apifunction[key]:
+                        changedfield.append(key)
+        if changedfield:
+            updatedfunctions[packagefunction.get("name")] = changedfield
+
+    return updatedfunctions
+
+
+def bullet_list(list, title):
+    """
+    Prints to console: Title in blue and list in bullet form
+    """
+    console = Console()
+    console.print(Text(f"{title}", style="bold blue"))
+    for entry in list:
+        print(f"\u2022 {entry.get('name')}")
+
+
+def _format_updated_functions(results, title=""):
+    """
+    Print The function name and changed fields in a table
+    """
+    title = Text(f"{title}", style="bold blue")
+    table = Table(title=title, show_lines=True, title_justify="left")
+    console = Console()
+    table.add_column("Function Name")
+    table.add_column("Changed Fields")
+    for key in results.keys():
+        row_data = ""
+        for value in results[key]:
+            row_data = row_data + value + "\n"
+        table.add_row(key, row_data)
     console.print(table)
