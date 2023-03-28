@@ -1,24 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between align-items-center">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
+            <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item active" aria-current="page">Workflow List</li>
             </ol>
         </nav>
-        {% if request.session.user_can_create_workflow %}
-            <a class="btn btn-primary fa-plus"
-               type="button"
-               title="Create New Workflow"
-               hx-target="body"
-               hx-swap="beforeend"
-               hx-get="{% url 'ui:workflow-create' %}">
-                Create Workflow
-            </a>
+        <div>
+            {% if request.session.user_can_create_workflow %}
+                <a class="btn btn-primary btn-sm fa-plus py-1 h-75"
+                   type="button"
+                   title="Create New Workflow"
+                   hx-target="body"
+                   hx-swap="beforeend"
+                   hx-get="{% url 'ui:workflow-create' %}">
+                    Create Workflow
+                </a>
+            {% endif %}
+            {% if filter %}
+                <button class="btn btn-primary d-xl-none py-1 h-75"
+                        title="Filter"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#filterOC"
+                        aria-controls="filterOC">
+                    <i class="fa fa-filter me-1"></i>Filter
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
+        {% if filter %}
+            <div class="col-12 d-xl-none"></div>
+            <div class="col-auto">
+                <div class="offcanvas-xl offcanvas-end"
+                     tabindex="-1"
+                     id="filterOC"
+                     aria-labelledby="offcanvasLabel">
+                    <div class="offcanvas-header bg-primary text-white">
+                        <h2 class="offcanvas-title" id="offcanvasLabel">
+                            <i class="fa fa-filter fa-xs me-1"></i>Filter
+                        </h2>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="offcanvas"
+                                data-bs-target="#filterOC"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="offcanvas-body shadow">{% include "partials/list_filter.html" %}</div>
+                </div>
+            </div>
         {% endif %}
     </div>
-    {% if filter %}
-        {% include "partials/list_filter.html" %}
-    {% endif %}
-    {% include "partials/table.html" %}
 {% endblock content %}

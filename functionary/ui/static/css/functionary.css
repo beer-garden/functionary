@@ -32,6 +32,9 @@
 .json-string {
     color: #7a7a00;
 }
+.form-fill {
+    background-color: #F2F2F2; /* --bs-table-striped-bg over white */
+}
 details > summary {
     font-size: 1.75rem;
 }

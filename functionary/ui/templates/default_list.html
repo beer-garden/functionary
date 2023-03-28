@@ -1,12 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb }}</li>
-        </ol>
-    </nav>
-    {% if filter %}
-        {% include "partials/list_filter.html" %}
-    {% endif %}
-    {% include "partials/table.html" %}
+    <div class="d-flex justify-content-between mb-1">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-1">
+                <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb }}</li>
+            </ol>
+        </nav>
+        {% if filter %}
+            <button class="btn btn-primary d-xl-none py-1 h-75"
+                    title="Filter"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#filterOC"
+                    aria-controls="filterOC">
+                <i class="fa fa-filter me-1"></i>Filter
+            </button>
+        {% endif %}
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
+        {% if filter %}
+            <div class="col-12 d-xl-none"></div>
+            <div class="col-auto">
+                <div class="offcanvas-xl offcanvas-end"
+                     tabindex="-1"
+                     id="filterOC"
+                     aria-labelledby="offcanvasLabel">
+                    <div class="offcanvas-header bg-primary text-white">
+                        <h2 class="offcanvas-title" id="offcanvasLabel">
+                            <i class="fa fa-filter fa-xs me-1"></i>Filter
+                        </h2>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="offcanvas"
+                                data-bs-target="#filterOC"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="offcanvas-body shadow">{% include "partials/list_filter.html" %}</div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 {% endblock content %}
