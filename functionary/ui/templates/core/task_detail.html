@@ -36,7 +36,11 @@
                     <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
                 </h3>
                 <div class="my-2">
-                    <ol class="json-container wrap-json" id="json-parameters" />
+                    {% if task.parameters %}
+                        <ol class="json-container wrap-json" id="json-parameters" />
+                    {% else %}
+                        <span class="font-monospace">No parameters</span>
+                    {% endif %}
                 </div>
             </div>
             <div>
