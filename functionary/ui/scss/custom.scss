@@ -56,6 +56,11 @@ $dropdown-dark-divider-bg: $navbar-dark-color;
 
 $offcanvas-bg-color: #F2F2F2; // --bs-table-striped-bg over white
 
+$input-height-border: calc(1px * 2); // Bootstrap default
+$form-floating-height: add(2.7rem, $input-height-border);
+$form-floating-input-padding-t: 1.1rem;
+$form-floating-input-padding-b: 0rem;
+
 $breadcrumb-divider: quote(">");
 $link-decoration: none;
 

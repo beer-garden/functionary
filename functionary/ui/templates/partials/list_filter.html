@@ -1,28 +1,49 @@
 {% load widget_tweaks %}
-<form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block" class="d-flex flex-wrap p-2 pb-0 gap-1 form-fill">
-    <div class="vstack">
-        <h2 class="text-center d-none d-xl-block">
-            <i class="fa fa-filter fa-xs me-1"></i>Filter
-        </h2>
-        {% for field in filter.form %}
-            <div class="form-floating flex-fill">
-                {% with WIDGET_ERROR_CLASS="is-invalid" %}
-                    {% if field.widget_type == "select" %}
-                        {% render_field field class="form-select form-select-sm h-50" onchange="requestSubmit()" role="menu" %}
-                    {% elif field.widget_type == 'datetime' %}
-                        {% render_field field class="form-control form-control-sm h-50" onchange="requestSubmit()" %}
-                    {% else %}
-                        {% render_field field class="form-control form-control-sm h-50" onchange="requestSubmit()" %}
-                    {% endif %}
-                {% endwith %}
-                <label for={{ field.id_for_label }} class="col-form-label-sm h-50 py-2">{{ field.label }}
-                </label>
-                {% if field.errors %}
-                    <ul class="list-unstyled errorlist">
-                        {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
-                    </ul>
-                {% endif %}
+<div class="col-12 d-xl-none"></div>
+<div class="col-auto pt-4">
+    <div class="offcanvas-xl offcanvas-end"
+         tabindex="-1"
+         id="filterOC"
+         aria-labelledby="offcanvasLabel">
+        <div class="offcanvas-header bg-primary text-white">
+            <h2 class="offcanvas-title" id="offcanvasLabel">
+                <i class="fa fa-filter fa-xs me-1"></i>Filter
+            </h2>
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#filterOC"
+                    aria-label="Close">
+            </button>
+        </div>
+        <div class="offcanvas-body border rounded">
+            <div class="vstack p-2 form-fill">
+                <h2 class="fs-6 d-none mb-3 ms-1 d-xl-block">
+                    <i class="fa fa-filter fa-xs me-1"></i>Filter
+                </h2>
+                <form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block">
+                    {% for field in filter.form %}
+                        <div class="form-floating mb-3">
+                            {% with WIDGET_ERROR_CLASS="is-invalid" %}
+                                {% if field.widget_type == "select" %}
+                                    {% render_field field class="form-select form-select-sm" onchange="requestSubmit()" role="menu" %}
+                                {% elif field.widget_type == 'datetime' %}
+                                    {% render_field field class="form-control form-control-sm" onchange="requestSubmit()" %}
+                                {% else %}
+                                    {% render_field field class="form-control form-control-sm" onchange="requestSubmit()" %}
+                                {% endif %}
+                            {% endwith %}
+                            <label for={{ field.id_for_label }} class="col-form-label-sm">{{ field.label }}
+                            </label>
+                            {% if field.errors %}
+                                <ul class="list-unstyled errorlist">
+                                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </form>
             </div>
-        {% endfor %}
+        </div>
     </div>
-</form>
+</div>

@@ -21,26 +21,7 @@
     <div class="row">
         <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
         {% if filter %}
-            <div class="col-12 d-xl-none"></div>
-            <div class="col-auto">
-                <div class="offcanvas-xl offcanvas-end"
-                     tabindex="-1"
-                     id="filterOC"
-                     aria-labelledby="offcanvasLabel">
-                    <div class="offcanvas-header bg-primary text-white">
-                        <h2 class="offcanvas-title" id="offcanvasLabel">
-                            <i class="fa fa-filter fa-xs me-1"></i>Filter
-                        </h2>
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="offcanvas"
-                                data-bs-target="#filterOC"
-                                aria-label="Close">
-                        </button>
-                    </div>
-                    <div class="offcanvas-body shadow">{% include "partials/list_filter.html" %}</div>
-                </div>
-            </div>
+            {% include "partials/list_filter.html" %}
         {% endif %}
     </div>
 {% endblock content %}
