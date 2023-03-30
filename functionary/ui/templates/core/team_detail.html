@@ -17,6 +17,8 @@
                         </ul>
                     </div>
                 </div>
+                {% include "partials/teams/team_management.html" %}
+                {% include "partials/variables_section.html" with parent_object=team parent_id=team.id %}
             </div>
         </div>
     </div>
