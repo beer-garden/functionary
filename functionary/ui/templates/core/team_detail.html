@@ -10,14 +10,9 @@
                 <i class="fa fa-building fa-sm fa-fw me-1"></i>Environments
             </h3>
             <div class="ms-4 my-2">
-                <div id="envs" class="list-group list-group-flush">
-                    {% for env in environments %}
-                        <a href="{% url 'ui:environment-detail' env.id %}"
-                           class="list-group-item list-group-item-action">
-                            <p class="mb-0">{{ env.name }}</p>
-                        </a>
-                    {% endfor %}
-                </div>
+                <ul id="envs" class="list-group list-group-flush">
+                    {% for env in environments %}<li class="list-group-item">{{ env.name }}</li>{% endfor %}
+                </ul>
             </div>
         </div>
         {% include "partials/teams/team_management.html" %}
