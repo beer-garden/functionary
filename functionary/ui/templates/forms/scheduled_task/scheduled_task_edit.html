@@ -111,7 +111,6 @@
                                 {% comment %} Render function param form if available. Else, lazy load. {% endcomment %}
                                 {% if task_parameter_form %}
                                     {% if task_parameter_form.fields %}
-                                        has form
                                         {{ task_parameter_form }}
                                     {% else %}
                                         <p class="font-monospace">No parameters.</p>
