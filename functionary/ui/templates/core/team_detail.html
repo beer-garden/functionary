@@ -1,26 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1 class="mt-2 mb-4">
-        <i class="fa fa-users"></i>
-        <span>{{ team.name }}</span>
-    </h1>
-    <div class="vstack gap-2 my-2">
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-building fa-sm fa-fw me-1"></i>Environments
-            </h3>
-            <div class="ms-4 my-2">
-                <div id="envs" class="list-group list-group-flush">
-                    {% for env in environments %}
-                        <a href="{% url 'ui:environment-detail' env.id %}"
-                           class="list-group-item list-group-item-action">
-                            <p class="mb-0">{{ env.name }}</p>
-                        </a>
-                    {% endfor %}
+    <div class="row">
+        <div class="col col-xl-10 col-xl-8">
+            <h1 class="mt-2 mb-4">
+                <i class="fa fa-users"></i>
+                <span>{{ team.name }}</span>
+            </h1>
+            <div class="vstack gap-2 my-2">
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-building fa-sm fa-fw me-1"></i>Environments
+                    </h3>
+                    <div class="ms-4 my-2">
+                        <div id="envs" class="list-group list-group-flush">
+                            {% for env in environments %}
+                                <a href="{% url 'ui:environment-detail' env.id %}"
+                                   class="list-group-item list-group-item-action">
+                                    <p class="mb-0">{{ env.name }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
+                {% include "partials/teams/team_management.html" %}
+                {% include "partials/variables_section.html" with parent_object=team parent_id=team.id %}
             </div>
         </div>
-        {% include "partials/teams/team_management.html" %}
-        {% include "partials/variables_section.html" with parent_object=team parent_id=team.id %}
     </div>
 {% endblock content %}

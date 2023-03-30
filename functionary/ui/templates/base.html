@@ -57,7 +57,7 @@
                                     </h1>
                                 </a>
                                 <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
-                                <hr class="w-100" />
+                                <hr class="w-100 border-white" />
                                 <div class="navbar-nav">
                                     <a class="nav-link px-2 w-100"
                                        href="{% url 'ui:task-list' %}"
@@ -97,7 +97,7 @@
                                     </a>
                                 </div>
                             </nav>
-                            <hr/>
+                            <hr class="border-white"/>
                             <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-md-5">
                                 <div class="navbar-nav">
                                     <a class="nav-link px-2"
@@ -118,7 +118,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-11 col-md-9 col-xl-8 col-xxl-7 mx-1 mx-md-3 mx-lg-4 my-3">
+                <div class="col col-xl-10 ms-1 ms-md-3 ms-xl-2 ms-xxl-4 my-3">
                     {% if messages %}
                         {% include "partials/auth_messages.html" %}
                     {% endif %}

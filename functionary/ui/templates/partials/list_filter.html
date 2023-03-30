@@ -1,20 +1,49 @@
 {% load widget_tweaks %}
-<form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block" class="form row flex-nowrap">
-    {% for field in filter.form %}
-        <div class="col-auto mb-3">
-            <label for=field.id_for_label class="form-label">{{ field.label }}</label>
-            {% if field.widget_type == "select" %}
-                {{ field|add_class:"form-select form-select-sm"|add_error_class:"is-invalid"|append_attr:"onchange:requestSubmit()"|append_attr:"role:menu" }}
-            {% elif field.widget_type == 'datetime' %}
-                {{ field|add_class:"form-control form-control-sm"|add_error_class:"is-invalid"|append_attr:"onchange:requestSubmit()"|append_attr:"role:menu" }}
-            {% else %}
-                {{ field|add_class:"form-control form-control-sm"|add_error_class:"is-invalid"|append_attr:"onkeyup:requestSubmit()"|append_attr:"role:menu" }}
-            {% endif %}
-            <div>
-                <ul class="list-unstyled errorlist">
-                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
-                </ul>
+<div class="col-12 d-xl-none"></div>
+<div class="col-auto pt-4">
+    <div class="offcanvas-xl offcanvas-end"
+         tabindex="-1"
+         id="filterOC"
+         aria-labelledby="offcanvasLabel">
+        <div class="offcanvas-header bg-primary text-white">
+            <h2 class="offcanvas-title fs-4" id="offcanvasLabel">
+                <i class="fa fa-filter fa-xs me-1"></i>Filter
+            </h2>
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#filterOC"
+                    aria-label="Close">
+            </button>
+        </div>
+        <div class="offcanvas-body border rounded">
+            <div class="vstack px-2 pt-2 form-fill">
+                <h2 class="fs-6 d-none mb-3 ms-1 d-xl-block">
+                    <i class="fa fa-filter fa-xs me-1"></i>Filter
+                </h2>
+                <form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block">
+                    {% for field in filter.form %}
+                        <div class="form-floating mb-3">
+                            {% with WIDGET_ERROR_CLASS="is-invalid" %}
+                                {% if field.widget_type == "select" %}
+                                    {% render_field field class="form-select form-select-sm" onchange="requestSubmit()" role="menu" %}
+                                {% elif field.widget_type == 'datetime' %}
+                                    {% render_field field class="form-control form-control-sm" onchange="requestSubmit()" %}
+                                {% else %}
+                                    {% render_field field class="form-control form-control-sm" onkeyup="requestSubmit()" %}
+                                {% endif %}
+                            {% endwith %}
+                            <label for={{ field.id_for_label }} class="col-form-label-sm">{{ field.label }}
+                            </label>
+                            {% if field.errors %}
+                                <ul class="list-unstyled errorlist">
+                                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </form>
             </div>
         </div>
-    {% endfor %}
-</form>
+    </div>
+</div>
