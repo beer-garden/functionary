@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb }}</li>
-        </ol>
-    </nav>
-    {% if filter %}
-        {% include "partials/list_filter.html" %}
-    {% endif %}
-    {% include "partials/table.html" %}
+    <div class="d-flex justify-content-between mb-1">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-1">
+                <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb }}</li>
+            </ol>
+        </nav>
+        {% if filter %}
+            {% include "partials/list_filter_button.html" %}
+        {% endif %}
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
+        {% if filter %}
+            {% include "partials/list_filter.html" %}
+        {% endif %}
+    </div>
 {% endblock content %}
