@@ -54,7 +54,8 @@ $dropdown-dark-link-active-color: $white;
 $dropdown-dark-link-active-bg: $link-hover-color;
 $dropdown-dark-divider-bg: $navbar-dark-color;
 
-$hr-border-color: $secondary;
+$offcanvas-bg-color: #F2F2F2; // --bs-table-striped-bg over white
+
 $breadcrumb-divider: quote(">");
 $link-decoration: none;
 
@@ -97,7 +98,7 @@ $link-decoration: none;
 // @import "./popover";
 // @import "./carousel";
 // @import "./spinners";
-// @import "./offcanvas";
+@import "./offcanvas";
 // @import "./placeholders";
 @import "./nav";
 @import "./navbar";

@@ -3,98 +3,103 @@
 {% load extras %}
 {% block content %}
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb my-1 pb-1">
             <li class="breadcrumb-item">
                 <a href="{% url 'ui:scheduledtask-list' %}">Schedule List</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">{{ scheduledtask.name }}</li>
         </ol>
     </nav>
-    <div class="hstack gap-3 mt-2 mb-4">
-        <h2>
-            <i class="fa fa-clock"></i>
-            {{ scheduledtask.name }}
-        </h2>
-        <i class="fa fa-pencil-alt fa-lg text-info singletonActive"
-           type="button"
-           title="Edit"
-           hx-target="body"
-           hx-swap="beforeend"
-           hx-get="{% url 'ui:scheduledtask-update' scheduledtask.id %}?id={{ workflow.id }}"></i>
-    </div>
-    <div class="vstack gap-2 my-2">
-        {% if scheduledtask.description %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                </h3>
-                <p class="ms-4 my-2">{{ scheduledtask.description }}</p>
+    <hr />
+    <div class="row">
+        <div class="col-10 col-md-8 col-xl-7">
+            <div class="hstack gap-3 mt-2 mb-4">
+                <h2>
+                    <i class="fa fa-clock"></i>
+                    {{ scheduledtask.name }}
+                </h2>
+                <i class="fa fa-pencil-alt fa-lg text-info singletonActive"
+                   type="button"
+                   title="Edit"
+                   hx-target="body"
+                   hx-swap="beforeend"
+                   hx-get="{% url 'ui:scheduledtask-update' scheduledtask.id %}?id={{ workflow.id }}"></i>
             </div>
-        {% endif %}
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-user fa-sm fa-fw me-1"></i>Creator
-            </h3>
-            <p class="ms-4 my-2">
-                {{ scheduledtask.creator.first_name }} {{ scheduledtask.creator.last_name }} <span class="text-muted">({{ scheduledtask.creator.username }})</span>
-                at {{ scheduledtask.created_at }}
-            </p>
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab
-            </h3>
-            <span class="font-monospace mx-2 status-color"
-                  title="{{ scheduledtask.status }}">
-                <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
-            </span>
-            <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-cube fa-sm fa-fw me-1"></i>Function
-            </h3>
-            <p class="ms-4 my-2">
-                <a href="{% url 'ui:function-detail' scheduledtask.function.id %}">{{ scheduledtask.function.render_name }}</a>
-            </p>
-        </div>
-        {% if scheduledtask.parameters %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-                </h3>
-                <div class="my-2">
-                    <ol class="json-container wrap-json" id="json-result" />
+            <div class="vstack gap-2 my-2">
+                {% if scheduledtask.description %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                        </h3>
+                        <p class="ms-4 my-2">{{ scheduledtask.description }}</p>
+                    </div>
+                {% endif %}
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-user fa-sm fa-fw me-1"></i>Creator
+                    </h3>
+                    <p class="ms-4 my-2">
+                        {{ scheduledtask.creator.first_name }} {{ scheduledtask.creator.last_name }} <span class="text-muted">({{ scheduledtask.creator.username }})</span>
+                        at {{ scheduledtask.created_at }}
+                    </p>
                 </div>
-            </div>
-        {% endif %}
-        {% if history %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-clock-rotate-left fa-sm fa-fw me-1"></i>Recent History
-                </h3>
-                <div class="ms-4 my-2 table-container">
-                    <table class="table table-sm table-striped">
-                        <thead>
-                            <tr>
-                                <th>Ran at</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for task in history %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'ui:task-detail' task.id %}">{{ task.created_at }}</a>
-                                    </td>
-                                    <td>{{ task.status }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab
+                    </h3>
+                    <span class="font-monospace align-text-bottom mx-2 status-color"
+                          title="{{ scheduledtask.status }}">
+                        <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
+                    </span>
+                    <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
                 </div>
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-cube fa-sm fa-fw me-1"></i>Function
+                    </h3>
+                    <p class="ms-4 my-2">
+                        <a href="{% url 'ui:function-detail' scheduledtask.function.id %}">{{ scheduledtask.function.render_name }}</a>
+                    </p>
+                </div>
+                {% if scheduledtask.parameters %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                        </h3>
+                        <div class="my-2">
+                            <ol class="json-container wrap-json" id="json-result" />
+                        </div>
+                    </div>
+                {% endif %}
+                {% if history %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-clock-rotate-left fa-sm fa-fw me-1"></i>Recent History
+                        </h3>
+                        <div class="ms-4 my-2 table-container">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Ran at</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in history %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'ui:task-detail' task.id %}">{{ task.created_at }}</a>
+                                            </td>
+                                            <td>{{ task.status }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     </div>
     <script data-task-result="{{ scheduledtask.parameters | pretty_json }}">
         var parsed_result = JSON.parse(document.currentScript.dataset.taskResult)

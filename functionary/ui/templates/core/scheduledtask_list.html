@@ -1,21 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between  align-items-center">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
+            <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item active" aria-current="page">Schedule List</li>
             </ol>
         </nav>
-        <a class="btn btn-primary fa-plus"
-           title="Create New Scheduled Task"
-           role="button"
-           href="{% url 'ui:scheduledtask-create' %}">
-            Create Scheduled Task
-        </a>
+        <div>
+            <a class="btn btn-primary btn-sm fa-plus py-1 h-75"
+               title="Create New Scheduled Task"
+               type="button"
+               href="{% url 'ui:scheduledtask-create' %}">
+                Create Scheduled Task
+            </a>
+            {% include "partials/list_filter_button.html" %}
+        </div>
     </div>
-    {% if filter %}
+    <hr />
+    <div class="row">
+        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
         {% include "partials/list_filter.html" %}
-    {% endif %}
-    {% include "partials/table.html" %}
+    </div>
 {% endblock content %}
