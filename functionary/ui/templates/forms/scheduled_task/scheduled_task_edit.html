@@ -110,7 +110,12 @@
                             <div class="font-monospace ms-4 my-2" id="function-parameters">
                                 {% comment %} Render function param form if available. Else, lazy load. {% endcomment %}
                                 {% if task_parameter_form %}
-                                    {{ task_parameter_form }}
+                                    {% if task_parameter_form.fields %}
+                                        has form
+                                        {{ task_parameter_form }}
+                                    {% else %}
+                                        <p class="font-monospace">No parameters.</p>
+                                    {% endif %}
                                 {% else %}
                                     <div hx-trigger="load"
                                          hx-get="{% url 'ui:function-parameters' %}"
