@@ -100,9 +100,4 @@
             </div>
         </div>
     </div>
-    <script data-task-result="{{ function.schema | pretty_json }}">
-        var parsed_result = JSON.parse(document.currentScript.dataset.taskResult)
-        var result_element = document.getElementById('json-result')
-        result_element.innerHTML = prettyPrintJson.toHtml(parsed_result, {"quoteKeys": true})
-    </script>
 {% endblock content %}

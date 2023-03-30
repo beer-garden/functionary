@@ -14,12 +14,12 @@
         <hr />
         <div class="row">
             <div class="col-10 col-md-8 col-xl-7">
-                <div class="hstack gap-3 mt-2 mb-4">
+                <div class="hstack gap-3 mt-2 mb-4 align-items-center">
                     <h2>
                         <i class="fa fa-wrench"></i>
                         {{ build.package.render_name }}
                     </h2>
-                    <div>
+                    <div class="status-color" title={{ build.status }}>
                         <i class="fa fa-circle-info"></i>
                         <span class="fs-5">{{ build.status }}</span>
                     </div>
