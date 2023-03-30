@@ -25,19 +25,13 @@
                 This function is currently inactive
             </div>
         {% endif %}
+        {% if function.summary %}<p class="mb-2">{{ function.summary }}</p>{% endif %}
         {% if function.description %}
             <div>
                 <h3 class="fw-semibold">
                     <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
                 </h3>
-                <p class="ms-4 my-2">{{ function.description }}</p>
-            </div>
-        {% elif function.summary %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                </h3>
-                <p class="ms-4 my-2">{{ function.summary }}</p>
+                <p class="ms-4 my-2">{{ function.description|linebreaks }}</p>
             </div>
         {% endif %}
         {% if function.return_type %}

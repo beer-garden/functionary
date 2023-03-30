@@ -20,19 +20,13 @@
                 This workflow is currently inactive
             </div>
         {% endif %}
+        {% if workflow.summary %}<p class="mb-2">{{ workflow.summary }}</p>{% endif %}
         {% if workflow.description %}
             <div>
                 <h3 class="fw-semibold">
                     <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
                 </h3>
-                <p class="ms-4 my-2">{{ workflow.description }}</p>
-            </div>
-        {% elif workflow.summary %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                </h3>
-                <p class="ms-4 my-2">{{ workflow.summary }}</p>
+                <p class="ms-4 my-2">{{ workflow.description|linebreaks }}</p>
             </div>
         {% endif %}
         {% if form is not None %}

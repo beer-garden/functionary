@@ -14,19 +14,13 @@
             {{ package.render_name }}
         </h2>
         <div class="vstack gap-2 my-2">
+            {% if package.summary %}<p class="mb-2">{{ package.summary }}</p>{% endif %}
             {% if package.description %}
                 <div>
                     <h3 class="fw-semibold">
                         <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
                     </h3>
-                    <p class="ms-4 my-2">{{ package.description }}</p>
-                </div>
-            {% elif package.summary %}
-                <div>
-                    <h3 class="fw-semibold">
-                        <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                    </h3>
-                    <p class="ms-4 my-2">{{ package.summary }}</p>
+                    <p class="ms-4 my-2">{{ package.description|linebreaks }}</p>
                 </div>
             {% endif %}
             <div>
