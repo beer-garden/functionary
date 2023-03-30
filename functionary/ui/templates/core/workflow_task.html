@@ -2,76 +2,90 @@
 {% load extras %}
 {% block content %}
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb my-1 pb-1">
             <li class="breadcrumb-item">
                 <a href="{% url 'ui:workflow-list' %}">Workflow List</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">{{ workflow.name }}</li>
         </ol>
     </nav>
-    <h2 class="mt-2 mb-4">
-        <i class="fa fa-diagram-next"></i>
-        <span>{{ workflow.name }}</span>
-    </h2>
-    <div class="vstack gap-2 my-2">
-        {% if not workflow.active %}
-            <div class="alert alert-warning text-center" role="alert">
-                <i class="fa fa-triangle-exclamation"></i>
-                This workflow is currently inactive
-            </div>
-        {% endif %}
-        {% if workflow.description %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                </h3>
-                <p class="ms-4 my-2">{{ workflow.description }}</p>
-            </div>
-        {% elif workflow.summary %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                </h3>
-                <p class="ms-4 my-2">{{ workflow.summary }}</p>
-            </div>
-        {% endif %}
-        {% if form is not None %}
-            <div>
-                {% if workflow.active %}
-                    <h3 class="fw-semibold">
-                        <i class="fa fa-pencil-alt fa-sm fa-fw me-1"></i>Create Task
-                    </h3>
-                    <div class="ms-4 my-2">
-                        <div class="row">
-                            <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                <form id="taskCreateForm"
-                                      method="post"
-                                      action="{% url 'ui:function-execute' %}"
-                                      enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
-                                    {{ form.non_field_errors }}
-                                    {{ form }}
-                                </form>
-                            </div>
-                        </div>
-                        {% if missing_variables %}
-                            <div class="alert alert-danger" role="alert">
-                                <p>Tasking this workflow may not work as expected; the following variables are missing:</p>
-                                <ul>
-                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
-                        <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
-                                type="submit"
-                                title="Execute"
-                                form="taskCreateForm">
-                            Execute
-                        </button>
+    <hr />
+    <div class="row">
+        <div class="col-10 col-md-8 col-xl-7">
+            <h2 class="mt-2 mb-4">
+                <i class="fa fa-diagram-next"></i>
+                <span>{{ workflow.name }}</span>
+            </h2>
+            <div class="vstack gap-2 my-2">
+                {% if not workflow.active %}
+                    <div class="alert alert-warning text-center" role="alert">
+                        <i class="fa fa-triangle-exclamation"></i>
+                        This workflow is currently inactive
                     </div>
                 {% endif %}
+                {% if workflow.description %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                        </h3>
+                        <p class="ms-4 my-2">{{ workflow.description }}</p>
+                    </div>
+                {% elif workflow.summary %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
+                        </h3>
+                        <p class="ms-4 my-2">{{ workflow.summary }}</p>
+                    </div>
+                {% endif %}
+                {% if form is not None %}
+                    <div>
+                        {% if workflow.active %}
+                            <h3 class="fw-semibold">
+                                <i class="fa fa-pencil-alt fa-sm fa-fw me-1"></i>Create Task
+                            </h3>
+                            <div class="ms-4 my-2">
+                                <div class="row">
+                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
+                                        <form id="taskCreateForm"
+                                              method="post"
+                                              action="{% url 'ui:function-execute' %}"
+                                              enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
+                                            {{ form.non_field_errors }}
+                                            {{ form }}
+                                        </form>
+                                    </div>
+                                </div>
+                                {% if missing_variables %}
+                                    <div class="alert alert-danger" role="alert">
+                                        <p>Tasking this workflow may not work as expected; the following variables are missing:</p>
+                                        <ul>
+                                            {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                                        type="submit"
+                                        title="Execute"
+                                        form="taskCreateForm">
+                                    Execute
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <details {% if not form %}open{% endif %}>
+                    <summary>
+                        <h3 class="fw-semibold">Schema</h3>
+                    </summary>
+                    <div class="m-4">
+                        <ol class="mx-1 json-container wrap-json" id="json-result" />
+                        <pre class="has-background-link-light">{{ workflow.schema | pretty_json }}</pre>
+                    </div>
+                </details>
             </div>
-        {% endif %}
+        </div>
     </div>
 {% endblock content %}

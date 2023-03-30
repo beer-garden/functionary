@@ -1,45 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb my-1 pb-1">
             <li class="breadcrumb-item">
                 <a href="{% url 'ui:workflow-list' %}">Workflow List</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">{{ workflow.name }}</li>
         </ol>
     </nav>
-    <div class="hstack gap-3 mt-2 mb-4">
-        <h2>
-            <i class="fa fa-diagram-next"></i>
-            {{ workflow.name }}
-        </h2>
-        <i class="fa fa-pencil-alt fa-lg text-info"
-           type="button"
-           title="Edit"
-           hx-target="body"
-           hx-swap="beforeend"
-           hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
-    </div>
-    <div class="vstack gap-2 my-2">
-        {% if workflow.description %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                </h3>
-                <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
+    <hr />
+    <div class="row">
+        <div class="col-10 col-md-8 col-xl-7">
+            <div class="hstack gap-3 mt-2 mb-4">
+                <h2>
+                    <i class="fa fa-diagram-next"></i>
+                    {{ workflow.name }}
+                </h2>
+                <i class="fa fa-pencil-alt fa-lg text-info"
+                   type="button"
+                   title="Edit"
+                   hx-target="body"
+                   hx-swap="beforeend"
+                   hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
             </div>
-        {% endif %}
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-            </h3>
-            {% include "partials/workflows/parameter_list.html" %}
-        </div>
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-            </h3>
-            {% include "partials/workflows/step_list.html" %}
+            <div class="vstack gap-2 my-2">
+                {% if workflow.description %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
+                        </h3>
+                        <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
+                    </div>
+                {% endif %}
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                    </h3>
+                    {% include "partials/workflows/parameter_list.html" %}
+                </div>
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+                    </h3>
+                    {% include "partials/workflows/step_list.html" %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock content %}

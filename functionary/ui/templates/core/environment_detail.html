@@ -1,37 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2 class="mt-2 mb-4">
-        <i class="fa fa-building"></i>
-        {{ environment.name }}
-    </h2>
-    <div class="vstack gap-2 my-2">
-        <div>
-            <h3 class="fw-semibold">
-                <i class="fa fa-users fa-sm fa-fw me-1"></i>Team
-            </h3>
-            <p class="ms-4 my-2">
-                <a href="{% url 'ui:team-detail' pk=environment.team.id %}">{{ environment.team.name }}</a>
-            </p>
-        </div>
-        {% include "partials/environments/environment_management.html" %}
-        {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
-        {% if packages %}
-            <div>
-                <h3 class="fw-semibold">
-                    <i class="fa fa-cubes fa-sm fa-fw me-1"></i>Packages
-                </h3>
-                <div class="ms-4 my-2">
-                    <div id="packages" class="list-group list-group-flush">
-                        {% for package in packages %}
-                            <a href="{% url 'ui:package-detail' package.id %}"
-                               class="list-group-item list-group-item-action">
-                                <p class="fw-bold mb-0">{{ package.render_name }}</p>
-                                <p class="ms-4 mb-0">{{ package.summary }}</p>
-                            </a>
-                        {% endfor %}
-                    </div>
+    <div class="row">
+        <div class="col col-xl-10 col-xl-8">
+            <h2 class="mt-2 mb-4">
+                <i class="fa fa-building"></i>
+                {{ environment.name }}
+            </h2>
+            <div class="vstack gap-2 my-2">
+                <div>
+                    <h3 class="fw-semibold">
+                        <i class="fa fa-users fa-sm fa-fw me-1"></i>Team
+                    </h3>
+                    <p class="ms-4 my-2">
+                        <a href="{% url 'ui:team-detail' pk=environment.team.id %}">{{ environment.team.name }}</a>
+                    </p>
                 </div>
+                {% include "partials/environments/environment_management.html" %}
+                {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
+                {% if packages %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-cubes fa-sm fa-fw me-1"></i>Packages
+                        </h3>
+                        <div class="ms-4 my-2">
+                            <div id="packages" class="list-group list-group-flush">
+                                {% for package in packages %}
+                                    <a href="{% url 'ui:package-detail' package.id %}"
+                                       class="list-group-item list-group-item-action">
+                                        <p class="fw-bold mb-0">{{ package.render_name }}</p>
+                                        <p class="ms-4 mb-0">{{ package.summary }}</p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     </div>
 {% endblock content %}
