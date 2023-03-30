@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
     {% with package.active_functions as functions %}
-        <nav aria-label="breadcrumb mb-1">
-            <ol class="breadcrumb my-1">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-1 pb-1">
                 <li class="breadcrumb-item">
                     <a href="{% url 'ui:package-list' %}">Package List</a>
                 </li>

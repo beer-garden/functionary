@@ -17,23 +17,12 @@
                     Create Workflow
                 </a>
             {% endif %}
-            {% if filter %}
-                <button class="btn btn-primary btn-sm d-xl-none py-1 h-75"
-                        title="Filter"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#filterOC"
-                        aria-controls="filterOC">
-                    <i class="fa fa-filter fa-xs me-1"></i>Filter
-                </button>
-            {% endif %}
+            {% include "partials/list_filter_button.html" %}
         </div>
     </div>
     <hr />
     <div class="row">
         <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
-        {% if filter %}
-            {% include "partials/list_filter.html" %}
-        {% endif %}
+        {% include "partials/list_filter.html" %}
     </div>
 {% endblock content %}

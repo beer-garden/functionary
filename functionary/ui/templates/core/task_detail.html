@@ -3,8 +3,8 @@
 {% block content %}
     <div id="task_detail"
          {% if not completed %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
-        <nav aria-label="breadcrumb mb-1">
-            <ol class="breadcrumb my-1">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-1 pb-1">
                 <li class="breadcrumb-item">
                     <a href="{% url 'ui:task-list' %}">Task List</a>
                 </li>
