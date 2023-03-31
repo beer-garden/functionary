@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 {% load extras %}
 {% block content %}
     <nav aria-label="breadcrumb">
@@ -17,74 +16,66 @@
     <hr />
     <div class="row">
         <div class="col-10 col-md-8 col-xl-7">
-            <h2 class="mt-2 mb-4">
+            <h2 class="mt-2 mb-1">
                 <i class="fa fa-cube"></i>
                 <span>{{ function.render_name }}</span>
             </h2>
-            <div class="vstack gap-2 my-2">
-                {% if not function.active %}
-                    <div class="alert alert-warning text-center" role="alert">
-                        <i class="fa fa-triangle-exclamation"></i>
-                        This function is currently inactive
-                    </div>
-                {% endif %}
+            {% if function.summary %}
+                <div>
+                    <p class="ms-4 mb-1 text-muted">{{ function.summary }}</p>
+                </div>
+            {% endif %}
+            <div class="vstack gap-2">
                 {% if function.description %}
-                    <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                        </h3>
-                        <p class="ms-4 my-2">{{ function.description }}</p>
-                    </div>
-                {% elif function.summary %}
-                    <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                        </h3>
-                        <p class="ms-4 my-2">{{ function.summary }}</p>
+                    <div class="ms-4">
+                        <p>{{ function.description | linebreaks }}</p>
                     </div>
                 {% endif %}
                 {% if function.return_type %}
                     <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-right-from-bracket fa-sm fa-fw me-1"></i>Return Type
-                        </h3>
-                        <p class="ms-4 my-2">{{ function.return_type }}</p>
+                        <p class="ms-4 mt-2">
+                            <b class="me-2"><i class="fa fa-right-from-bracket fa-sm fa-fw me-1"></i>Returns</b> {{ function.return_type }}
+                        </p>
                     </div>
                 {% endif %}
                 {% if form is not None %}
                     <div>
                         {% if function.active %}
-                            <h3 class="fw-semibold">
-                                <i class="fa fa-pencil-alt fa-sm fa-fw me-1"></i>Create Task
-                            </h3>
-                            <div class="ms-4 my-2">
-                                <div class="row">
-                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                        <form id="taskCreateForm"
-                                              method="post"
-                                              action="{% url 'ui:function-execute' %}"
-                                              enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                                            {{ form.non_field_errors }}
-                                            {{ form }}
-                                        </form>
+                            {% if missing_variables %}
+                                <div class="ms-4 alert alert-danger" role="alert">
+                                    <p>Tasking this function may not work as expected; the following variables are missing:</p>
+                                    <ul>
+                                        {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            {% if form.fields %}
+                                <div class="ms-4 px-4 pt-3 border rounded bg-light">
+                                    <div class="row">
+                                        <div class="col col-lg-10 col-xl-9 col-xxl-8">
+                                            <form id="taskCreateForm"
+                                                  method="post"
+                                                  action="{% url 'ui:function-execute' %}"
+                                                  enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="function_id" value="{{ function.id }}"/>
+                                                {{ form.non_field_errors }}
+                                                {{ form }}
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                                {% if missing_variables %}
-                                    <div class="alert alert-danger" role="alert">
-                                        <p>Tasking this function may not work as expected; the following variables are missing:</p>
-                                        <ul>
-                                            {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
-                                        </ul>
-                                    </div>
-                                {% endif %}
-                                <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
-                                        type="submit"
-                                        title="Execute"
-                                        form="taskCreateForm">
-                                    Execute
-                                </button>
+                            {% endif %}
+                            <button class="m-4 btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                                    type="submit"
+                                    title="Execute"
+                                    form="taskCreateForm">
+                                Execute
+                            </button>
+                        {% else %}
+                            <div class="ms-4 alert alert-warning text-center" role="alert">
+                                <i class="fa fa-triangle-exclamation"></i>
+                                This function is currently inactive
                             </div>
                         {% endif %}
                     </div>
