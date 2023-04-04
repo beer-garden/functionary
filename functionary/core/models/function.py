@@ -5,6 +5,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from core.models.package import PACKAGE_STATUS
 from core.utils.parameter import get_schema
 
 
@@ -15,6 +16,20 @@ def list_of_strings(value):
     raise ValidationError(
         '"%(value)s" is not a list of strings', params={"value": value}
     )
+
+
+class ActiveFunctionManager(models.Manager):
+    """Manager that filters out inactive Functions.
+
+    An inactive Function is a Function explicitly marked inactive
+    or an active Function of an inactive Package"""
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(active=True, package__status=PACKAGE_STATUS.ACTIVE)
+        )
 
 
 class Function(models.Model):
@@ -50,6 +65,9 @@ class Function(models.Model):
     )
     active = models.BooleanField(default=True)
 
+    objects = models.Manager()
+    active_objects = ActiveFunctionManager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -80,7 +98,10 @@ class Function(models.Model):
         """Deactivate the function and pause any associated scheduled tasks"""
         self.active = False
         self.save()
+        self.pause_scheduled_tasks()
 
+    def pause_scheduled_tasks(self) -> None:
+        """Pauses all scheduled tasks."""
         for scheduled_task in self.scheduled_tasks.all():
             scheduled_task.pause()
 
@@ -99,3 +120,8 @@ class Function(models.Model):
     def schema(self) -> dict:
         """Function definition schema"""
         return get_schema(self)
+
+    @property
+    def is_active(self) -> bool:
+        """Returns true if this Function and its Package are both active."""
+        return self.active and self.package.is_active
