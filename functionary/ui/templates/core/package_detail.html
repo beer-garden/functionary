@@ -12,30 +12,17 @@
         <hr />
         <div class="row">
             <div class="col-10 col-md-8 col-xl-7">
-                <h2 class="mt-2 mb-4">
+                <h2 class="mt-2 mb-1">
                     <i class="fa fa-cubes"></i>
                     {{ package.render_name }}
                 </h2>
-                <div class="vstack gap-2 my-2">
-                    {% if package.description %}
-                        <div>
-                            <h3 class="fw-semibold">
-                                <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                            </h3>
-                            <p class="ms-4 my-2">{{ package.description }}</p>
-                        </div>
-                    {% elif package.summary %}
-                        <div>
-                            <h3 class="fw-semibold">
-                                <i class="fa fa-rectangle-list fa-sm fa-fw me-1"></i>Summary
-                            </h3>
-                            <p class="ms-4 my-2">{{ package.summary }}</p>
-                        </div>
-                    {% endif %}
+                {% if package.summary %}<p class="ms-4 mb-1 text-muted">{{ package.summary }}</p>{% endif %}
+                <div class="vstack gap-3 m-4">
+                    {% if package.description %}<div>{{ package.description|linebreaks }}</div>{% endif %}
                     <div>
-                        <h3 class="fw-semibold">
+                        <div class="fw-semibold fs-4">
                             <i class="fa fa-cube fa-sm fa-fw me-1"></i>Functions
-                        </h3>
+                        </div>
                         <div class="ms-4 my-2">
                             {% if functions %}
                                 <div id="funcs" class="list-group list-group-flush">

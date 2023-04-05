@@ -3,8 +3,8 @@
     <div id="build_detail"
          hx-swap-oob="true"
          {% if not completed %} hx-get="{% url 'ui:build-detail' build.id %}?poll=true" hx-trigger="every 15s"{% endif %}>
-        <nav aria-label="breadcrumb mb-1">
-            <ol class="breadcrumb my-1">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-1 pb-1">
                 <li class="breadcrumb-item">
                     <a href="{% url 'ui:build-list' %}">Build List</a>
                 </li>
@@ -14,7 +14,7 @@
         <hr />
         <div class="row">
             <div class="col-10 col-md-8 col-xl-7">
-                <div class="hstack gap-3 mt-2 mb-4 align-items-center">
+                <div class="hstack gap-3 mt-2 mb-1 align-items-center">
                     <h2>
                         <i class="fa fa-wrench"></i>
                         {{ build.package.render_name }}
@@ -24,7 +24,7 @@
                         <span class="fs-5">{{ build.status }}</span>
                     </div>
                 </div>
-                <div class="vstack gap-2 my-2">
+                <div class="vstack gap-3 my-4">
                     <div>
                         <h3 class="fw-semibold">
                             <i class="fa fa-user fa-sm fa-fw me-1"></i>Creator

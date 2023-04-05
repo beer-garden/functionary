@@ -11,7 +11,7 @@
     <hr />
     <div class="row">
         <div class="col-10 col-md-8 col-xl-7">
-            <div class="hstack gap-3 mt-2 mb-4">
+            <div class="hstack gap-3 mt-2 mb-1">
                 <h2>
                     <i class="fa fa-diagram-next"></i>
                     {{ workflow.name }}
@@ -23,15 +23,8 @@
                    hx-swap="beforeend"
                    hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
             </div>
-            <div class="vstack gap-2 my-2">
-                {% if workflow.description %}
-                    <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
-                        </h3>
-                        <p id="desc" class="ms-4 my-2">{{ workflow.description }}</p>
-                    </div>
-                {% endif %}
+            <div class="vstack gap-3 my-4">
+                {% if workflow.description %}<div id="desc" class="ms-4">{{ workflow.description|linebreaks }}</div>{% endif %}
                 <div>
                     <h3 class="fw-semibold">
                         <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters

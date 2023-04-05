@@ -2,11 +2,11 @@
 {% block content %}
     <div class="row">
         <div class="col col-xl-10 col-xl-8">
-            <h2 class="mt-2 mb-4">
+            <h2 class="mt-2 mb-1">
                 <i class="fa fa-building"></i>
                 {{ environment.name }}
             </h2>
-            <div class="vstack gap-2 my-2">
+            <div class="vstack gap-3 my-4">
                 {% include "partials/environments/environment_management.html" %}
                 {% include "partials/variables_section.html" with parent_object=environment parent_id=environment.id %}
             </div>

@@ -31,13 +31,13 @@
                    class="form-label {% if form.description.errors %}text-danger{% endif %} ">
                 Description
             </label>
-            {% render_field form.description class="form-control textarea" placeholder=form.description.name rows=3 cols=40 id="description-input" aria-describedby="descripError" %}
+            {% render_field form.description class="form-control textarea" placeholder=form.description.name rows=2 cols=40 id="description-input" aria-describedby="descripError" %}
             <div id="descripError" class="text-danger">{{ form.description.errors }}</div>
         </div>
         <div class="mb-3">
             <label for="value-input"
                    class="form-label {% if form.value.errors %}text-danger{% endif %} ">Value</label>
-            {% render_field form.value class="form-control textarea" placeholder=form.value.name rows=3 cols=40 id="value-input" aria-describedby="valueError" %}
+            {% render_field form.value class="form-control textarea" placeholder=form.value.name rows=2 cols=40 id="value-input" aria-describedby="valueError" %}
             <div id="valueError" class="text-danger">{{ form.value.errors }}</div>
         </div>
     </form>

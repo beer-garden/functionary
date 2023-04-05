@@ -16,58 +16,50 @@
                 <i class="fa fa-diagram-next"></i>
                 <span>{{ workflow.name }}</span>
             </h2>
-            {% if workflow.summary %}
-                <div>
-                    <p class="ms-4 mb-1 text-muted">{{ workflow.summary }}</p>
-                </div>
-            {% endif %}
-            <div class="vstack gap-2">
-                {% if workflow.description %}
-                    <div class="ms-4">
-                        <p>{{ workflow.description | linebreaks }}</p>
-                    </div>
-                {% endif %}
+            {% if workflow.summary %}<p class="ms-4 mb-1 text-muted">{{ workflow.summary }}</p>{% endif %}
+            <div class="vstack gap-3 m-4">
+                {% if workflow.description %}<div>{{ workflow.description | linebreaks }}</div>{% endif %}
                 {% if form is not None %}
-                    <div>
-                        {% if workflow.active %}
-                            {% if missing_variables %}
-                                <div class="ms-4 alert alert-danger" role="alert">
-                                    <p>Tasking this workflow may not work as expected; the following variables are missing:</p>
-                                    <ul>
-                                        {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
-                                    </ul>
-                                </div>
-                            {% endif %}
-                            {% if form.fields %}
-                                <div class="ms-4 px-4 pt-3 border rounded bg-light">
-                                    <div class="row">
-                                        <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                            <form id="taskCreateForm"
-                                                  method="post"
-                                                  action="{% url 'ui:function-execute' %}"
-                                                  enctype="multipart/form-data">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
-                                                {{ form.non_field_errors }}
-                                                {{ form }}
-                                            </form>
-                                        </div>
+                    {% if workflow.active %}
+                        {% if missing_variables %}
+                            <div class="alert alert-danger" role="alert">
+                                <p>Tasking this workflow may not work as expected; the following variables are missing:</p>
+                                <ul>
+                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {% if form.fields %}
+                            <div class="border rounded bg-light">
+                                <div class="row mx-4 mt-4">
+                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
+                                        <form id="taskCreateForm"
+                                              method="post"
+                                              action="{% url 'ui:function-execute' %}"
+                                              enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
+                                            {{ form.non_field_errors }}
+                                            {{ form }}
+                                        </form>
                                     </div>
                                 </div>
-                            {% endif %}
-                            <button class="m-4 btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                            </div>
+                        {% endif %}
+                        <div>
+                            <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
                                     type="submit"
                                     title="Execute"
                                     form="taskCreateForm">
                                 Execute
                             </button>
-                        {% else %}
-                            <div class="ms-4 alert alert-warning text-center" role="alert">
-                                <i class="fa fa-triangle-exclamation"></i>
-                                This workflow is currently inactive
-                            </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="fa fa-triangle-exclamation"></i>
+                            This workflow is currently inactive
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
