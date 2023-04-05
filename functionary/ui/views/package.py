@@ -8,7 +8,7 @@ class PackageListView(PermissionedListView):
     model = Package
     table_class = PackageTable
     filterset_class = PackageFilter
-    extra_context = {"breadcrumb": "Package List"}
+    extra_context = {"breadcrumb": "Packages"}
     queryset = Package.active_objects.all()
 
 

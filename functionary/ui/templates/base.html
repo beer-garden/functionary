@@ -65,23 +65,11 @@
                                         <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Tasking</span>
                                     </a>
-                                    <a class="nav-link px-2 w-100"
-                                       href="{% url 'ui:build-list' %}"
-                                       title="Builds">
-                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Builds</span>
-                                    </a>
                                     <a class="nav-link px-2"
-                                       href="{% url 'ui:package-list' %}"
-                                       title="Packages">
-                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Packages</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:function-list' %}"
-                                       title="Functions">
-                                        <i class="fa fa-lg fa-cube fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Functions</span>
+                                       href="{% url 'ui:scheduledtask-list' %}"
+                                       title="Schedules">
+                                        <i class="fa fa-lg fa-clock fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
                                     </a>
                                     <a class="nav-link px-2"
                                        href="{% url 'ui:workflow-list' %}"
@@ -90,10 +78,22 @@
                                         <span class="ms-1 d-none d-md-inline">Workflows</span>
                                     </a>
                                     <a class="nav-link px-2"
-                                       href="{% url 'ui:scheduledtask-list' %}"
-                                       title="Schedules">
-                                        <i class="fa fa-lg fa-clock fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
+                                       href="{% url 'ui:function-list' %}"
+                                       title="Functions">
+                                        <i class="fa fa-lg fa-cube fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Functions</span>
+                                    </a>
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:package-list' %}"
+                                       title="Packages">
+                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Packages</span>
+                                    </a>
+                                    <a class="nav-link px-2 w-100"
+                                       href="{% url 'ui:build-list' %}"
+                                       title="Builds">
+                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Builds</span>
                                     </a>
                                 </div>
                             </nav>

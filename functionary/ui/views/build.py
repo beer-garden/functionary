@@ -15,7 +15,7 @@ class BuildListView(PermissionedListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["breadcrumb"] = "Build List"
+        context["breadcrumb"] = "Builds"
 
         return context
 
