@@ -37,7 +37,7 @@ class HTMLDateTimeInput(DateTimeInput):
 _field_mapping = {
     PARAMETER_TYPE.INTEGER: (IntegerField, None),
     PARAMETER_TYPE.STRING: (CharField, None),
-    PARAMETER_TYPE.TEXT: (CharField, Textarea(attrs={"rows": "3", "cols": "40"})),
+    PARAMETER_TYPE.TEXT: (CharField, Textarea(attrs={"rows": "2", "cols": "40"})),
     PARAMETER_TYPE.FLOAT: (FloatField, None),
     PARAMETER_TYPE.FILE: (CharField, FileInput),
     PARAMETER_TYPE.BOOLEAN: (BooleanField, None),
@@ -46,7 +46,7 @@ _field_mapping = {
         DateTimeField,
         HTMLDateTimeInput,
     ),
-    PARAMETER_TYPE.JSON: (JSONField, Textarea(attrs={"rows": "3", "cols": "40"})),
+    PARAMETER_TYPE.JSON: (JSONField, Textarea(attrs={"rows": "2", "cols": "40"})),
 }
 
 
