@@ -1,11 +1,12 @@
 import django_filters
 import django_tables2 as tables
 from django.urls import reverse
+from django.utils.html import format_html
 
 from core.models import Function
 from ui.tables.meta import BaseMeta
 
-FIELDS = ("name", "package", "summary")
+FIELDS = ("name", "summary")
 
 
 class FunctionFilter(django_filters.FilterSet):
@@ -20,11 +21,9 @@ class FunctionTable(tables.Table):
         linkify=lambda record: reverse("ui:function-detail", kwargs={"pk": record.id}),
         verbose_name="Function",
     )
-    package = tables.Column(
-        linkify=lambda record: reverse(
-            "ui:package-detail", kwargs={"pk": record.package.id}
-        ),
-    )
+
+    def render_name(self, value, record):
+        return format_html("{}: <span class='text-muted'>{}</span>", value, record.package)
 
     class Meta(BaseMeta):
         model = Function
