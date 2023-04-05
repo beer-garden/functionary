@@ -23,7 +23,9 @@ class FunctionTable(tables.Table):
     )
 
     def render_name(self, value, record):
-        return format_html("{}: <span class='text-muted'>{}</span>", value, record.package)
+        return format_html(
+            "{}: <span class='text-muted'>{}</span>", value, record.package
+        )
 
     class Meta(BaseMeta):
         model = Function
