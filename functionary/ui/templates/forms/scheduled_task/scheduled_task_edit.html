@@ -48,7 +48,7 @@
                       action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
                       enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="vstack gap-3 my-4 border rounded bg-light p-4">
+                    <div class="vstack gap-3 my-4 border border-dark-subtle rounded form-fill p-4">
                         <div>
                             <label class="fw-semibold form-label" for="{{ form.name.id_for_label }}">
                                 <i class="fa fa-font fa-sm fa-fw me-1"></i>Name

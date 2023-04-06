@@ -20,8 +20,8 @@
                 <i class="fa fa-cube"></i>
                 <span>{{ function.render_name }}</span>
             </h2>
-            {% if function.summary %}<p class="ms-4 mb-1 text-muted">{{ function.summary }}</p>{% endif %}
-            <div class="vstack gap-3 m-4">
+            {% if function.summary %}<p class="mb-1 text-muted">{{ function.summary }}</p>{% endif %}
+            <div class="vstack gap-3 my-4">
                 {% if function.description %}<div>{{ function.description|linebreaks }}</div>{% endif %}
                 {% if function.return_type %}
                     <div>
@@ -42,7 +42,7 @@
                             </div>
                         {% endif %}
                         {% if form.fields %}
-                            <div class="border rounded bg-light">
+                            <div class="border border-dark-subtle rounded form-fill">
                                 <div class="row mx-4 mt-4">
                                     <div class="col col-lg-10 col-xl-9 col-xxl-8">
                                         <form id="taskCreateForm"

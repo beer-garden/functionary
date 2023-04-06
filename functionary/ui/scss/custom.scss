@@ -21,10 +21,11 @@ $white: #FFFFFF;
 
 // Bootstrap default definitions
 $gray-200: #e9ecef;
+$gray-600: #6c757d;
 $link-hover-color: #324C72;
 
 // Custom definitions
-$primary: #3E5F8E;
+$primary: #38557F;
 $secondary: #FFFFFF;
 $danger: #8A1B19;
 $warning: #FFA270;
@@ -54,10 +55,16 @@ $dropdown-dark-link-active-color: $white;
 $dropdown-dark-link-active-bg: $link-hover-color;
 $dropdown-dark-divider-bg: $navbar-dark-color;
 
+$border-color: $gray-600; // --bs-dark-border-subtle
+
 $offcanvas-bg-color: #F2F2F2; // --bs-table-striped-bg over white
 
 $breadcrumb-divider: quote(">");
 $link-decoration: none;
+
+// Slight changes for contrast against *-bg-subtle
+$info-text: #08768D;
+$warning-text: #C44400;
 
 // 3. Include required Bootstrap stylesheets
 @import "./variables";

@@ -16,8 +16,8 @@
                     <i class="fa fa-cubes"></i>
                     {{ package.render_name }}
                 </h2>
-                {% if package.summary %}<p class="ms-4 mb-1 text-muted">{{ package.summary }}</p>{% endif %}
-                <div class="vstack gap-3 m-4">
+                {% if package.summary %}<p class="mb-1 text-muted">{{ package.summary }}</p>{% endif %}
+                <div class="vstack gap-3 my-4">
                     {% if package.description %}<div>{{ package.description|linebreaks }}</div>{% endif %}
                     <div>
                         <div class="fw-semibold fs-4">
