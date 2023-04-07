@@ -31,7 +31,7 @@
         <script src="{% static 'js/htmx-1.8.6.min.js' %}"></script>
     </head>
     <body class="bg-secondary">
-        <div class="container m-2">
+        <div class="container-fluid m-2">
             <div class="row text-center text-primary mt-3">
                 <h1>
                     <span class="display-1">F</span>
@@ -40,7 +40,7 @@
             </div>
             <div class="row mt-3">
                 <div class="col"></div>
-                <div class="col-6">
+                <div class="col-4">
                     {% block content %}
                         {% if messages %}
                             {% include "partials/auth_messages.html" %}

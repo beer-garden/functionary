@@ -35,11 +35,6 @@ class ScheduledTaskTable(tables.Table):
         ),
         verbose_name="Scheduled Task",
     )
-    function = tables.Column(
-        linkify=lambda record: reverse(
-            "ui:function-detail", kwargs={"pk": record.function.id}
-        ),
-    )
     last_run = tables.DateTimeColumn(
         accessor="most_recent_task__created_at",
         verbose_name="Last Run",

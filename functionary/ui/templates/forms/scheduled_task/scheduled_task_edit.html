@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-{% load static %}
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'ui:scheduledtask-list' %}">Schedules List</a>
+                <a href="{% url 'ui:scheduledtask-list' %}">Schedules</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
                 {% if update %}

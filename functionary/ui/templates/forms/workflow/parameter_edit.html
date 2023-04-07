@@ -26,9 +26,9 @@
             {% render_field form.parameter_type class="form-select" aria-label=form.parameter_type.label role="menu" %}
             <div class="text-danger">{{ form.parameter_type.errors }}</div>
         </div>
-        <div class="mb-3">
+        <div class="form-check form-switch mb-3">
+            {% render_field form.required class="form-check-input" role="switch" type="checkbox" %}
             <label class="form-check-label" for="{{ form.required.id_for_label }}">{{ form.required.label }}</label>
-            {% render_field form.required class="form-check-input" placeholder=form.required.label type="checkbox" %}
         </div>
         <input type="hidden" name="workflow" value="{{ workflow.id }}"/>
         {{ form.non_field_errors }}
