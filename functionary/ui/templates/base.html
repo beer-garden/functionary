@@ -55,7 +55,9 @@
                                     <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
                                 </h1>
                             </a>
-                            <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
+                            {% if user.is_authenticated %}
+                                <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
+                            {% endif %}
                             <hr class="w-100 border-white" />
                             {% if user.is_authenticated %}
                                 <div class="navbar-nav">
