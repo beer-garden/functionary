@@ -78,7 +78,7 @@ class TaskListTable(tables.Table):
     def render_name(self, value, record):
         icon = "fa-cube" if record.tasked_type.name == "function" else "fa-diagram-next"
         return format_html(
-            "<i class='fa {} fa-fw me-2'></i>{}", icon, record.tasked_object.name
+            "<i class='fa {} fa-fw me-2' title='{}'></i>{}", icon, record.tasked_type.name.capitalize(), record.tasked_object.name
         )
 
     class Meta(BaseMeta):
