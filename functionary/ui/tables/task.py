@@ -81,7 +81,7 @@ class TaskListTable(tables.Table):
             "<i class='fa {} fa-fw me-2' title='{}'></i>{}",
             icon,
             record.tasked_type.name.capitalize(),
-            record.tasked_object.name
+            record.tasked_object.name,
         )
 
     class Meta(BaseMeta):
