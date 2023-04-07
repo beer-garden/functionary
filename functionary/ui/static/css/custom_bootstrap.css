@@ -7196,19 +7196,19 @@ textarea.form-control-lg {
 }
 
 .fs-3 {
-  font-size: 1.75rem !important;
-}
-
-.fs-4 {
   font-size: 1.5rem !important;
 }
 
-.fs-5 {
+.fs-4 {
   font-size: 1.25rem !important;
 }
 
-.fs-6 {
+.fs-5 {
   font-size: 1rem !important;
+}
+
+.fs-6 {
+  font-size: 0.875rem !important;
 }
 
 .fst-italic {
