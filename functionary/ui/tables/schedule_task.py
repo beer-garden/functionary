@@ -41,7 +41,9 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: generateLastRunUrl(record),
         format=DATETIME_FORMAT,
     )
-    schedule = tables.Column(accessor="periodic_task__crontab__human_readable", verbose_name="Schedule")
+    schedule = tables.Column(
+        accessor="periodic_task__crontab__human_readable", verbose_name="Schedule"
+    )
     edit_button = tables.Column(
         accessor="id",
         verbose_name="",
