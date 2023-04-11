@@ -46,12 +46,12 @@
                 <div>
                     <h3 class="fw-semibold">
                         <i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab
+                        <span class="font-monospace align-middle mx-2 status-color fw-normal fs-6"
+                              title="{{ scheduledtask.status }}">
+                            <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
+                        </span>
                     </h3>
-                    <span class="font-monospace align-text-bottom mx-2 status-color"
-                          title="{{ scheduledtask.status }}">
-                        <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
-                    </span>
-                    <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab }}</p>
+                    <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab.human_readable }}</p>
                 </div>
                 <div>
                     <h3 class="fw-semibold">
