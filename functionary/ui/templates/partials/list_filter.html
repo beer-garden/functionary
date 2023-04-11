@@ -21,7 +21,12 @@
                 <h2 class="fs-6 d-none mb-3 ms-1 d-xl-block">
                     <i class="fa fa-filter fa-xs me-1"></i>Filter
                 </h2>
-                <form hx-get={{ filter.request.path }} hx-trigger="submit delay:500ms" hx-push-url="true" hx-headers='{"x-filter": "filter"}' hx-swap="outerHTML" hx-target="#table-list-block">
+                <form hx-get="{{ filter.request.path }}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+                      hx-trigger="submit delay:500ms"
+                      hx-push-url="true"
+                      hx-headers='{"x-filter": "filter"}'
+                      hx-swap="outerHTML"
+                      hx-target="#table-list-block">
                     {% for field in filter.form %}
                         <div class="form-floating mb-3">
                             {% with WIDGET_ERROR_CLASS="is-invalid" %}
