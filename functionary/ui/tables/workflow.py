@@ -24,6 +24,7 @@ class WorkflowTable(tables.Table):
     edit_button = tables.Column(
         accessor="id",
         verbose_name="",
+        orderable=False,
     )
 
     class Meta(BaseMeta):

@@ -1,0 +1,31 @@
+{% extends "django_tables2/bootstrap5.html" %}
+{% load render_table from django_tables2 %}
+{% load querystring from django_tables2 %}
+{% block table.thead %}
+    {% if table.show_header %}
+        <thead {{ table.attrs.thead.as_html }}>
+            <tr>
+                {% for column in table.columns %}
+                    <th {{ column.attrs.th.as_html }} scope="col">
+                        {% if column.orderable %}
+                            <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                               title="Click to toggle sort"
+                               class="text-nowrap">
+                                {{ column.header }}
+                                {% if 'asc' in column.attrs.th.as_html %}
+                                    <i class="fa-solid fa-arrow-up-a-z" title="Sorted in ascending order"></i>
+                                {% elif 'desc' in column.attrs.th.as_html %}
+                                    <i class="fa-solid fa-arrow-down-z-a" title="Sorted in descending order"></i>
+                                {% else %}
+                                    <i class="text-muted fa-solid fa-sort"></i>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            {{ column.header }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+    {% endif %}
+{% endblock table.thead %}

@@ -49,6 +49,7 @@ class ScheduledTaskTable(tables.Table):
     schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
     edit_button = tables.Column(
         accessor="id",
+        orderable=False,
         verbose_name="",
     )
 
