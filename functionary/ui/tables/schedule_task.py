@@ -41,9 +41,7 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: generateLastRunUrl(record),
         format=DATETIME_FORMAT,
     )
-    schedule = tables.Column(
-        accessor="periodic_task__crontab__human_readable", verbose_name="Schedule"
-    )
+    schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
     edit_button = tables.Column(
         accessor="id",
         verbose_name="",
@@ -61,3 +59,6 @@ class ScheduledTaskTable(tables.Table):
             f'href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
             "</a>"
         )
+
+    def render_schedule(self, value):
+        return format_html("<span title='{}'>{}</span>", value.human_readable, value)

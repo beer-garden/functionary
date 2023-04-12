@@ -51,7 +51,10 @@
                             <i class="fa fa-heart-pulse fa-xs me-1"></i>{{ scheduledtask.status }}
                         </span>
                     </h3>
-                    <p class="ms-4 my-2">{{ scheduledtask.periodic_task.crontab.human_readable }}</p>
+                    <p class="ms-4 my-2"
+                       title="{{ scheduledtask.periodic_task.crontab.human_readable }}">
+                        {{ scheduledtask.periodic_task.crontab }}
+                    </p>
                 </div>
                 <div>
                     <h3 class="fw-semibold">
