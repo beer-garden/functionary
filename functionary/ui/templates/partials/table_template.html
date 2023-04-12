@@ -9,15 +9,14 @@
                     <th {{ column.attrs.th.as_html }} scope="col">
                         {% if column.orderable %}
                             <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
-                               title="Click to toggle sort"
+                               title="Click to sort"
                                class="text-nowrap">
                                 {{ column.header }}
                                 {% if 'asc' in column.attrs.th.as_html %}
-                                    <i class="fa-solid fa-arrow-up-a-z" title="Sorted in ascending order"></i>
+                                    <i class="fa fa-sm fa-fw fa-angle-up" title="Sorted in ascending order"></i>
                                 {% elif 'desc' in column.attrs.th.as_html %}
-                                    <i class="fa-solid fa-arrow-down-z-a" title="Sorted in descending order"></i>
-                                {% else %}
-                                    <i class="text-muted fa-solid fa-sort"></i>
+                                    <i class="fa fa-sm fa-fw fa-angle-down"
+                                       title="Sorted in descending order"></i>
                                 {% endif %}
                             </a>
                         {% else %}

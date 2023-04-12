@@ -35,6 +35,7 @@ class ScheduledTaskTable(tables.Table):
         ),
         verbose_name="Scheduled Task",
     )
+    function = tables.Column(accessor="function__name")
     last_run = tables.DateTimeColumn(
         accessor="most_recent_task__created_at",
         verbose_name="Last Run",
