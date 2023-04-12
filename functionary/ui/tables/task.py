@@ -3,6 +3,7 @@ import django_tables2 as tables
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.html import format_html
 
 from core.models import Function, Task, Workflow
 from ui.tables import DATETIME_FORMAT
@@ -65,7 +66,6 @@ class TaskListFilter(django_filters.FilterSet):
 
 
 class TaskListTable(tables.Table):
-    tasked_type = tables.Column(accessor="tasked_type__name", verbose_name="Type")
     name = tables.Column(
         accessor="tasked_object__name",
         verbose_name="Name",
@@ -75,7 +75,16 @@ class TaskListTable(tables.Table):
         format=DATETIME_FORMAT, verbose_name="Created", orderable=True
     )
 
+    def render_name(self, value, record):
+        icon = "fa-cube" if record.tasked_type.name == "function" else "fa-diagram-next"
+        return format_html(
+            "<i class='fa {} fa-fw me-2' title='{}'></i>{}",
+            icon,
+            record.tasked_type.name.capitalize(),
+            record.tasked_object.name,
+        )
+
     class Meta(BaseMeta):
         model = Task
-        fields = ("tasked_type", "name", "status", "creator", "created_at")
+        fields = ("name", "status", "creator", "created_at")
         orderable = False

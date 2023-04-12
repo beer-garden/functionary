@@ -64,6 +64,16 @@ $link-decoration: none;
 @import "./variables-dark";
 
 // 4. Include any default map overrides here
+$font-sizes: (
+  1: $h1-font-size, // 40 px
+  2: $h2-font-size, // 32 px
+  3: $h3-font-size, // 28 px
+  4: $h4-font-size, // 24 px
+  5: $h5-font-size, // 20 px
+  6: $h6-font-size, // 16px
+  7: $font-size-sm, // 14px
+  8: $font-size-base * 0.75, // 12px
+);
 
 // 5. Include remainder of Bootstrap stylesheets
 @import "./maps";
