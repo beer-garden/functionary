@@ -22,9 +22,9 @@
             {% render_field form.name class="form-control" placeholder=form.name.name id="name-input" aria-describedby="nameError" %}
             <div id="nameError" class="text-danger">{{ form.name.errors }}</div>
         </div>
-        <div class="mb-3">
-            {% render_field form.protect class="form-check-input" type="checkbox" id="{{ form.protect.id_for_label }}" %}
-            <label class="form-check-label" for="wrap-toggle">Protect</label>
+        <div class="form-check form-switch mb-3">
+            {% render_field form.protect class="form-check-input" type="checkbox" role="switch" id="{{ form.protect.id_for_label }}" %}
+            <label class="form-check-label" for="{{ form.protect.id_for_label }}">Protect</label>
         </div>
         <div class="mb-3">
             <label for="description-input"

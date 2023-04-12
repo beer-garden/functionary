@@ -27,7 +27,7 @@ class FunctionListView(PermissionedListView):
     table_class = FunctionTable
     filterset_class = FunctionFilter
     queryset = Function.active_objects.select_related("package")
-    extra_context = {"breadcrumb": "Function List"}
+    extra_context = {"breadcrumb": "Functions"}
 
 
 class FunctionDetailView(PermissionedDetailView):

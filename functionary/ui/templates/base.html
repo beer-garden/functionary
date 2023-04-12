@@ -48,40 +48,28 @@
             <div class="row flex-nowrap">
                 <div class="col-auto px-lg-3 px-2 bg-primary shadow">
                     <div class="d-flex flex-column vh-100 sticky-top">
-                        {% if user.is_authenticated %}
-                            <nav class="navbar navbar-dark nav-pills flex-column mb-auto align-items-start">
-                                <a href="{% url 'ui:home' %}" class="navbar-brand">
-                                    <h1 class="mb-0">
-                                        <span class="display-2">F</span>
-                                        <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
-                                    </h1>
-                                </a>
+                        <nav class="navbar navbar-dark nav-pills flex-column mb-auto align-items-start">
+                            <a href="{% url 'ui:home' %}" class="navbar-brand">
+                                <h1 class="mb-0">
+                                    <span class="display-2">F</span>
+                                    <span class="functionary-title fs-4 d-none d-md-inline">unctionary</span>
+                                </h1>
+                            </a>
+                            {% if user.is_authenticated %}
                                 <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
-                                <hr class="w-100 border-white" />
+                            {% endif %}
+                            <hr class="w-100 border-white" />
+                            {% if user.is_authenticated %}
                                 <div class="navbar-nav">
-                                    <a class="nav-link px-2 w-100"
-                                       href="{% url 'ui:task-list' %}"
-                                       title="Tasking">
+                                    <a class="nav-link px-2" href="{% url 'ui:task-list' %}" title="Tasking">
                                         <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
                                         <span class="ms-1 d-none d-md-inline">Tasking</span>
                                     </a>
-                                    <a class="nav-link px-2 w-100"
-                                       href="{% url 'ui:build-list' %}"
-                                       title="Builds">
-                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Builds</span>
-                                    </a>
                                     <a class="nav-link px-2"
-                                       href="{% url 'ui:package-list' %}"
-                                       title="Packages">
-                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Packages</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:function-list' %}"
-                                       title="Functions">
-                                        <i class="fa fa-lg fa-cube fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Functions</span>
+                                       href="{% url 'ui:scheduledtask-list' %}"
+                                       title="Schedules">
+                                        <i class="fa fa-lg fa-clock fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
                                     </a>
                                     <a class="nav-link px-2"
                                        href="{% url 'ui:workflow-list' %}"
@@ -90,10 +78,20 @@
                                         <span class="ms-1 d-none d-md-inline">Workflows</span>
                                     </a>
                                     <a class="nav-link px-2"
-                                       href="{% url 'ui:scheduledtask-list' %}"
-                                       title="Schedules">
-                                        <i class="fa fa-lg fa-clock fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
+                                       href="{% url 'ui:function-list' %}"
+                                       title="Functions">
+                                        <i class="fa fa-lg fa-cube fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Functions</span>
+                                    </a>
+                                    <a class="nav-link px-2"
+                                       href="{% url 'ui:package-list' %}"
+                                       title="Packages">
+                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Packages</span>
+                                    </a>
+                                    <a class="nav-link px-2" href="{% url 'ui:build-list' %}" title="Builds">
+                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
+                                        <span class="ms-1 d-none d-md-inline">Builds</span>
                                     </a>
                                 </div>
                             </nav>
