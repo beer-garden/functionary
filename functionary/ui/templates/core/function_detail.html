@@ -37,7 +37,7 @@
                             <div class="alert alert-danger" role="alert">
                                 <p>Tasking this function may not work as expected; the following variables are missing:</p>
                                 <ul>
-                                    {% for missing in missing_variables %}<li>1{{ missing }}</li>{% endfor %}
+                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
                                 </ul>
                             </div>
                         {% endif %}

@@ -18,7 +18,7 @@
             </h2>
             {% if workflow.summary %}<p class="mb-1 text-muted">{{ workflow.summary }}</p>{% endif %}
             <div class="vstack gap-3 my-4">
-                {% if workflow.description %}<div class="text-danger">{{ workflow.description | linebreaks }}</div>{% endif %}
+                {% if workflow.description %}<div>{{ workflow.description | linebreaks }}</div>{% endif %}
                 {% if form is not None %}
                     {% if workflow.active %}
                         {% if missing_variables %}
