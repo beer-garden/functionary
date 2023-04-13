@@ -1,40 +1,87 @@
-{% extends "partials/modal.html" %}
+{% extends "base.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
-    Workflow
-{% endblock modal_title %}
-{% block modal_content %}
-    <form id="workflow-form"
-          method="post"
-          hx-post="{% if workflow %}{% url 'ui:workflow-update' workflow.id %}{% else %}{% url 'ui:workflow-create' %}{% endif %}"
-          hx-target="#form-modal"
-          hx-swap="outerHTML">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
-            {% render_field form.name class="form-control" placeholder=form.name.label %}
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-1 pb-1">
+            <li class="breadcrumb-item">
+                <a href="{% url 'ui:workflow-list' %}">Workflows</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if workflow %}
+                    {{ workflow.name }}
+                {% else %}
+                    Create
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+    <hr />
+    <div class="row">
+        <div class="col-10 col-md-8 col-xl-7">
+            <h2 class="my-2">
+                <i class="fa fa-diagram-next"></i>
+                {% if workflow %}
+                    Update
+                {% else %}
+                    Create
+                {% endif %}
+                Workflow
+            </h2>
+            <div class="vstack gap-4 my-4">
+                {% if form %}
+                    <div class="border border-dark-subtle rounded form-fill pt-3 px-4">
+                        <div class="row">
+                            <div class="col col-lg-10 col-xl-9 col-xxl-8">
+                                <form id="workflow-form"
+                                      method="post"
+                                      hx-post="{% if workflow %}{% url 'ui:workflow-update' workflow.id %}{% else %}{% url 'ui:workflow-create' %}{% endif %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                        {% render_field form.name class="form-control" placeholder=form.name.label %}
+                                    </div>
+                                    {{ form.name.errors }}
+                                    <div class="mb-3">
+                                        <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                                        {% render_field form.description class="form-control" rows=2 cols=40 placeholder=form.description.label %}
+                                    </div>
+                                    {{ form.description.errors }}
+                                    <input type="hidden"
+                                           name="environment"
+                                           value="{{ request.session.environment_id }}"/>
+                                    {{ form.non_field_errors }}
+                                </form>
+                                <div class="mb-4">
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            form="workflow-form"
+                                            title="{% if workflow %}Save{% else %}Next{% endif %}">
+                                        {% if workflow %}
+                                            Save
+                                        {% else %}
+                                            Next
+                                        {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if workflow.pk %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                        </h3>
+                        {% include "partials/workflows/parameter_list.html" %}
+                    </div>
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+                        </h3>
+                        {% include "partials/workflows/step_list.html" %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        {{ form.name.errors }}
-        <div class="mb-3">
-            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
-            {% render_field form.description class="form-control" rows=2 cols=40 placeholder=form.description.label %}
-        </div>
-        {{ form.description.errors }}
-        <input type="hidden"
-               name="environment"
-               value="{{ request.session.environment_id }}"/>
-        {{ form.non_field_errors }}
-    </form>
-{% endblock modal_content %}
-{% block modal_footer %}
-    <button class="btn btn-primary"
-            type="submit"
-            form="workflow-form"
-            title="{% if workflow %}Save{% else %}Next{% endif %}">
-        {% if workflow %}
-            Save
-        {% else %}
-            Next
-        {% endif %}
-    </button>
-{% endblock modal_footer %}
+    </div>
+{% endblock content %}

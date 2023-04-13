@@ -25,9 +25,10 @@
                                     title="Edit"
                                     hx-target="body"
                                     hx-swap="beforeend"
-                                    hx-get="{% url 'ui:workflowparameter-edit' workflow.pk parameter.pk %}"/>
+                                    hx-get="{% url 'ui:workflowparameter-update' workflow.pk parameter.pk %}"/>
                             <button class="btn btn-small text-danger fa fa-trash"
                                     type="button"
+                                    hx-confirm="Are you sure you want to delete parameter {{ parameter.name }}?"
                                     title="Delete"
                                     hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk parameter.pk %}"/>
                         </td>

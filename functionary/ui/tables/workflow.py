@@ -18,7 +18,7 @@ class WorkflowFilter(django_filters.FilterSet):
 
 class WorkflowTable(tables.Table):
     name = tables.Column(
-        linkify=lambda record: reverse("ui:workflow-task", kwargs={"pk": record.id}),
+        linkify=lambda record: reverse("ui:workflow-detail", kwargs={"pk": record.id}),
         verbose_name="Workflow",
     )
     edit_button = tables.Column(
@@ -36,6 +36,6 @@ class WorkflowTable(tables.Table):
             '<a class="fa fa-pencil-alt text-info" '
             f'role="button" '
             f'title="Edit Workflow" '
-            f'href="{reverse("ui:workflow-detail", kwargs={"pk": record.id})}">'
+            f'href="{reverse("ui:workflow-update", kwargs={"pk": record.id})}">'
             "</a>"
         )

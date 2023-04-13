@@ -20,7 +20,7 @@ class WorkflowParameterFormViewMixin:
         """Valid form handler"""
         parameter = form.save()
         success_url = reverse(
-            "ui:workflow-detail", kwargs={"pk": parameter.workflow.pk}
+            "ui:workflow-update", kwargs={"pk": parameter.workflow.pk}
         )
 
         return HttpResponseClientRedirect(success_url)

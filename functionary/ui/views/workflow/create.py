@@ -18,7 +18,7 @@ class WorkflowCreateView(PermissionedCreateView):
         form.instance.creator = self.request.user
         form.save()
 
-        success_url = reverse("ui:workflow-detail", kwargs={"pk": form.instance.pk})
+        success_url = reverse("ui:workflow-update", kwargs={"pk": form.instance.pk})
 
         return HttpResponseClientRedirect(success_url)
 

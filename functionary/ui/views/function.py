@@ -131,7 +131,7 @@ def execute(request: HttpRequest) -> HttpResponse:
         template = "core/function_detail.html"
     else:
         context["workflow"] = tasked_object
-        template = "core/workflow_task.html"
+        template = "core/workflow_detail.html"
 
     return render(request, template, context, status=status_code)
 

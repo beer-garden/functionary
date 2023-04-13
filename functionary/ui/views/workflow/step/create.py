@@ -50,7 +50,7 @@ class WorkflowStepCreateView(PermissionedCreateView):
                 parameter_template=parameter_form.parameter_template
             )
 
-            success_url = reverse("ui:workflow-detail", kwargs={"pk": step.workflow.pk})
+            success_url = reverse("ui:workflow-update", kwargs={"pk": step.workflow.pk})
 
             return HttpResponseClientRedirect(success_url)
         else:

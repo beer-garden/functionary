@@ -248,11 +248,6 @@ workflows_urlpatterns = [
         name="workflow-delete",
     ),
     path(
-        "workflow/<uuid:pk>/task",
-        (workflow.WorkflowTaskCreateView.as_view()),
-        name="workflow-task",
-    ),
-    path(
         "workflow/<uuid:workflow_pk>/parameter/create",
         (workflow.WorkflowParameterCreateView.as_view()),
         name="workflowparameter-create",
@@ -265,7 +260,7 @@ workflows_urlpatterns = [
     path(
         "workflow/<uuid:workflow_pk>/parameter/<uuid:pk>/edit",
         (workflow.WorkflowParameterUpdateView.as_view()),
-        name="workflowparameter-edit",
+        name="workflowparameter-update",
     ),
     path(
         "workflow/<uuid:workflow_pk>/step/create",
@@ -280,7 +275,7 @@ workflows_urlpatterns = [
     path(
         "workflow/<uuid:workflow_pk>/step/<uuid:pk>/edit",
         (workflow.WorkflowStepUpdateView.as_view()),
-        name="workflowstep-edit",
+        name="workflowstep-update",
     ),
     path(
         "workflow/<uuid:workflow_pk>/step/<uuid:pk>/move",

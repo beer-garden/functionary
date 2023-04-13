@@ -6,7 +6,7 @@
 {% block modal_content %}
     <form id="step-form"
           method="post"
-          hx-post="{% if workflowstep %}{% url 'ui:workflowstep-edit' view.kwargs.workflow_pk workflowstep.pk %}{% else %}{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}{% endif %}"
+          hx-post="{% if workflowstep %}{% url 'ui:workflowstep-update' view.kwargs.workflow_pk workflowstep.pk %}{% else %}{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}{% endif %}"
           hx-target="#form-modal"
           hx-swap="outerHTML"
           enctype="multipart/form-data">

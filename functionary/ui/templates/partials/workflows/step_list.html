@@ -54,9 +54,10 @@
                                     title="Edit"
                                     hx-target="body"
                                     hx-swap="beforeend"
-                                    hx-get="{% url 'ui:workflowstep-edit' workflow.pk step.pk %}"/>
+                                    hx-get="{% url 'ui:workflowstep-update' workflow.pk step.pk %}"/>
                             <button class="btn btn-small text-danger fa fa-trash"
                                     type="button"
+                                    hx-confirm="Are you sure you want to delete step {{ step.name }}?"
                                     title="Delete"
                                     hx-target="#workflow-steps"
                                     hx-swap="outerHTML"
