@@ -53,6 +53,12 @@ details > summary > * {
 .navbar-nav .nav-link:not(.active):focus {
     background-color: var(--bs-nav-link-color);
 }
+.fa-sort {
+    color: var(--bs-gray-500);
+}
+.orderable a:hover .fa-sort {
+    color: var(--bs-link-hover-color);
+}
 /* the :has() must be user enabled to work on firefox */
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/:has#browser_compatibility */
 div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {

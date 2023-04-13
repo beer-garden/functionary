@@ -13,10 +13,12 @@
                                class="text-nowrap">
                                 {{ column.header }}
                                 {% if 'asc' in column.attrs.th.as_html %}
-                                    <i class="fa fa-sm fa-fw fa-angle-up" title="Sorted in ascending order"></i>
+                                    <i class="fa fa-sm fa-fw fa-caret-up" title="Sorted in ascending order"></i>
                                 {% elif 'desc' in column.attrs.th.as_html %}
-                                    <i class="fa fa-sm fa-fw fa-angle-down"
+                                    <i class="fa fa-sm fa-fw fa-caret-down"
                                        title="Sorted in descending order"></i>
+                                {% else %}
+                                    <i class="fa fa-sm fa-fw fa-sort"></i>
                                 {% endif %}
                             </a>
                         {% else %}
