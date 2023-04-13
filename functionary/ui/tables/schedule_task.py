@@ -11,7 +11,7 @@ FIELDS = ("name", "function", "last_run", "schedule", "status")
 
 
 class ScheduledTaskFilter(django_filters.FilterSet):
-    name = django_filters.Filter(label="Scheduled Task", lookup_expr="startswith")
+    name = django_filters.Filter(label="Name", lookup_expr="startswith")
     function = django_filters.Filter(
         field_name="function__name", label="Function", lookup_expr="startswith"
     )
@@ -33,7 +33,6 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: reverse(
             "ui:scheduledtask-detail", kwargs={"pk": record.id}
         ),
-        verbose_name="Scheduled Task",
     )
     function = tables.Column(accessor="function__name", verbose_name="Function")
     last_run = tables.DateTimeColumn(
@@ -42,7 +41,9 @@ class ScheduledTaskTable(tables.Table):
         linkify=lambda record: generateLastRunUrl(record),
         format=DATETIME_FORMAT,
     )
-    schedule = tables.Column(accessor="periodic_task__crontab", verbose_name="Schedule")
+    schedule = tables.Column(
+        accessor="periodic_task__crontab", verbose_name="Schedule", orderable=False
+    )
     edit_button = tables.Column(
         accessor="id",
         orderable=False,
@@ -52,6 +53,7 @@ class ScheduledTaskTable(tables.Table):
     class Meta(BaseMeta):
         model = ScheduledTask
         fields = FIELDS
+        orderable = True
 
     def render_edit_button(self, value, record):
         return format_html(

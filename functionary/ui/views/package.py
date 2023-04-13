@@ -5,7 +5,10 @@ from .generic import PermissionedDetailView, PermissionedListView
 
 
 class PackageListView(PermissionedListView):
+    """List view for the Package model"""
+
     model = Package
+    ordering = ["name"]
     table_class = PackageTable
     filterset_class = PackageFilter
     extra_context = {"breadcrumb": "Packages"}

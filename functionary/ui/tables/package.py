@@ -16,6 +16,7 @@ class PackageTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:package-detail", kwargs={"pk": record.id}),
         verbose_name="Package",
+        orderable=True,
     )
 
     class Meta(BaseMeta):

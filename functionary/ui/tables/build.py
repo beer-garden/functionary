@@ -46,3 +46,4 @@ class BuildTable(tables.Table):
     class Meta(BaseMeta):
         model = Build
         fields = FIELDS
+        orderable = True

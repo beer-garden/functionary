@@ -20,6 +20,7 @@ class WorkflowTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:workflow-task", kwargs={"pk": record.id}),
         verbose_name="Workflow",
+        orderable=True,
     )
     edit_button = tables.Column(
         accessor="id",
