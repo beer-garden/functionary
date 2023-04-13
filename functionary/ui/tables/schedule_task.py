@@ -53,9 +53,17 @@ class ScheduledTaskTable(tables.Table):
 
     def render_edit_button(self, value, record):
         return format_html(
-            '<a class="fa fa-pencil-alt text-info" '
-            f'role="button" '
-            f'title="Edit Schedule" '
+            '<a class="fa fa-pencil-alt text-info" role="button" title="Edit Schedule" '
             f'href="{reverse("ui:scheduledtask-update", kwargs={"pk": record.id})}">'
             "</a>"
+        )
+
+    def render_schedule(self, value):
+        return format_html(
+            "<span tabindex='0' data-bs-toggle='popover' data-bs-trigger='hover focus' "
+            + "data-bs-content='{}'>{}<i class='fa fa-xs fa-fw fa-info-circle text-info"
+            + " ms-2'></i><span class='visually-hidden'>{}</span></span>",
+            value.human_readable,
+            value,
+            value.human_readable,
         )
