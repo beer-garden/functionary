@@ -47,7 +47,7 @@
                       action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
                       enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="vstack gap-3 my-4 border border-dark-subtle rounded form-fill p-4">
+                    <div class="vstack gap-3 my-4 border border-dark-subtle rounded form-fill pt-3 px-4">
                         <div>
                             <label class="fw-semibold form-label" for="{{ form.name.id_for_label }}">
                                 <i class="fa fa-font fa-sm fa-fw me-1"></i>Name
@@ -112,10 +112,11 @@
                                     {% if task_parameter_form.fields %}
                                         {{ task_parameter_form }}
                                     {% else %}
-                                        <p class="font-monospace">No parameters.</p>
+                                        <p class="font-monospace mb-3">No parameters.</p>
                                     {% endif %}
                                 {% else %}
                                     <div hx-trigger="load"
+                                         class="mb-3"
                                          hx-get="{% url 'ui:function-parameters' %}"
                                          hx-vals='{"function": "{{ form.function.id }}"}'>
                                     </div>
