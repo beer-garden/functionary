@@ -67,15 +67,16 @@
                     {% endif %}
                 {% endif %}
                 {% if workflow.first_step %}
-                    <div>
-                        <h3 class="fw-semibold">
+                    <div class="mt-2">
+                        <span class="fs-4 fw-bold me-2">
                             <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-                        </h3>
+                        </span>
                         <ul id="envs" class="list-group list-group-flush">
                             {% for step in workflow.ordered_steps %}
                                 <li class="list-group-item">
-                                    <p class="fw-bold mb-0">{{ step.name }}</p>
-                                    <p class="ms-4 mb-0">{{ step.function }}</p>
+                                    <p class="mb-0">
+                                        {{ step.name }}<span class="text-muted ms-3">:<span class="ms-3">{{ step.function }}</span></span>
+                                    </p>
                                 </li>
                             {% endfor %}
                         </ul>
