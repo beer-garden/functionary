@@ -248,39 +248,6 @@ def test_update_view_returns_403_for_post_without_access(
 
 
 @pytest.mark.django_db
-def test_delete_view_allows_post_with_access(client, workflow, user_with_edit_access):
-    """PermissionedDeleteView allows POST for a user with access"""
-    client.force_login(user_with_edit_access)
-
-    session = client.session
-    session["environment_id"] = str(workflow.environment.id)
-    session.save()
-
-    url = reverse("ui:workflow-delete", kwargs={"pk": workflow.pk})
-    response = client.post(url)
-
-    # 302 expected for redirect to "success_url"
-    assert response.status_code == 302
-
-
-@pytest.mark.django_db
-def test_delete_view_returns_403_for_post_without_access(
-    client, workflow, user_with_read_access
-):
-    """PermissionedDeleteView allows POST for a user with access"""
-    client.force_login(user_with_read_access)
-
-    session = client.session
-    session["environment_id"] = str(workflow.environment.id)
-    session.save()
-
-    url = reverse("ui:workflow-delete", kwargs={"pk": workflow.pk})
-    response = client.post(url)
-
-    assert response.status_code == 403
-
-
-@pytest.mark.django_db
 def test_nested_route_filters_by_parent_object(
     client,
     workflow,

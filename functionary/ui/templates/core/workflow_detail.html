@@ -29,23 +29,19 @@
                                 </ul>
                             </div>
                         {% endif %}
-                        <div class="border border-dark-subtle rounded form-fill">
+                        <div class="border border-dark-subtle rounded form-fill px-4 pt-3">
                             {% if form.fields %}
-                                <div class="row mx-2 mt-3">
-                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                        <form id="taskCreateForm"
-                                              method="post"
-                                              action="{% url 'ui:function-execute' %}"
-                                              enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
-                                            {{ form.non_field_errors }}
-                                            {{ form }}
-                                        </form>
-                                    </div>
-                                </div>
+                                <form id="taskCreateForm"
+                                      method="post"
+                                      action="{% url 'ui:function-execute' %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
+                                    {{ form.non_field_errors }}
+                                    {{ form }}
+                                </form>
                             {% else %}
-                                <p class="font-monospace m-4">No parameters defined.</p>
+                                <p class="font-monospace m-0 mb-4">No parameters defined.</p>
                             {% endif %}
                         </div>
                         {% if workflow.first_step %}
@@ -69,6 +65,21 @@
                             This workflow is currently inactive.
                         </div>
                     {% endif %}
+                {% endif %}
+                {% if workflow.first_step %}
+                    <div>
+                        <h3 class="fw-semibold">
+                            <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+                        </h3>
+                        <ul id="envs" class="list-group list-group-flush">
+                            {% for step in workflow.ordered_steps %}
+                                <li class="list-group-item">
+                                    <p class="fw-bold mb-0">{{ step.name }}</p>
+                                    <p class="ms-4 mb-0">{{ step.function }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endif %}
             </div>
         </div>

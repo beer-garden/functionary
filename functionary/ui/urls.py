@@ -85,11 +85,6 @@ urlpatterns = [
         name="task-results",
     ),
     path(
-        "variables/<parent_id>",
-        (variable.all_variables),
-        name="all-variables",
-    ),
-    path(
         "add_variable/<parent_id>",
         (variable.VariableView.as_view()),
         name="variable-create",
@@ -103,11 +98,6 @@ urlpatterns = [
         "delete_variable/<pk>",
         (variable.delete_variable),
         name="variable-delete",
-    ),
-    path(
-        "detail_variable/<pk>",
-        (variable.VariableView.as_view()),
-        name="variable-detail",
     ),
     path(
         "environment_select/",
@@ -241,11 +231,6 @@ workflows_urlpatterns = [
         "workflow/<uuid:pk>/edit",
         (workflow.WorkflowUpdateView.as_view()),
         name="workflow-update",
-    ),
-    path(
-        "workflow/<uuid:pk>/delete",
-        (workflow.WorkflowDeleteView.as_view()),
-        name="workflow-delete",
     ),
     path(
         "workflow/<uuid:workflow_pk>/parameter/create",

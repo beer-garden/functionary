@@ -41,7 +41,7 @@
                         <td>{{ step.name }}</td>
                         <td>{{ step.function }}</td>
                         <td class="json-container">{{ step.parameter_template }}</td>
-                        <td>
+                        <td class="text-end">
                             <button class="btn btn-small text-success fa fa-plus"
                                     type="button"
                                     title="Add Step Below"
@@ -57,7 +57,7 @@
                                     hx-get="{% url 'ui:workflowstep-update' workflow.pk step.pk %}"/>
                             <button class="btn btn-small text-danger fa fa-trash"
                                     type="button"
-                                    hx-confirm="Are you sure you want to delete step {{ step.name }}?"
+                                    hx-confirm="Are you sure you want to delete {{ step.name }}?"
                                     title="Delete"
                                     hx-target="#workflow-steps"
                                     hx-swap="outerHTML"

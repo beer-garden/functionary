@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django_htmx.http import HttpResponseClientRedirect
 
 from core.models import Workflow
@@ -14,6 +14,6 @@ class WorkflowUpdateView(PermissionedUpdateView):
 
     def form_valid(self, form):
         form.save()
-        success_url = reverse_lazy("ui:workflow-list")
+        success_url = reverse("ui:workflow-list")
 
         return HttpResponseClientRedirect(success_url)

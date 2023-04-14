@@ -5,7 +5,7 @@ from ui.views.generic import PermissionedDetailView
 
 
 class WorkflowDetailView(PermissionedDetailView):
-    """Task create view for Workflows"""
+    """Workflow detail and task creation view"""
 
     model = Workflow
     template_name = "core/workflow_detail.html"

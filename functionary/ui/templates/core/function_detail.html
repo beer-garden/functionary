@@ -42,20 +42,16 @@
                             </div>
                         {% endif %}
                         {% if form.fields %}
-                            <div class="border border-dark-subtle rounded form-fill">
-                                <div class="row mx-2 mt-3">
-                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                        <form id="taskCreateForm"
-                                              method="post"
-                                              action="{% url 'ui:function-execute' %}"
-                                              enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                                            {{ form.non_field_errors }}
-                                            {{ form }}
-                                        </form>
-                                    </div>
-                                </div>
+                            <div class="border border-dark-subtle rounded form-fill px-4 pt-3">
+                                <form id="taskCreateForm"
+                                      method="post"
+                                      action="{% url 'ui:function-execute' %}"
+                                      enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="function_id" value="{{ function.id }}"/>
+                                    {{ form.non_field_errors }}
+                                    {{ form }}
+                                </form>
                             </div>
                         {% endif %}
                         <div>

@@ -19,7 +19,7 @@
                         <td class="text-center">
                             {% if parameter.required %}<i class="fa fa-check"/>{% endif %}
                         </td>
-                        <td hx-target="closest tr" hx-swap="outerHTML">
+                        <td class="text-end" hx-target="closest tr" hx-swap="outerHTML">
                             <button class="btn btn-small text-info fa fa-pencil-alt"
                                     type="button"
                                     title="Edit"
@@ -28,7 +28,7 @@
                                     hx-get="{% url 'ui:workflowparameter-update' workflow.pk parameter.pk %}"/>
                             <button class="btn btn-small text-danger fa fa-trash"
                                     type="button"
-                                    hx-confirm="Are you sure you want to delete parameter {{ parameter.name }}?"
+                                    hx-confirm="Are you sure you want to delete {{ parameter.name }}?"
                                     title="Delete"
                                     hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk parameter.pk %}"/>
                         </td>
