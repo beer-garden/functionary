@@ -87,4 +87,3 @@ class TaskListTable(tables.Table):
     class Meta(BaseMeta):
         model = Task
         fields = ("name", "status", "creator", "created_at")
-        orderable = False

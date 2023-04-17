@@ -20,6 +20,7 @@ class FunctionTable(tables.Table):
     name = tables.Column(
         linkify=lambda record: reverse("ui:function-detail", kwargs={"pk": record.id}),
         verbose_name="Function",
+        orderable=True,
     )
 
     def render_name(self, value, record):

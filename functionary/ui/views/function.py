@@ -89,6 +89,7 @@ def execute(request: HttpRequest) -> HttpResponse:
 
     if form.is_valid():
         # Clean the task fields before saving the Task
+        task = None
         try:
             # Create the new Task, the validated parameters are in form.cleaned_data
             task = Task(
@@ -100,11 +101,8 @@ def execute(request: HttpRequest) -> HttpResponse:
             )
             task.clean()
             handle_file_parameters(task, request)
-            start_task(task)
-
-            # Redirect to the newly created task:
-            return HttpResponseRedirect(reverse("ui:task-detail", args=(task.id,)))
         except ValidationError:
+            task = None
             status_code = 400
             form.add_error(
                 None,
@@ -114,14 +112,21 @@ def execute(request: HttpRequest) -> HttpResponse:
                 ),
             )
         except S3Error:
+            task = None
             status_code = 503
             form.add_error(
                 None,
                 (
-                    "Unable to upload file. Please try again. "
+                    "Unable to upload file; please try again. "
                     "If the problem persists, contact your system administrator."
                 ),
             )
+
+        if task:
+            start_task(task)
+
+            # Redirect to the newly created task:
+            return HttpResponseRedirect(reverse("ui:task-detail", args=(task.id,)))
 
     context = {}
     context["form"] = form
@@ -152,9 +157,7 @@ def function_parameters(request: HttpRequest) -> HttpResponse:
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
-    if (
-        allow_template_variables := request.GET.get("allow_template_variables")
-    ) and allow_template_variables.lower() == "true":
+    if request.GET.get("allow_template_variables") == "true":
         form_class = TaskParameterTemplateForm
     else:
         form_class = TaskParameterForm

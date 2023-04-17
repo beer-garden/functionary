@@ -81,10 +81,20 @@ def publish_task(task_id: UUID) -> None:
         .get(id=task_id)
     )
 
-    _handle_file_parameters(task)
+    try:
+        _handle_file_parameters(task)
 
-    exchange, routing_key = get_route(task)
-    send_message(exchange, routing_key, "TASK_PACKAGE", _generate_task_message(task))
+        # This may be a retry, make sure the task is marked as IN_PROGRESS
+        task.status = Task.IN_PROGRESS
+        task.save()
+
+        exchange, routing_key = get_route(task)
+        send_message(
+            exchange, routing_key, "TASK_PACKAGE", _generate_task_message(task)
+        )
+    except Exception as exc:
+        mark_error(task, "Unable to send task to runner", exc)
+        raise exc
 
 
 @app.task()
@@ -155,11 +165,10 @@ def _update_task_status(task: Task, status: int) -> None:
             task.status = Task.COMPLETE
         case _:
             task.status = Task.ERROR
+            if task.scheduled_task is not None:
+                task.scheduled_task.error()
 
     task.save()
-
-    if task.scheduled_task is not None and status == "ERROR":
-        task.scheduled_task.error()
 
 
 def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None:
@@ -169,7 +178,16 @@ def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None
     match task.status:
         case Task.COMPLETE:
             if next_step := workflow_run_step.workflow_step.next:
-                next_step.execute(workflow_task=workflow_task)
+                try:
+                    next_step.execute(workflow_task=workflow_task)
+                except Exception as exc:
+                    # execute handles the case where the step task is
+                    # created but fails to start
+                    mark_error(
+                        workflow_task,
+                        f"Unable to create a task for {next_step.name}",
+                        error=exc,
+                    )
             else:
                 workflow_task.status = Task.COMPLETE
                 workflow_task.save()
@@ -233,8 +251,8 @@ def start_task(task: Task) -> None:
         None
 
     Raises:
-        InvalidContentType: The tasked_object associated with the task is of an
-                            unrecognized type
+        InvalidContentObject: The tasked_object associated with the task is of an
+                              unrecognized type
         InvalidStatus: The task cannot be started based on its current status
     """
     if task.status != Task.PENDING:
@@ -245,11 +263,31 @@ def start_task(task: Task) -> None:
 
     tasked_type_class = task.tasked_type.model_class()
 
-    if tasked_type_class is Function:
-        _start_function_task(task)
-    elif tasked_type_class is Workflow:
-        _start_workflow_task(task)
-    else:
-        raise InvalidContentObject(
-            f"Handling for content type {tasked_type_class} is undefined"
+    if tasked_type_class not in [Function, Workflow]:
+        message = f"Handling for content type {tasked_type_class} is undefined"
+        mark_error(task, message, None)
+        raise InvalidContentObject(message)
+
+    try:
+        if tasked_type_class is Function:
+            _start_function_task(task)
+        elif tasked_type_class is Workflow:
+            _start_workflow_task(task)
+    except Exception as exc:
+        mark_error(task, "Failed to start", error=exc)
+
+
+def mark_error(task, message, error=None):
+    """Changes the task status to errored and logs the message"""
+    task.status = Task.ERROR
+    task.save()
+
+    if message:
+        extra = f" Error: {str(error)}" if error else ""
+        log_message = f"{message}{extra}"
+        task_log, created = TaskLog.objects.get_or_create(
+            task=task, defaults={"log": log_message}
         )
+        if not created:
+            task_log.log = f"{task_log.log}\n{log_message}"
+            task_log.save()

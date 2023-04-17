@@ -2,7 +2,7 @@
 # This Dockerfile assumes that the docker-compose.yml in this project is used
 # to start things, and thus neede volume mounts etc. will be in place. It is
 # not intended as a general purpose Dockerfile.
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 ARG install_dir=/app
 
