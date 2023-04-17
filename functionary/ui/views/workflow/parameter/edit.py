@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_htmx.http import HttpResponseClientRedirect
@@ -22,8 +24,21 @@ class WorkflowParameterFormViewMixin:
         success_url = reverse(
             "ui:workflow-update", kwargs={"pk": parameter.workflow.pk}
         )
+        action = "updaded in" if self.post_action == "UPDATE" else "added to"
 
-        return HttpResponseClientRedirect(success_url)
+        return HttpResponseClientRedirect(
+            success_url,
+            headers={
+                "HX-Trigger": json.dumps(
+                    {
+                        "showMessage": {
+                            "level": "success",
+                            "msg": f"{parameter.name} {action} workflow.",
+                        }
+                    }
+                ),
+            },
+        )
 
     def get_context_data(self, **kwargs):
         """Custom context which includes the Workflow"""

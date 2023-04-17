@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django_htmx.http import HttpResponseClientRedirect
@@ -47,12 +49,24 @@ class WorkflowStepCreateView(PermissionedCreateView):
         if step_form.is_valid() and parameter_form.is_valid():
             step = add_step(
                 **step_form.cleaned_data,
-                parameter_template=parameter_form.parameter_template
+                parameter_template=parameter_form.parameter_template,
             )
 
             success_url = reverse("ui:workflow-update", kwargs={"pk": step.workflow.pk})
 
-            return HttpResponseClientRedirect(success_url)
+            return HttpResponseClientRedirect(
+                success_url,
+                headers={
+                    "HX-Trigger": json.dumps(
+                        {
+                            "showMessage": {
+                                "level": "success",
+                                "msg": f"{step.name} added to workflow.",
+                            }
+                        }
+                    ),
+                },
+            )
         else:
             context = self.get_context_data()
             context["parameter_form"] = parameter_form

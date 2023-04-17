@@ -53,7 +53,7 @@
                             <button class="btn btn-primary"
                                     type="submit"
                                     form="workflow-form"
-                                    title="{% if workflow %}Save{% else %}Next{% endif %}">
+                                    title="Save name and description{% if not workflow %}; proceed to adding steps and parameters{% endif %}">
                                 {% if workflow %}
                                     Save
                                 {% else %}

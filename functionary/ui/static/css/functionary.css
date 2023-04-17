@@ -1,10 +1,3 @@
-.logo-blue {
-    filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(1396%) hue-rotate(214deg) brightness(88%) contrast(80%);
-}
-.functionary-logo {
-    margin-bottom: -1px;
-    margin-right: -1rem;
-}
 .functionary-title {
     margin-left: -1rem;
 }
@@ -13,15 +6,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-.environment-select {
-    border: none;
-    background: none;
-    color:white;
-    font-size:1em;
-}
-.environment-select * {
-    color: black;
 }
 .errorlist > li {
     color: var(--bs-text-danger);
@@ -34,12 +18,6 @@
 }
 .form-fill {
     background-color: #F2F2F2; /* --bs-table-striped-bg over white */
-}
-details > summary {
-    font-size: 1.75rem;
-}
-details > summary > * {
-    display: inline;
 }
 .navbar .btn {
     color: var(--bs-navbar-color);
@@ -103,8 +81,8 @@ tr.htmx-swapping td {
     opacity: 0;
     transition: opacity 1s ease-out;
 }
-body div aside {
-    max-width: fit-content;
+.col-88 {
+    min-width: 88px;
 }
 /* Re-apply backdrop color because table wipes it */
 table .modal-backdrop {

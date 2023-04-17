@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
@@ -21,4 +23,15 @@ class WorkflowParameterDeleteView(PermissionedDeleteView):
         parameter = self._get_object()
         parameter.delete()
 
-        return HttpResponse()
+        return HttpResponse(
+            headers={
+                "HX-Trigger": json.dumps(
+                    {
+                        "showMessage": {
+                            "level": "success",
+                            "msg": f"{parameter.name} removed from workflow.",
+                        }
+                    }
+                ),
+            },
+        )

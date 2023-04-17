@@ -14,7 +14,7 @@
             <tbody id="steps">
                 {% for step in workflow.ordered_steps %}
                     <tr id="step-{{ step.id }}">
-                        <td>
+                        <td class="col-88">
                             {% with previous=step.previous next=step.next %}
                                 <div class="d-flex {% if previous is None %}justify-content-end{% elif next is None %}justify-content-start{% else %}justify-content-between{% endif %}">
                                     <button class="btn btn-small text-primary fa fa-chevron-up border-0"

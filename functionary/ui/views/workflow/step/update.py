@@ -1,3 +1,4 @@
+import json
 from uuid import UUID
 
 from django.contrib.auth.decorators import login_required
@@ -57,7 +58,19 @@ class WorkflowStepUpdateView(PermissionedUpdateView):
 
             success_url = reverse("ui:workflow-update", kwargs={"pk": step.workflow.pk})
 
-            return HttpResponseClientRedirect(success_url)
+            return HttpResponseClientRedirect(
+                success_url,
+                headers={
+                    "HX-Trigger": json.dumps(
+                        {
+                            "showMessage": {
+                                "level": "success",
+                                "msg": f"{step.name} updated in workflow.",
+                            }
+                        }
+                    ),
+                },
+            )
         else:
             context = self.get_context_data()
             context["parameter_form"] = parameter_form
