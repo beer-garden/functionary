@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+from django.views.generic import RedirectView
 
 from .views import (
     account,
@@ -8,7 +9,6 @@ from .views import (
     environment,
     environment_select,
     function,
-    home,
     package,
     scheduled_task,
     task,
@@ -35,7 +35,7 @@ For action based URLs, use <model>-<verb> with the following verbs:
 
 
 urlpatterns = [
-    path("", home.home, name="home"),
+    path("", RedirectView.as_view(url="task_list/"), name="home"),
     path(
         "build_list/",
         (build.BuildListView.as_view()),
