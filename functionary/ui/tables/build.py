@@ -38,6 +38,7 @@ class BuildTable(tables.Table):
     package = tables.Column(
         linkify=lambda record: reverse("ui:build-detail", kwargs={"pk": record.id}),
         verbose_name="Package",
+        accessor="package__name",
     )
     created_at = tables.DateTimeColumn(
         format=DATETIME_FORMAT,
