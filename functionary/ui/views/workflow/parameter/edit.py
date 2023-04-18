@@ -24,18 +24,12 @@ class WorkflowParameterFormViewMixin:
         success_url = reverse(
             "ui:workflow-update", kwargs={"pk": parameter.workflow.pk}
         )
-        action = "updaded in" if self.post_action == "UPDATE" else "added to"
 
         return HttpResponseClientRedirect(
             success_url,
             headers={
                 "HX-Trigger": json.dumps(
-                    {
-                        "showMessage": {
-                            "level": "success",
-                            "msg": f"{parameter.name} {action} workflow.",
-                        }
-                    }
+                    {"showMessages": [{"level": "success", "msg": "Waveform saved."}]}
                 ),
             },
         )

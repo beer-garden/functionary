@@ -8,7 +8,7 @@
                 <li class="breadcrumb-item">
                     <a href="{% url 'ui:task-list' %}">Tasking</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">{{ task.function.render_name }}</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ task.tasked_object.name }}</li>
             </ol>
         </nav>
         <hr />
@@ -17,7 +17,7 @@
                 <div class="hstack gap-3 mt-2 mb-1 align-items-center">
                     <h2>
                         <i class="fa fa-digital-tachograph"></i>
-                        {{ task.function.render_name }}
+                        {{ task.tasked_object.name }}
                     </h2>
                     <div class="status-color" title={{ task.status }}>
                         <i class="fa fa-circle-info"></i>

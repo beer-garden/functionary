@@ -59,10 +59,9 @@ class WorkflowStepCreateView(PermissionedCreateView):
                 headers={
                     "HX-Trigger": json.dumps(
                         {
-                            "showMessage": {
-                                "level": "success",
-                                "msg": f"{step.name} added to workflow.",
-                            }
+                            "showMessages": [
+                                {"level": "success", "msg": "Waveform saved."}
+                            ]
                         }
                     ),
                 },

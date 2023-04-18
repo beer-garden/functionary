@@ -26,12 +26,7 @@ class WorkflowParameterDeleteView(PermissionedDeleteView):
         return HttpResponse(
             headers={
                 "HX-Trigger": json.dumps(
-                    {
-                        "showMessage": {
-                            "level": "success",
-                            "msg": f"{parameter.name} removed from workflow.",
-                        }
-                    }
+                    {"showMessages": [{"level": "success", "msg": "Waveform saved."}]}
                 ),
             },
         )

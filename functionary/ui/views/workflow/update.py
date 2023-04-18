@@ -1,3 +1,6 @@
+import json
+
+from django.contrib import messages
 from django.urls import reverse
 from django_htmx.http import HttpResponseClientRedirect
 
@@ -14,6 +17,14 @@ class WorkflowUpdateView(PermissionedUpdateView):
 
     def form_valid(self, form):
         form.save()
-        success_url = reverse("ui:workflow-list")
+        workflow: Workflow = self.get_object()
+        success_url = reverse("ui:workflow-update", kwargs={"pk": workflow.id})
 
-        return HttpResponseClientRedirect(success_url)
+        return HttpResponseClientRedirect(
+            success_url,
+            headers={
+                "HX-Trigger": json.dumps(
+                    {"showMessages": [{"level": "success", "msg": "Waveform saved."}]}
+                ),
+            },
+        )

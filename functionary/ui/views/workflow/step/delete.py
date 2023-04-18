@@ -26,12 +26,7 @@ class WorkflowStepDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         response = render(request, "partials/workflows/step_list.html", context)
         response["HX-Trigger"] = json.dumps(
-            {
-                "showMessage": {
-                    "level": "success",
-                    "msg": f"{step.name} removed from workflow.",
-                }
-            }
+            {"showMessages": [{"level": "success", "msg": "Waveform saved."}]}
         )
         return response
 
