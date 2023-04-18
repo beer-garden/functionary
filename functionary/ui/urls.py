@@ -9,6 +9,7 @@ from .views import (
     environment,
     environment_select,
     function,
+    home,
     package,
     scheduled_task,
     task,
@@ -35,7 +36,7 @@ For action based URLs, use <model>-<verb> with the following verbs:
 
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="task_list/"), name="home"),
+    path("", home.home, name="home"),
     path(
         "build_list/",
         (build.BuildListView.as_view()),
