@@ -26,9 +26,9 @@
                 </div>
                 <div class="vstack gap-3 my-4">
                     <div>
-                        <h3 class="fw-semibold">
+                        <span class="fw-semibold fs-4">
                             <i class="fa fa-user fa-sm fa-fw me-1"></i>Creator
-                        </h3>
+                        </span>
                         <p class="ms-4 my-2">
                             {{ build.creator.first_name }} {{ build.creator.last_name }} <span class="text-muted">({{ build.creator.username }})</span>
                             at {{ build.created_at }}
@@ -36,17 +36,17 @@
                     </div>
                     {% if build.updated_at %}
                         <div>
-                            <h3 class="fw-semibold">
+                            <span class="fw-semibold fs-4">
                                 <i class="fa fa-clock-rotate-left fa-sm fa-fw me-1"></i>Last Updated
-                            </h3>
+                            </span>
                             <p class="ms-4 my-2">{{ build.updated_at }}</p>
                         </div>
                     {% endif %}
                     {% if build_log.log %}
                         <div>
-                            <h3 class="fw-semibold">
+                            <span class="fw-semibold fs-4">
                                 <i class="fa fa-book fa-sm fa-fw me-1"></i>Build Log
-                            </h3>
+                            </span>
                             <div class="ms-4">
                                 <div class="form-check form-switch my-3">
                                     <input class="form-check-input"

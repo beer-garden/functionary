@@ -19,6 +19,23 @@
             {% if workflow.summary %}<p class="mb-1 text-muted">{{ workflow.summary }}</p>{% endif %}
             <div class="vstack gap-3 my-4">
                 {% if workflow.description %}<div>{{ workflow.description | linebreaks }}</div>{% endif %}
+                {% if workflow.first_step %}
+                    <div id="envs" class="d-flex flex-wrap align-items-center gap-2">
+                        {% for step in workflow.ordered_steps %}
+                            <div class="border border-2 border-dark-subtle rounded p-2"
+                                 tabindex="0"
+                                 data-bs-html="true"
+                                 data-bs-toggle="popover"
+                                 data-bs-trigger="hover focus"
+                                 data-bs-placement="auto"
+                                 data-bs-content='<i class="fa fa-cube fa-sm fa-fw me-1"></i>{{ step.function }}'>
+                                <i class="fa fa-stairs fa-sm fa-fw me-1"></i>{{ step.name }}
+                                <span class="visually-hidden">Function: {{ step.function }}</span>
+                            </div>
+                            {% if not forloop.last %}<i class="fa fa-angle-right fa-sm fa-fw"></i>{% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 {% if form is not None %}
                     {% if workflow.active %}
                         {% if missing_variables %}
@@ -29,14 +46,14 @@
                                 </ul>
                             </div>
                         {% endif %}
-                        <div class="border border-dark-subtle rounded form-fill px-4 pt-3">
+                        <div class="border border-dark-subtle rounded form-fill pt-3 px-3">
                             {% if form.fields %}
                                 <form id="taskCreateForm"
                                       method="post"
                                       action="{% url 'ui:function-execute' %}"
                                       enctype="multipart/form-data">
                                     {% csrf_token %}
-                                    <input type="hidden" name="workflow_id" value="{{ workflow.id }}"/>
+                                    <input type="hidden" name="workflow_id" value="{{ workflow.id }}" />
                                     {{ form.non_field_errors }}
                                     {{ form }}
                                 </form>
@@ -49,9 +66,7 @@
                                 <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
                                         type="submit"
                                         title="Execute"
-                                        form="taskCreateForm">
-                                    Execute
-                                </button>
+                                        form="taskCreateForm">Execute</button>
                             </div>
                         {% else %}
                             <div class="alert alert-info text-center" role="alert">
@@ -65,22 +80,6 @@
                             This workflow is currently inactive.
                         </div>
                     {% endif %}
-                {% endif %}
-                {% if workflow.first_step %}
-                    <div class="mt-2">
-                        <span class="fs-4 fw-bold me-2">
-                            <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-                        </span>
-                        <ul id="envs" class="list-group list-group-flush">
-                            {% for step in workflow.ordered_steps %}
-                                <li class="list-group-item">
-                                    <p class="mb-0">
-                                        {{ step.name }}<span class="text-muted ms-3">:<span class="ms-3">{{ step.function }}</span></span>
-                                    </p>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
                 {% endif %}
             </div>
         </div>

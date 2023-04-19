@@ -47,17 +47,16 @@
                       action="{% if update %}{% url 'ui:scheduledtask-update' scheduledtask.id %} {% else %}{% url 'ui:scheduledtask-create' %}{% endif %}"
                       enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="vstack gap-3 my-4 border border-dark-subtle rounded form-fill pt-3 px-4">
+                    <div class="vstack gap-3 my-4 border border-dark-subtle rounded form-fill pt-3 px-3">
                         <div>
-                            <label class="fw-semibold form-label" for="{{ form.name.id_for_label }}">
+                            <label class="fw-semibold" for="{{ form.name.id_for_label }}">
                                 <i class="fa fa-font fa-sm fa-fw me-1"></i>Name
                             </label>
                             {% render_field form.name class="form-control" %}
                             <div class="text-danger">{{ form.name.errors }}</div>
                         </div>
                         <div>
-                            <label class="fw-semibold form-label"
-                                   for="{{ form.description.id_for_label }}">
+                            <label class="fw-semibold" for="{{ form.description.id_for_label }}">
                                 <i class="fa fa-newspaper fa-sm fa-fw me-1"></i>Description
                             </label>
                             {% render_field form.description class="textarea form-control" rows=2 cols=40 %}
@@ -65,7 +64,7 @@
                         </div>
                         {% if update %}
                             <div>
-                                <label class="fw-semibold form-label" for="{{ form.status.id_for_label }}">
+                                <label class="fw-semibold" for="{{ form.status.id_for_label }}">
                                     <i class="fa fa-heart-pulse fa-sm fa-fw me-1"></i>Status
                                 </label>
                                 {% render_field form.status class="form-select" role="menu" %}
@@ -73,7 +72,7 @@
                             </div>
                         {% endif %}
                         <div>
-                            <p class="fw-semibold form-label" for="crontab">
+                            <p class="fw-semibold" for="crontab">
                                 <i class="fa fa-calendar fa-sm fa-fw me-1"></i>Crontab Schedule
                             </p>
                             <div class="row g-1">
@@ -92,7 +91,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="fw-semibold form-label" for="{{ form.function.id_for_label }}">
+                            <label class="fw-semibold" for="{{ form.function.id_for_label }}">
                                 <i class="fa fa-cube fa-sm fa-fw me-1"></i>Function
                             </label>
                             {% if update %}
