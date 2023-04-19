@@ -63,11 +63,21 @@ class ScheduledTaskTable(tables.Table):
         )
 
     def render_schedule(self, value):
+        crontab = " ".join(
+            [
+                value.minute,
+                value.hour,
+                value.day_of_month,
+                value.month_of_year,
+                value.day_of_week,
+            ]
+        )
+
         return format_html(
             "<span tabindex='0' data-bs-toggle='popover' data-bs-trigger='hover focus' "
             + "data-bs-content='{}'>{}<i class='fa fa-xs fa-fw fa-info-circle text-info"
             + " ms-2'></i><span class='visually-hidden'>{}</span></span>",
             value.human_readable,
-            value,
+            crontab,
             value.human_readable,
         )

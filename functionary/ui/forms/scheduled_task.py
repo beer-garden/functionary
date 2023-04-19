@@ -18,12 +18,6 @@ class ScheduledTaskForm(ModelForm):
     scheduled_hour = CharField(
         max_length=24 * 4, label="Hour", initial="*", validators=[hour_validator]
     )
-    scheduled_day_of_week = CharField(
-        max_length=64,
-        label="Day of Week",
-        initial="*",
-        validators=[day_of_week_validator],
-    )
     scheduled_day_of_month = CharField(
         max_length=31 * 4,
         label="Day of Month",
@@ -35,6 +29,12 @@ class ScheduledTaskForm(ModelForm):
         label="Month of Year",
         initial="*",
         validators=[month_of_year_validator],
+    )
+    scheduled_day_of_week = CharField(
+        max_length=64,
+        label="Day of Week",
+        initial="*",
+        validators=[day_of_week_validator],
     )
     function = ModelChoiceField(queryset=Function.active_objects.all(), required=True)
 
