@@ -1,29 +1,31 @@
+{% load extras %}
 {% load static %}
+{% load nav_items %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="{{ request.user.preferences.theme }}">
     <head>
-        <meta charset="UTF-8"/>
-        <meta name="description" content="Functionary User Interface"/>
-        <meta name="keywords" content="Functionary"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Functionary User Interface" />
+        <meta name="keywords" content="Functionary" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="shortcut icon"
               type="image/png"
-              href="{% static 'favicon/favicon.ico' %}"/>
+              href="{% static 'favicon/favicon.ico' %}" />
         <link rel="stylesheet"
               href="{% static 'css/custom_bootstrap.css' %}"
-              type="text/css"/>
+              type="text/css" />
         <link rel="stylesheet"
               href="{% static 'css/fontawesome-6.2.1.min.css' %}"
-              type="text/css"/>
+              type="text/css" />
         <link rel="stylesheet"
               href="{% static 'css/fontawesome-solid-6.2.1.min.css' %}"
-              type="text/css"/>
+              type="text/css" />
         <link rel="stylesheet"
-              href="{% static 'css/pretty-print-json-1.2.css' %}"
-              type="text/css"/>
+              href="{% if 'dark' in request.user.preferences.theme %}{% static 'css/pretty-print-json-2.0-dark.min.css' %}{% else %}{% static 'css/pretty-print-json-2.0.min.css' %}{% endif %}"
+              type="text/css" />
         <link rel="stylesheet"
               href="{% static 'css/functionary.css' %}"
-              type="text/css"/>
+              type="text/css" />
         {% block extra_style %}
         {% endblock extra_style %}
         <title>
@@ -32,23 +34,23 @@
             {% endblock title %}
         </title>
         <script src="{% static 'js/htmx-1.8.6.min.js' %}"></script>
-        <script src="{% static 'js/pretty-print-json-1.2.min.js' %}"></script>
-        <!-- This script will run when the page loads and the menus are available -->
-        <script src="{% static 'js/highlight-menu-item.js' %}" defer></script>
+        <script src="{% static 'js/pretty-print-json-2.0.min.js' %}"></script>
     </head>
-    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          class="vh-100 pt-{{ settings.banner_pad }} pb-{{ settings.banner_pad }}">
         <script type="importmap">
             {
-              "imports": {
-                "bootstrap": "{% static 'js/bootstrap.bundle.min.js' %}"
-              }
+                "imports": {
+                    "bootstrap": "{% static 'js/bootstrap.bundle.min.js' %}"
+                }
             }
         </script>
-        <div class="container-fluid">
-            <div class="row flex-nowrap">
-                <div class="col-auto px-lg-3 px-2 bg-primary shadow">
-                    <div class="d-flex flex-column vh-100 sticky-top">
-                        <nav class="navbar navbar-dark nav-pills flex-column mb-auto align-items-start">
+        {% include "partials/banner.html" with top=True %}
+        <div class="container-fluid h-100 overflow-hidden">
+            <div class="row flex-nowrap h-100">
+                <div class="col-auto px-lg-3 px-2 text-bg-primary shadow h-100">
+                    <div class="d-flex flex-column h-100">
+                        <nav class="navbar nav-pills flex-column mb-auto align-items-start">
                             <a href="{% url 'ui:home' %}" class="navbar-brand">
                                 <h1 class="mb-0">
                                     <span class="display-2">F</span>
@@ -56,59 +58,52 @@
                                 </h1>
                             </a>
                             {% if user.is_authenticated %}
-                                <div class="btn-group d-grid d-md-flex w-100">{% include "forms/environment_selector.html" %}</div>
-                            {% endif %}
-                            <hr class="w-100 border-white" />
-                            {% if user.is_authenticated %}
-                                <div class="navbar-nav">
-                                    <a class="nav-link px-2" href="{% url 'ui:task-list' %}" title="Tasking">
-                                        <i class="fa fa-lg fa-clipboard-list fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Tasking</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:scheduledtask-list' %}"
-                                       title="Schedules">
-                                        <i class="fa fa-lg fa-clock fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Schedules</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:workflow-list' %}"
-                                       title="Workflows">
-                                        <i class="fa fa-lg fa-diagram-next fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Workflows</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:function-list' %}"
-                                       title="Functions">
-                                        <i class="fa fa-lg fa-cube fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Functions</span>
-                                    </a>
-                                    <a class="nav-link px-2"
-                                       href="{% url 'ui:package-list' %}"
-                                       title="Packages">
-                                        <i class="fa fa-lg fa-cubes fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Packages</span>
-                                    </a>
-                                    <a class="nav-link px-2" href="{% url 'ui:build-list' %}" title="Builds">
-                                        <i class="fa fa-lg fa-wrench fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">Builds</span>
-                                    </a>
+                                <div class="btn-group d-grid d-md-flex w-100" id="top-navbar">
+                                    {% include "forms/environment_selector.html" %}
                                 </div>
-                            </nav>
-                            <hr class="border-white"/>
-                            <nav class="navbar navbar-dark nav-pills flex-column mb-2 pe-md-5">
-                                <div class="navbar-nav">
-                                    <a class="nav-link px-2"
+                                <hr class="w-100" />
+                                <div class="navbar-nav" id="main-navbar">{% nav_pills %}</div>
+                            {% endif %}
+                        </nav>
+                        <hr />
+                        {% if user.is_authenticated %}
+                            <nav class="navbar nav-pills flex-column pe-md-5 align-items-start">
+                                <div class="navbar-nav" id="bottom-navbar">
+                                    <a class="nav-link px-2 link-offset-3 {% if active_nav == 'account' %}active fw-semibold{% endif %}"
                                        href="{% url 'ui:account-detail' %}"
-                                       title="User Account Details">
+                                       aria-label="User Account Details"
+                                       data-bs-toggle="popover"
+                                       data-bs-container="#bottom-navbar"
+                                       data-bs-custom-class="text-nowrap"
+                                       data-bs-trigger="hover focus"
+                                       data-bs-custom-class="d-md-none"
+                                       data-bs-content="User Account Details">
                                         <i class="fa fa-lg fa-user fa-fw"></i>
-                                        <span class="ms-1 d-none d-md-inline">{{ user }}</span>
+                                        <span class="d-none d-md-inline">{{ user }}</span>
+                                    </a>
+                                    <a class="nav-link px-2"
+                                       href="{% documentation_link %}"
+                                       aria-label="Documentation"
+                                       data-bs-toggle="popover"
+                                       data-bs-container="#bottom-navbar"
+                                       data-bs-trigger="hover focus"
+                                       data-bs-custom-class="d-md-none"
+                                       data-bs-content="Documentation">
+                                        <i class="fa fa-lg fa-book fa-fw"></i>
+                                        <span class="d-none d-md-inline">Docs</span>
                                     </a>
                                     <form method="post" action="{% url 'account_logout' %}">
                                         {% csrf_token %}
-                                        <button class="btn nav-link px-2" type="submit" title="Logout">
+                                        <button class="nav-link px-2"
+                                                type="submit"
+                                                aria-label="Logout"
+                                                data-bs-toggle="popover"
+                                                data-bs-container="#bottom-navbar"
+                                                data-bs-trigger="hover focus"
+                                                data-bs-custom-class="d-md-none"
+                                                data-bs-content="Logout">
                                             <i class="fa fa-lg fa-door-open fa-fw"></i>
-                                            <span class="ms-1 d-none d-md-inline">Logout</span>
+                                            <span class="d-none d-md-inline">Logout</span>
                                         </button>
                                     </form>
                                 </div>
@@ -116,10 +111,8 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col col-xl-10 ms-1 ms-md-3 ms-xl-2 ms-xxl-4 my-3">
-                    {% if messages %}
-                        {% include "partials/auth_messages.html" %}
-                    {% endif %}
+                <div class="col col-xl-10 ms-1 ms-md-3 ms-xl-2 ms-xxl-4 py-3 flex-fill overflow-auto">
+                    {% include "partials/messages.html" %}
                     <div id="data_div"
                          hx-get="{{ request.get_full_path }}"
                          hx-trigger="reloadData from:body"
@@ -133,21 +126,49 @@
                     </div>
                 </div>
             </div>
+            {% include "partials/modal.html" %}
+            {% include "partials/file_modal.html" %}
         </div>
+        {% include "partials/banner.html" %}
         <script>
-            // Show an error message when a bad status comes back from an HTMX call
+            // Show generic error message when a bad status comes back from an HTMX call
             document.body.addEventListener('htmx:beforeOnLoad', (event) => {
                 if (event.detail.xhr.status >= 400) {
-                    alert(event.detail.xhr.responseText)
+                    htmx.ajax('GET', '{% url "ui:display-error" %}', {
+                        target: '#messages',
+                        swap: 'outerHTML'
+                    });
                 }
             });
         </script>
         <script type="module">
             import 'bootstrap'
+
+            // Initialize dropdowns
             const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
             const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
-            const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-            const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+            // Initialize popovers
+            function loadPopovers() {
+                document.querySelectorAll('div.popover').forEach(pop => pop.remove())
+                const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+                const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+            }
+
+            loadPopovers()
+
+            // handle toast alerts
+            htmx.on('showMessages', function(evt) {
+                htmx.ajax('GET', '{% url "ui:retrieve-messages" %}', {
+                    target: '#messages',
+                    swap: 'outerHTML'
+                });
+            })
+
+            // re-initialize popovers
+            htmx.on('loadPopovers', function(evt) {
+                loadPopovers();
+            })
         </script>
     </body>
 </html>

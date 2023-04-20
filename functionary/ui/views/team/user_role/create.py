@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.views.generic import CreateView
+from django_htmx.http import HttpResponseClientRedirect
 from rapidfuzz import process
 
 from core.auth import Permission
@@ -24,6 +25,11 @@ class TeamUserRoleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
 
     def get_success_url(self) -> str:
         return reverse("ui:team-detail", kwargs={"pk": self.kwargs.get("team_pk")})
+
+    def form_valid(self, form):
+        """Valid form handler"""
+        form.save()
+        return HttpResponseClientRedirect(self.get_success_url())
 
     def test_func(self) -> bool:
         team = get_object_or_404(Team, id=self.kwargs["team_pk"])

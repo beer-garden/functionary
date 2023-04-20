@@ -1,26 +1,17 @@
-{% load django_htmx %}
+{% load renderers %}
 <div id="variable_section">
-    <h3 class="fw-semibold">
+    <span class="fw-semibold fs-4">
         <i class="fa fa-tags fa-sm fa-fw me-1"></i>Variables
-    </h3>
+    </span>
     <div class="ms-4 my-2">
-        <div class="table-container">
-            <table class="table table-striped table-sm">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Value</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                {% include "partials/variable_rows.html" with variables=variables parent_id=parent_id %}
-            </table>
-        </div>
+        {% render_table variable_table 'partials/table_template.html' %}
         {% if request.session.user_can_create_variable %}
             <button class="btn btn-primary fa-plus"
                     type="button"
                     title="Add Variable"
-                    hx-target="#variable-list"
+                    data-bs-toggle="modal"
+                    data-bs-target="#form-modal"
+                    hx-target="#form-modal-content"
                     hx-swap="beforeend"
                     hx-get="{% url 'ui:variable-create' parent_id=parent_object.id %}">
                 Add
@@ -28,4 +19,3 @@
         {% endif %}
     </div>
 </div>
-{% django_htmx_script %}

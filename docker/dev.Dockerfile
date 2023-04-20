@@ -15,7 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN apt-get update && \
     apt-get install -y \
     # python build deps
-    make gcc python3-dev libpq-dev
+    make gcc python3-dev libpq-dev libldap2-dev libsasl2-dev
 
 RUN useradd -l -m -u $uid $user && \
     mkdir -p $install_dir && \

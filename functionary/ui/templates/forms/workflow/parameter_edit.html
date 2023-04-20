@@ -1,42 +1,39 @@
-{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
-    Workflow Parameter
-{% endblock modal_title %}
-{% block modal_content %}
-    <form id="parameter-form"
+<span id="form-modal-label" hx-swap-oob="innerHTML">Workflow Parameter</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <form id="modal-form"
           method="post"
-          hx-post="{% if workflowparameter %}{% url 'ui:workflowparameter-edit' workflow.pk workflowparameter.pk %}{% else %}{% url 'ui:workflowparameter-create' workflow.pk %}{% endif %}"
-          hx-target="#form-modal"
-          hx-swap="outerHTML"
+          hx-post="{% if workflowparameter %}{% url 'ui:workflowparameter-update' workflow.pk workflowparameter.pk %}{% else %}{% url 'ui:workflowparameter-create' workflow.pk %}{% endif %}"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend"
           enctype="multipart/form-data">
         {% csrf_token %}
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-            {% render_field form.name class="form-control" placeholder=form.name.label %}
-            <div class="text-danger">{{ form.name.errors }}</div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-            {% render_field form.description class="form-control" rows=2 cols=40 placeholder=form.description.label %}
-            <div class="text-danger">{{ form.description.errors }}</div>
+            {{ form.name.label_tag }}
+            {% render_field form.name autofocus=true %}
+            {{ form.name.errors }}
         </div>
         <div class="mb-3">
-            <label class="form-label" for="{{ form.parameter_type.id_for_label }}">{{ form.parameter_type.label }}</label>
-            {% render_field form.parameter_type class="form-select" aria-label=form.parameter_type.label role="menu" %}
-            <div class="text-danger">{{ form.parameter_type.errors }}</div>
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
         </div>
-        <div class="form-check form-switch mb-3">
-            {% render_field form.required class="form-check-input" role="switch" type="checkbox" %}
-            <label class="form-check-label" for="{{ form.required.id_for_label }}">{{ form.required.label }}</label>
+        <div class="mb-3">
+            {{ form.parameter_type.label_tag }}
+            {{ form.parameter_type }}
+            {{ form.parameter_type.errors }}
         </div>
-        <input type="hidden" name="workflow" value="{{ workflow.id }}"/>
-        {{ form.non_field_errors }}
+        <div class="mb-3">
+            {{ form.required.label_tag }}
+            {{ form.required }}
+            {{ form.required.errors }}
+        </div>
+        <input type="hidden" name="workflow" value="{{ workflow.id }}" />
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
-    <button class="btn btn-primary"
-            type="submit"
-            form="parameter-form"
-            title="Save">Save</button>
-{% endblock modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
+    <button class="btn btn-primary" type="submit" form="modal-form" title="Save">
+        Save
+    </button>
+</div>

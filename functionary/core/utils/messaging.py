@@ -5,9 +5,10 @@ from time import sleep
 from typing import Tuple
 
 import pika
-from django.conf import settings
 from pika.exceptions import AMQPConnectionError, UnroutableError
 from pika.exchange_type import ExchangeType
+
+from .rabbitmq import get_rabbitmq_config
 
 logger = logging.getLogger(__name__)
 
@@ -16,17 +17,42 @@ PUBLIC_QUEUE = "public"
 TASK_RESULTS_QUEUE = "tasking.results"
 
 
-def build_connection(ca=None, cert=None, key=None, open_callback=None):
+def _get_ssl_options(config) -> pika.SSLOptions | None:
+    """Builds the SSLOptions for the pika connection"""
+    ssl_options = None
+
+    if config.RABBITMQ_TLS:
+        context = ssl.create_default_context()
+
+        if config.RABBITMQ_CACERT:
+            context.load_verify_locations(cafile=config.RABBITMQ_CACERT)
+
+        if config.RABBITMQ_CERT and config.RABBITMQ_KEY:
+            context.load_cert_chain(config.RABBITMQ_CERT, config.RABBITMQ_KEY)
+
+        ssl_options = pika.SSLOptions(context, config.RABBITMQ_HOST)
+
+    return ssl_options
+
+
+def _get_credentials(config) -> pika.PlainCredentials | None:
+    """Builds the credentials for the pika connection"""
+    return (
+        pika.PlainCredentials(config.RABBITMQ_USER, config.RABBITMQ_PASSWORD)
+        if config.RABBITMQ_USER and config.RABBITMQ_PASSWORD
+        else None
+    )
+
+
+def build_connection(
+    open_callback=None,
+) -> pika.SelectConnection | pika.BlockingConnection:
     """Creates a connection to RabbitMQ.
 
-    This will use the RABBITMQ_[USER,PASSWORD,HOST,PORT] environment
-    variables to open a connection to RabbitMQ. Optionally pass in
-    certificate information and/or a callback function.
+    This will use the RABBITMQ_[USER,PASSWORD,HOST,PORT,CACERT,CERT,KEY] environment
+    variables to open a connection to RabbitMQ.
 
     Args:
-      ca: The path to the CA file for the SSL context
-      cert: The path to the user certifcate
-      key: The path to the keyfile for the given certificate
       open_callback: If populated, will return a select connection
         with this as the open callback.
 
@@ -34,27 +60,21 @@ def build_connection(ca=None, cert=None, key=None, open_callback=None):
       A pika.SelectConnection if open_callback is populated, otherwise
       a pika.BlockingConnection.
     """
-    connection_params = {
-        "host": settings.RABBITMQ_HOST,
-        "port": settings.RABBITMQ_PORT,
-    }
+    config = get_rabbitmq_config()
+    ssl_options = _get_ssl_options(config)
+    credentials = _get_credentials(config)
 
-    if cert:
-        context = ssl.create_default_context(cafile=ca)
-        context.load_cert_chain(cert, key)
-        connection_params["ssl_options"] = pika.SSLOptions(context, "localhost")
-    elif settings.RABBITMQ_USER is not None:
-        connection_params["credentials"] = pika.PlainCredentials(
-            settings.RABBITMQ_USER, settings.RABBITMQ_PASSWORD
-        )
+    parameters = pika.ConnectionParameters(
+        host=config.RABBITMQ_HOST,
+        port=config.RABBITMQ_PORT,
+        credentials=credentials,
+        ssl_options=ssl_options,
+    )
 
     if open_callback:
-        return pika.SelectConnection(
-            pika.ConnectionParameters(**connection_params),
-            on_open_callback=open_callback,
-        )
+        return pika.SelectConnection(parameters, on_open_callback=open_callback)
     else:
-        return pika.BlockingConnection(pika.ConnectionParameters(**connection_params))
+        return pika.BlockingConnection(parameters)
 
 
 def get_route(task) -> Tuple[str, str]:

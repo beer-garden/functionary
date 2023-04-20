@@ -1,10 +1,7 @@
 from {{ registry }}/templates/python:latest
 
 ARG install_dir=/usr/src/app
-COPY . $install_dir/
+COPY --chown=app:app . $install_dir/
 WORKDIR $install_dir
 
-USER root
-RUN pip install -r requirements.txt
-
-USER app
+RUN pip --no-cache-dir install -r requirements.txt

@@ -1,0 +1,7 @@
+{% if errors %}
+    <ul class="list-unstyled mb-0" id="{{ field.id_for_label }}-error">
+        {% for error in errors %}
+            <li class="text-danger form-text">{{ error }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

@@ -1,0 +1,40 @@
+{% load widget_tweaks %}
+<form id="upload-form"
+      class="w-100"
+      method="post"
+      enctype="multipart/form-data"
+      hx-post="{% url 'ui:file-chooser' %}?upload=true"
+      hx-target="#upload-card"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    <input type="hidden" id="parameter" name="parameter" value="{{ parameter }}" />
+    <input type="hidden"
+           id="parameter_id"
+           name="parameter_id"
+           value="{{ parameter_id }}" />
+    <div id="upload-card" class="card">
+        <div class="card-header">Upload New</div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <div class="col-8">
+                    {{ form.file.label_tag }}
+                    {% render_field form.file %}
+                    {{ form.file.errors }}
+                </div>
+                <div class="col-2 d-flex flex-column">
+                    <div class="align-self-center">
+                        {{ form.public.label_tag }}
+                        {{ form.public }}
+                        {{ form.public.errors }}
+                    </div>
+                </div>
+                <div class="col-2 d-flex justify-content-end align-items-center">
+                    <button class="btn btn-primary"
+                            type="submit"
+                            form="upload-form"
+                            title="Upload">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

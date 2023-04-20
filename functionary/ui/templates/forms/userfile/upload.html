@@ -1,0 +1,57 @@
+{% load widget_tweaks %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">
+    {% if create %}
+        Upload
+    {% else %}
+        Update
+    {% endif %}
+    File
+</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    {{ form.non_field_errors.as_text }}
+    <form id="modal-form"
+          method="post"
+          enctype="multipart/form-data"
+          hx-post="{{ request.path }}"
+          hx-target="#form-modal-content"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        {% if action == 'rename' %}
+            <div class="mb-3">
+                {{ form.name.label_tag }}
+                {% render_field form.name %}
+                {{ form.name.errors }}
+            </div>
+        {% else %}
+            <div class="mb-3">
+                {{ form.file.label_tag }}
+                {% render_field form.file %}
+                {{ form.file.errors }}
+            </div>
+            {% if action == 'replace' %}
+                {{ form.name.as_hidden }}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fa fa-triangle-exclamation"></i> This may effect existing Schedules and Workflows!
+                </div>
+            {% else %}
+                <div class="mb-3">
+                    {{ form.public.label_tag }}
+                    {{ form.public }}
+                    {{ form.public.errors }}
+                </div>
+            {% endif %}
+        {% endif %}
+    </form>
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
+    <button class="btn btn-primary"
+            type="submit"
+            form="modal-form"
+            title="{% if create %}Upload{% else %}Update{% endif %}">
+        {% if create %}
+            Upload
+        {% else %}
+            Update
+        {% endif %}
+    </button>
+</div>

@@ -14,6 +14,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 25,
     "EXCEPTION_HANDLER": "core.api.exceptions.custom_exception_handler",
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 # DRF Spectacular (Swagger/Schema generator) related settings

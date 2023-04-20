@@ -11,6 +11,7 @@ from core.models import (
     WorkflowStep,
 )
 from core.utils.tasking import mark_error, publish_task, record_task_result, start_task
+from core.utils.workflow import generate_run_steps
 
 
 @pytest.fixture
@@ -79,7 +80,7 @@ def step2(workflow, function):
     return WorkflowStep.objects.create(
         workflow=workflow,
         name="step2",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 42}',
     )
 
@@ -89,7 +90,7 @@ def step1(step2, workflow, function):
     return WorkflowStep.objects.create(
         workflow=workflow,
         name="step1",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 42}',
         next=step2,
     )
@@ -131,16 +132,29 @@ def test_publish_task_errors(mocker, task):
     """Verify that exceptions during publish_task result in a Task ERROR."""
     message = "An error occurred sending the message"
 
-    def mock_send_message(param1, param2, param3, param4):
+    def mock_send_message(param1, param2, param3, task):
         """Mock the start_task function to return a failure"""
-        raise ValueError(message)
+        workflow_task = Task.objects.filter(id=task["id"]).first()
+        assert workflow_task is not None
+        assert workflow_task.status == Task.IN_PROGRESS
+        raise Exception(message)
 
     # Patch the imported send_message function
     mocker.patch("core.utils.tasking.send_message", mock_send_message)
+    from core.utils import tasking
+
+    spy = mocker.spy(tasking, "send_message")
+    failure_spy = mocker.spy(tasking.FailedTaskHandler, "on_failure")
 
     # Execute the first step, it should error
-    with pytest.raises(ValueError):
-        publish_task(task.id)
+    with pytest.raises(Exception):
+        publish_task.apply(kwargs={"task_id": task.id})
+
+    # The celery task should be called once and retried 3 more times
+    assert spy.call_count == 4
+
+    # Ensure the fail handler is called
+    assert failure_spy.call_count == 1
 
     # Make sure the task is marked as ERROR when it fails to be
     # sent to the runner
@@ -232,7 +246,9 @@ def test_step_failure_errors_workflow(mocker, environment, admin_user, workflow,
     assert workflow_task.status == Task.IN_PROGRESS
 
     # Execute the first step, it should error
+    generate_run_steps(workflow_task)
     step1.execute(workflow_task)
+    workflow_task.refresh_from_db()
 
     # Make sure the parent workflow is errored and has an associated log
     assert workflow_task.status == Task.ERROR
@@ -240,7 +256,7 @@ def test_step_failure_errors_workflow(mocker, environment, admin_user, workflow,
     assert workflow_task_log is not None
     assert step1.name in workflow_task_log.log
 
-    step_task = Task.objects.get(tasked_id=step1.function_id)
+    step_task = Task.objects.get(tasked_id=step1.tasked_id)
     assert step_task is not None
     assert step_task.status == Task.ERROR
 

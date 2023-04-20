@@ -1,0 +1,32 @@
+<div class="text-end">
+    <button class="btn btn-sm btn-outline-success border-0"
+            type="button"
+            title="Add Step Below"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowstep-create' workflow.pk %}"
+            hx-vals='{"next": "{{ record.next.id }}"}'>
+        <i class="fa fa-plus"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-info border-0"
+            type="button"
+            title="Edit"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowstep-update' workflow.pk record.pk %}">
+        <i class="fa fa-pencil-alt"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-danger border-0"
+            type="button"
+            title="Delete"
+            hx-confirm="Are you sure you want to delete {{ record.name }}?"
+            hx-target="#workflow-steps"
+            hx-swap="outerHTML"
+            hx-delete="{% url 'ui:workflowstep-delete' workflow.pk record.pk %}">
+        <i class="fa fa-trash"></i>
+    </button>
+</div>

@@ -109,7 +109,7 @@ def workflow_step(workflow, function):
     return WorkflowStep.objects.create(
         workflow=workflow,
         name="teststep",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 42}',
     )
 
@@ -295,7 +295,7 @@ def test_nested_route_filters_by_parent_object(
     session.save()
 
     valid_workflow_url = reverse(
-        "ui:workflowstep-edit",
+        "ui:workflowstep-update",
         kwargs={"workflow_pk": workflow.pk, "pk": workflow_step.pk},
     )
     response = client.get(valid_workflow_url)
@@ -304,7 +304,7 @@ def test_nested_route_filters_by_parent_object(
 
     # Same object, but accessed via the wrong / invalid parent route
     invalid_workflow_url = reverse(
-        "ui:workflowstep-edit",
+        "ui:workflowstep-update",
         kwargs={"workflow_pk": uuid4(), "pk": workflow_step.pk},
     )
     response = client.get(invalid_workflow_url)

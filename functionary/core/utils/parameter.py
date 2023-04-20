@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List, Type, TypeVar, Union
 
 import jsonschema
 from django.core.exceptions import ValidationError as DjangoValidationError
-from pydantic import BaseModel, Field, FileUrl, Json, ValidationError, create_model
+from pydantic import UUID4, BaseModel, Field, Json, ValidationError, create_model
 
 if TYPE_CHECKING:
     from core.models import Function, FunctionParameter, Workflow
@@ -27,7 +27,7 @@ _PARAMETER_TYPE_MAP = {
     PARAMETER_TYPE.BOOLEAN: bool,
     PARAMETER_TYPE.DATE: datetime.date,
     PARAMETER_TYPE.DATETIME: datetime.datetime,
-    PARAMETER_TYPE.FILE: TypeVar("file", FileUrl, bytes),
+    PARAMETER_TYPE.FILE: UUID4,
     PARAMETER_TYPE.FLOAT: float,
     PARAMETER_TYPE.INTEGER: int,
     PARAMETER_TYPE.JSON: TypeVar("json", Json, str),

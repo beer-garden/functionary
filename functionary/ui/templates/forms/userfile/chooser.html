@@ -1,0 +1,26 @@
+{% load widget_tweaks %}
+<span id="file-modal-label" hx-swap-oob="innerHTML">Select File</span>
+<div id="file-modal-body" hx-swap-oob="innerHTML">
+    {% include "partials/userfile/select_card.html" %}
+</div>
+<div id="file-modal-footer" hx-swap-oob="innerHTML">
+    {% include "partials/userfile/upload_card.html" %}
+</div>
+<script>
+    // force close the modal, the response is retargeted to
+    // the file parameter
+    htmx.on('fileSelected', function(evt) {
+        // fileModalEl is included in the base.html via file_modal.html
+        bootstrap.Modal.getInstance(fileModalEl).hide()
+
+        // myModalEl is included in the base.html via modal.html
+        const contentEl = myModalEl.getElementsByClassName('modal-body')[0]
+
+        // The contents get cleared on modal hide, if there's something there
+        // then we need to show it
+        if (contentEl.children.length > 0) {
+            bootstrap.Modal.getInstance(myModalEl).show()
+            myModalEl.removeAttribute('data-keep-contents')
+        }
+    })
+</script>

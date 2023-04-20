@@ -1,0 +1,7 @@
+<textarea rows="2"
+          cols="40"
+          {% include "django/forms/widgets/attrs.html" %}
+          name="{{ widget.name }}"
+          class="form-control textarea"
+          aria-describedby="{{ widget.attrs.id }}-error"
+          aria-label="{{ widget.name }}">{% if widget.value %}{{ widget.value }}{% endif %}</textarea>

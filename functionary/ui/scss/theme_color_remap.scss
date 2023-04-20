@@ -1,0 +1,37 @@
+/* redefine theme color maps - from BS source/docs */
+
+@mixin color-remap() {
+   @each $color, $value in $theme-colors {
+    --#{$variable-prefix}#{$color}: #{$value};
+  }
+  $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
+  @each $color, $value in $theme-colors-rgb {
+    --#{$variable-prefix}#{$color}-rgb: #{$value};
+  }
+  $utilities-colors: map-merge($utilities-colors, $theme-colors-rgb);
+  $utilities-text-colors: map-loop($utilities-colors, rgba-css-var, "$key", "text");
+  $utilities-bg-colors: map-loop($utilities-colors, rgba-css-var, "$key", "bg");
+  @each $color, $value in $theme-colors {
+    .btn-#{$color} {
+      @include button-variant(
+        $value,
+        $value,
+        $hover-background: shade-color($value, $btn-hover-bg-shade-amount),
+        $hover-border: shade-color($value, $btn-hover-border-shade-amount),
+        $active-background: shade-color($value, $btn-active-bg-shade-amount),
+        $active-border: shade-color($value, $btn-active-border-shade-amount)
+      )
+    };
+  }
+  @each $color, $value in $theme-colors {
+    .btn-outline-#{$color} {
+      @include button-outline-variant($value);
+    };
+  }
+  @each $color, $value in $theme-colors {
+    .text-bg-#{$color} {
+      color: color-contrast($value) if($enable-important-utilities, !important, null);
+      background-color: RGBA(var(--#{$prefix}#{$color}-rgb), var(--#{$prefix}bg-opacity, 1)) if($enable-important-utilities, !important, null);
+    };
+  }
+}

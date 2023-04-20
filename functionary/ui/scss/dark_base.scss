@@ -1,0 +1,38 @@
+@mixin dark-base() {
+  .table-striped {
+    --#{$prefix}table-striped-bg: #{$shaded-dark-color};
+  };
+  .navbar {
+    --#{$prefix}navbar-color: #{$nav-highlight-color};
+    --#{$prefix}navbar-hover-color: #{$primary};
+    --#{$prefix}navbar-brand-color: #{$brand-color};
+    --#{$prefix}navbar-brand-hover-color: #{$brand-color};
+    --#{$prefix}navbar-active-color: #{$brand-color};
+  };
+  .navbar .dropdown-menu {
+    --#{$prefix}dropdown-bg: #{$link-hover-color};
+    --#{$prefix}dropdown-link-color: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-header-color: var(--#{$prefix}navbar-brand-color);
+    --#{$prefix}dropdown-link-hover-color: #{$primary};
+    --#{$prefix}dropdown-link-hover-bg: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-link-active-color: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-link-active-bg: var(--#{$prefix}dropdown-bg);
+    --#{$prefix}dropdown-divider-bg: var(--#{$prefix}navbar-color);
+  };
+  .btn-group .btn, 
+  .btn-group-vertical .btn {
+    --#{$prefix}btn-color: #{$pagination-color};
+  };
+  .card {
+    --#{$prefix}card-bg: #{$shaded-dark-color};
+  };
+  .offcanvas-xl {
+    --#{$prefix}offcanvas-bg: #{$shaded-dark-color};
+  };
+  .accordion {
+    --#{$prefix}accordion-active-bg: #{$shaded-dark-color};
+    --#{$prefix}accordion-active-color: var(--#{$prefix}body-color);
+    --#{$prefix}accordion-btn-icon: #{escape-svg($accordion-button-icon-dark)};
+    --#{$prefix}accordion-btn-active-icon: #{escape-svg($accordion-button-active-icon-dark)};
+  };
+}

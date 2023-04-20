@@ -1,0 +1,11 @@
+from .constance_ import constance_settings_proxy
+
+ACCOUNT_ADAPTER = "ui.admin.auth.FunctionaryAccountAdapter"
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 900
+ACCOUNT_PRESERVE_USERNAME_CASING = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_USER_MODEL_EMAIL_FIELD = None
+
+ALLAUTH_SETTING_GETTER = constance_settings_proxy

@@ -1,0 +1,15 @@
+{% if errors %}
+    <div id="formErrorAlert"
+         class="alert alert-danger text-danger alert-dismissible fade show"
+         role="alert">
+        Errors:
+        <ul class="mb-0">
+            {% for error in errors %}<li class="form-text text-danger">{{ error }}</li>{% endfor %}
+        </ul>
+        <button type="button"
+                class="btn-close"
+                title="Close"
+                data-bs-dismiss="alert"
+                aria-label="Close"></button>
+    </div>
+{% endif %}

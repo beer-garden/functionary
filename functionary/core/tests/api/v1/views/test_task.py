@@ -1,25 +1,50 @@
 import json
-from io import BytesIO
 
 import pytest
+from django.core.files.base import ContentFile
 from django.test.client import MULTIPART_CONTENT, Client
 from django.urls import reverse
-from rest_framework import status
+from rest_framework.test import APIClient
 
+from core.auth import Role
 from core.models import (
     Environment,
+    EnvironmentUserRole,
     Function,
     Package,
     Task,
     TaskResult,
     Team,
+    User,
+    UserFile,
     Workflow,
     WorkflowParameter,
     WorkflowStep,
 )
 from core.models.package import PACKAGE_STATUS
-from core.utils.minio import S3FileUploadError
 from core.utils.parameter import PARAMETER_TYPE
+
+
+@pytest.fixture()
+def admin_client(admin_user) -> APIClient:
+    """Custom admin_client fixture built on DRF APIClient"""
+    client = APIClient()
+    client.force_authenticate(user=admin_user)
+
+    return client
+
+
+@pytest.fixture
+def user(environment):
+    user_ = User.objects.create(username="testuser")
+
+    EnvironmentUserRole.objects.create(
+        user=user_,
+        environment=environment,
+        role=Role.DEVELOPER.name,
+    )
+
+    return user_
 
 
 @pytest.fixture
@@ -36,79 +61,94 @@ def package(environment: Environment) -> Package:
 
 
 @pytest.fixture
-def int_function(package: Package) -> Function:
-    _function = Function.objects.create(
-        name="testfunction_int",
-        package=package,
-        environment=package.environment,
+def personal_file(environment, admin_user):
+    user_file = UserFile(
+        environment=environment, creator=admin_user, name="personal_file", public=False
     )
+    user_file.file.save(user_file.name, ContentFile("personal file"))
 
-    _function.parameters.create(name="prop1", parameter_type=PARAMETER_TYPE.INTEGER)
-
-    return _function
+    return user_file
 
 
 @pytest.fixture
-def json_function(package: Package) -> Function:
+def private_file_of_another_user(environment):
+    user = User.objects.create(username="another_user")
+    user_file = UserFile(
+        environment=environment, creator=user, name="private_file", public=False
+    )
+    user_file.file.save(user_file.name, ContentFile("private test file"))
+
+    return user_file
+
+
+@pytest.fixture
+def function(package: Package) -> Function:
     _function = Function.objects.create(
-        name="testfunction_json",
+        name="testfunction",
         package=package,
         environment=package.environment,
     )
 
+    _function.parameters.create(name="int_param", parameter_type=PARAMETER_TYPE.INTEGER)
+    _function.parameters.create(name="str_param", parameter_type=PARAMETER_TYPE.STRING)
+    _function.parameters.create(name="json_param", parameter_type=PARAMETER_TYPE.JSON)
+    _function.parameters.create(name="file_param", parameter_type=PARAMETER_TYPE.FILE)
     _function.parameters.create(
-        name="prop1", parameter_type=PARAMETER_TYPE.JSON, required=True
+        name="options_param",
+        parameter_type=PARAMETER_TYPE.STRING,
+        options=["option1", "option2"],
     )
 
     return _function
 
 
 @pytest.fixture
-def file_function(package: Package) -> Function:
-    _function = Function.objects.create(
-        name="testfunction_file",
-        package=package,
-        environment=package.environment,
-    )
-
-    _function.parameters.create(
-        name="prop1", parameter_type=PARAMETER_TYPE.FILE, required=True
-    )
-
-    return _function
-
-
-@pytest.fixture
-def task(int_function, admin_user) -> Task:
+def task(function, admin_user) -> Task:
     return Task.objects.create(
-        tasked_object=int_function,
-        environment=int_function.package.environment,
-        parameters={"prop1": 1},
+        tasked_object=function,
+        environment=function.package.environment,
+        parameters={"int_param": 1},
         creator=admin_user,
     )
 
 
 @pytest.fixture
-def request_headers(environment: Environment) -> dict:
-    return {"HTTP_X_ENVIRONMENT_ID": str(environment.id)}
+def task2(function, user) -> Task:
+    return Task.objects.create(
+        tasked_object=function,
+        environment=function.package.environment,
+        parameters={"int_param": 1},
+        status="COMPLETE",
+        creator=user,
+    )
 
 
 @pytest.fixture
-def workflow(int_function: Function, admin_user) -> Workflow:
+def all_tasks(task, task2):
+    return [task, task2]
+
+
+@pytest.fixture
+def request_headers(environment: Environment) -> dict:
+    return {"X-Environment-Id": str(environment.id)}
+
+
+@pytest.fixture
+def workflow(function: Function, admin_user) -> Workflow:
     _workflow = Workflow.objects.create(
-        environment=int_function.environment, name="workflow", creator=admin_user
+        environment=function.environment, name="workflow", creator=admin_user
     )
 
     WorkflowParameter.objects.create(
-        workflow=_workflow, name="param1", parameter_type=PARAMETER_TYPE.INTEGER
+        workflow=_workflow, name="int_param", parameter_type=PARAMETER_TYPE.INTEGER
     )
 
     WorkflowStep.objects.create(
         workflow=_workflow,
         name="step1",
         next=None,
-        function=int_function,
-        parameter_template='{"param1": "{{parameters.param1}}"}',
+        tasked_object=function,
+        parameter_template='{"int_param": {{parameters.int_param}}}',
     )
 
     return _workflow
@@ -116,20 +156,18 @@ def workflow(int_function: Function, admin_user) -> Workflow:
 
 def test_create_int_task(
     admin_client: Client,
-    int_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Create a Task with integer parameters by Function ID"""
     url = reverse("task-list")
 
     task_input = {
-        "function": str(int_function.id),
-        "param.prop1": 5,
+        "function": str(function.id),
+        "parameters": {"int_param": 5},
     }
 
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
-    )
+    response = admin_client.post(url, data=task_input, headers=request_headers)
     task_id = response.data.get("id")
 
     assert response.status_code == 201
@@ -139,7 +177,7 @@ def test_create_int_task(
 
 def test_create_task_by_name(
     admin_client: Client,
-    int_function: Function,
+    function: Function,
     package: Package,
     request_headers: dict,
 ):
@@ -147,14 +185,12 @@ def test_create_task_by_name(
     url = reverse("task-list")
 
     task_input = {
-        "function_name": int_function.name,
+        "function_name": function.name,
         "package_name": package.name,
-        "param.prop1": 5,
+        "parameters": {"int_param": 5},
     }
 
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
-    )
+    response = admin_client.post(url, data=task_input, headers=request_headers)
     task_id = response.data.get("id")
 
     assert response.status_code == 201
@@ -164,20 +200,18 @@ def test_create_task_by_name(
 
 def test_create_json_task(
     admin_client: Client,
-    json_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Create a Task with JSON parameters"""
     url = reverse("task-list")
 
     task_input = {
-        "function": str(json_function.id),
-        "param.prop1": json.dumps({"hello": "world"}),
+        "function": str(function.id),
+        "parameters": {"json_param": {"hello": "world"}},
     }
 
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
-    )
+    response = admin_client.post(url, data=task_input, headers=request_headers)
     task_id = response.data.get("id")
 
     assert response.status_code == 201
@@ -186,28 +220,23 @@ def test_create_json_task(
 
 
 def test_create_file_task(
-    mocker,
     admin_client: Client,
-    file_function: Function,
+    function: Function,
     request_headers: dict,
+    personal_file: UserFile,
 ):
     """Create a Task with file parameters"""
 
-    def mock_file_upload(_task, _request):
-        """Mock the method of uploading a file to S3"""
-        return
-
     url = reverse("task-list")
 
-    mocker.patch("core.api.v1.views.task.handle_file_parameters", mock_file_upload)
-
-    example_file = BytesIO(b"Hello World!")
-    task_input = {"function": str(file_function.id), "param.prop1": example_file}
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"file_param": str(personal_file.id)},
+    }
     response = admin_client.post(
         url,
         data=task_input,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
+        headers=request_headers,
     )
 
     task_id = response.data.get("id")
@@ -217,127 +246,118 @@ def test_create_file_task(
     assert Task.objects.filter(id=task_id).exists()
 
 
-def test_create_returns_503_for_file_upload_error(
-    mocker,
+def test_create_return_400_for_file_task_with_invalid_file_id_format(
     admin_client: Client,
-    file_function: Function,
+    function: Function,
     request_headers: dict,
 ):
-    """A file upload error should return a 503 status"""
+    """Create a Task with a file parameter that is not a valid UUID returns 400"""
+
     url = reverse("task-list")
 
-    def mock_file_upload(_task, _request):
-        """Mock the method of uploading a file to S3"""
-        raise S3FileUploadError("Failed to upload file")
-
-    mocker.patch("core.api.v1.views.task.handle_file_parameters", mock_file_upload)
-
-    example_file = BytesIO(b"Hello World!")
-    task_input = {"function": str(file_function.id), "param.prop1": example_file}
-
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"file_param": 12},
+    }
     response = admin_client.post(
         url,
         data=task_input,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
+        headers=request_headers,
     )
 
-    assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
-    assert not Task.objects.filter(tasked_id=file_function.id).exists()
+    assert response.status_code == 400
+
+
+def test_create_return_400_for_file_task_with_other_users_private_file(
+    admin_client: Client,
+    function: Function,
+    request_headers: dict,
+    private_file_of_another_user: UserFile,
+):
+    """Create a Task with a file parameter that is private and owned by another user
+    returns a 400"""
+
+    url = reverse("task-list")
+
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"file_param": str(private_file_of_another_user.id)},
+    }
+    response = admin_client.post(
+        url,
+        data=task_input,
+        headers=request_headers,
+    )
+
+    assert response.status_code == 400
+    assert "does not exist" in response.content.decode()
 
 
 def test_create_returns_415_for_invalid_content_type(
     admin_client: Client,
-    int_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Test for valid content types"""
     url = reverse("task-list")
 
     task_input = {
-        "function": str(int_function.id),
-        "param.prop1": 5,
+        "function": str(function.id),
+        "parameters": {"int_param": 5},
     }
 
     response = admin_client.post(
-        url, data=task_input, content_type="application/json", **request_headers
+        url, data=task_input, content_type=MULTIPART_CONTENT, headers=request_headers
     )
     assert response.status_code == 415
 
 
 def test_create_returns_400_for_extra_parameters(
     admin_client: Client,
-    int_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Return a 400 if additional, unexpected parameters are provided"""
     url = reverse("task-list")
 
     input_with_extra_parameters = {
-        "function": str(int_function.id),
-        "param.prop1": 5,
-        "unexpected_param": 12,
+        "function": str(function.id),
+        "parameters": {"int_param": 5, "unexpected_param": 12},
     }
 
     response = admin_client.post(
         url,
         data=input_with_extra_parameters,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
+        headers=request_headers,
     )
 
     assert response.status_code == 400
-    assert "unexpected_param" in response.json()[0]
-    assert not Task.objects.filter(tasked_id=int_function.id).exists()
+    assert "unexpected_param" in response.content.decode()
+    assert not Task.objects.filter(tasked_id=function.id).exists()
 
 
 def test_create_returns_400_for_invalid_int_parameters(
     admin_client: Client,
-    int_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Return a 400 for invalid int parameters"""
     url = reverse("task-list")
 
-    invalid_int_function_input = {
-        "function": str(int_function.id),
-        "param.prop1": "not an integer",
+    invalid_function_input = {
+        "function": str(function.id),
+        "parameters": {"int_param": "not an integer"},
     }
 
     response = admin_client.post(
         url,
-        data=invalid_int_function_input,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
+        data=invalid_function_input,
+        headers=request_headers,
     )
 
     assert response.status_code == 400
-    assert "param.prop1" in response.json()
-    assert not Task.objects.filter(tasked_id=int_function.id).exists()
-
-
-def test_create_returns_400_for_invalid_json_parameters(
-    admin_client: Client,
-    json_function: Function,
-    request_headers: dict,
-):
-    """Return a 400 for invalid json parameters"""
-    url = reverse("task-list")
-
-    invalid_json_input = {
-        "function": str(json_function.id),
-        "param.prop1": '{"hello": "world"',
-    }
-
-    response = admin_client.post(
-        url,
-        data=invalid_json_input,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
-    )
-    assert response.status_code == 400
-    assert "param.prop1" in response.json()
-    assert not Task.objects.filter(tasked_id=json_function.id).exists()
+    assert "int_param" in response.content.decode()
+    assert not Task.objects.filter(tasked_id=function.id).exists()
 
 
 def test_create_returns_400_for_invalid_function_name(
@@ -351,12 +371,10 @@ def test_create_returns_400_for_invalid_function_name(
     task_input = {
         "function_name": "invalid_function_name",
         "package_name": package.name,
-        "param.someparam": '{"some": "input"}',
+        "parameters": {"someparam": "some_value"},
     }
 
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
-    )
+    response = admin_client.post(url, data=task_input, headers=request_headers)
 
     assert response.status_code == 400
     assert "Invalid function" in response.json()[0]
@@ -371,44 +389,43 @@ def test_create_returns_400_for_invalid_function_id(
 
     task_input = {
         "function": "not a uuid",
-        "param.someparam": '{"some": "input"}',
+        "parameters": {"someparam": "somevalue"},
     }
 
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
-    )
+    response = admin_client.post(url, data=task_input, headers=request_headers)
     assert response.status_code == 400
     assert "Invalid function" in response.json()[0]
 
 
 def test_create_returns_400_for_missing_required_parameters(
     admin_client: Client,
-    json_function: Function,
+    function: Function,
     request_headers: dict,
 ):
     """Return a 400 for missing required parameters"""
     url = reverse("task-list")
 
-    task_input = {
-        "function_name": json_function.name,
-        "package_name": json_function.package.name,
-    }
-
-    response = admin_client.post(
-        url, data=task_input, content_type=MULTIPART_CONTENT, **request_headers
+    function.parameters.create(
+        name="required_param", parameter_type=PARAMETER_TYPE.STRING, required=True
     )
 
-    missing_parameter = "param.prop1"
+    task_input = {
+        "function_name": function.name,
+        "package_name": function.package.name,
+        "parameters": {},
+    }
+
+    response = admin_client.post(url, data=task_input, headers=request_headers)
 
     assert response.status_code == 400
-    assert missing_parameter in response.json()
+    assert "required_param" in response.content.decode()
 
 
 def test_no_result_returns_404(admin_client: Client, task: Task, request_headers: dict):
     """The task result is returned as the correct type"""
 
     url = f"{reverse('task-list')}{task.id}/result/"
-    response = admin_client.get(url, **request_headers)
+    response = admin_client.get(url, headers=request_headers)
 
     assert response.status_code == 404
 
@@ -427,33 +444,28 @@ def test_result_type_is_preserved(
 
     task_result = TaskResult.objects.create(task=task)
 
-    task_result.result = str_result
-    task_result.save()
-    response = admin_client.get(url, **request_headers)
+    task_result.save_result(str_result)
+    response = admin_client.get(url, headers=request_headers)
     assert type(response.data["result"]) is str
 
-    task_result.result = int_result
-    task_result.save()
-    response = admin_client.get(url, **request_headers)
+    task_result.save_result(int_result)
+    response = admin_client.get(url, headers=request_headers)
     assert type(response.data["result"]) is int
 
-    task_result.result = list_result
-    task_result.save()
-    response = admin_client.get(url, **request_headers)
+    task_result.save_result(list_result)
+    response = admin_client.get(url, headers=request_headers)
     assert type(response.data["result"]) is list
 
-    task_result.result = dict_result
-    task_result.save()
-    response = admin_client.get(url, **request_headers)
+    task_result.save_result(dict_result)
+    response = admin_client.get(url, headers=request_headers)
     assert type(response.data["result"]) is dict
 
-    task_result.result = bool_result
-    task_result.save()
-    response = admin_client.get(url, **request_headers)
+    task_result.save_result(bool_result)
+    response = admin_client.get(url, headers=request_headers)
     assert type(response.data["result"]) is bool
 
 
-def test_workflow_task(admin_client: Client, request_headers: dict, workflow: Workflow):
+def test_workflow_task(admin_client, request_headers: dict, workflow: Workflow):
     """Create a Task for a Workflow"""
     url = reverse("task-list")
 
@@ -461,15 +473,118 @@ def test_workflow_task(admin_client: Client, request_headers: dict, workflow: Wo
 
     task_input = {
         "workflow": str(workflow.id),
-        "param.param1": 5,
+        "parameters": {"int_param": 5},
     }
 
     response = admin_client.post(
         url,
         data=task_input,
-        content_type=MULTIPART_CONTENT,
-        **request_headers,
+        headers=request_headers,
     )
 
     assert response.status_code == 201
     assert workflow.tasks.exists()
+
+
+def test_create_task_with_comment(
+    admin_client, request_headers: dict, function: Function
+):
+    """A comment can be set on the Task"""
+    url = reverse("task-list")
+
+    comment = "This is my comment."
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"int_param": 5},
+        "comment": comment,
+    }
+
+    response = admin_client.post(url, data=task_input, headers=request_headers)
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.get(id=task_id).comment == comment
+
+
+def test_filterset_id(admin_client, all_tasks, request_headers: dict):
+    """Filter by task_id"""
+    url = reverse("task-list")
+    task = all_tasks[0]
+    response = admin_client.get(
+        url,
+        data={"id": task.id},
+        headers=request_headers,
+    )
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["id"] == str(task.id)
+
+
+def test_filterset_status(admin_client, all_tasks, request_headers: dict):
+    """Filter by task_status"""
+    url = reverse("task-list")
+    task = all_tasks[0]
+    response = admin_client.get(
+        url,
+        data={"status": "PENDING"},
+        headers=request_headers,
+    )
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["id"] == str(task.id)
+
+
+def test_filterset_creator(admin_client, all_tasks, admin_user, request_headers: dict):
+    """Filter by task_creator"""
+    url = reverse("task-list")
+    task = all_tasks[0]
+    response = admin_client.get(
+        url,
+        data={"creator": admin_user.id},
+        headers=request_headers,
+    )
+    results = response.json()["results"]
+    assert len(results) == 1
+    assert results[0]["id"] == str(task.id)
+
+
+def test_create_options_task(
+    admin_client: Client,
+    function: Function,
+    request_headers: dict,
+):
+    """Create a Task with options parameters by Function ID"""
+    url = reverse("task-list")
+
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"options_param": "option1"},
+    }
+
+    response = admin_client.post(url, data=task_input, headers=request_headers)
+    task_id = response.data.get("id")
+
+    assert response.status_code == 201
+    assert task_id is not None
+    assert Task.objects.filter(id=task_id).exists()
+
+
+def test_create_returns_400_options_task_with_invalid_choice(
+    admin_client: Client,
+    function: Function,
+    request_headers: dict,
+):
+    """Create a Task with options parameters with an invalid option by Function ID"""
+    url = reverse("task-list")
+
+    task_input = {
+        "function": str(function.id),
+        "parameters": {"options_param": "option5"},
+    }
+
+    response = admin_client.post(url, data=task_input, headers=request_headers)
+
+    assert response.status_code == 400
+    assert "options_param" in response.content.decode()
+    assert not Task.objects.filter(tasked_id=function.id).exists()

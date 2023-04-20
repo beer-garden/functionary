@@ -42,6 +42,10 @@ def set_session_environment(request: HttpRequest, environment: Environment) -> N
 
         {% if request.session.user_can_create_task %}
 
+    The environment id will also be persisted in the user's "environment" preference
+    so that it can be recalled during the login process and allow the user's next
+    session to start in the environment they were last working.
+
     Args:
         request: The HttpRequest containing the session to update
         environment: The environment to make active for the session
@@ -52,24 +56,4 @@ def set_session_environment(request: HttpRequest, environment: Environment) -> N
     request.session["environment_id"] = str(environment.id)
     _load_session_permissions(request, environment)
 
-
-def user_environments(request: HttpRequest) -> dict:
-    """Context processor function that adds the user's environments to the context
-
-    Args:
-        request: The HttpRequest to base the context on
-
-    Returns:
-        A dict containing "user_environments" to be appended to the template context
-    """
-    environments = {}
-
-    if hasattr(request.user, "environments"):
-        envs = request.user.environments.select_related("team").order_by(
-            "team__name", "name"
-        )
-
-        for env in envs:
-            environments.setdefault(env.team.name, []).append(env)
-
-    return {"user_environments": environments}
+    request.user.set_preference("environment", str(environment.id), save=True)

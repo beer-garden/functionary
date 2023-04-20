@@ -19,4 +19,13 @@ INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
     "10.0.2.2",
 ]
 
+# Static file storage setting
+STORAGES.update(
+    {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        }
+    }
+)
+
 from .local_settings import *  # noqa

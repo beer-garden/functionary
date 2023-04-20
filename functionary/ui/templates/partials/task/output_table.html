@@ -1,0 +1,6 @@
+{% load renderers %}
+{% if format_error is None %}
+    {% render_table task_output_table 'partials/table_template.html' %}
+{% else %}
+    <div>{{ format_error }}</div>
+{% endif %}

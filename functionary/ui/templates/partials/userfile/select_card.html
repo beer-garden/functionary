@@ -1,0 +1,52 @@
+{% load renderers %}
+<form id="file-modal-form"
+      method="post"
+      hx-post="{% url 'ui:file-chooser' %}"
+      hx-target="#filechooser-table"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    <input type="hidden" id="parameter" name="parameter" value="{{ parameter }}" />
+    <input type="hidden"
+           id="parameter_id"
+           name="parameter_id"
+           value="{{ parameter_id }}" />
+    <div id="select-card">
+        <input type="hidden" id="file_type" name="file_type" value="{{ file_type }}" />
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-pills card-header-pills"
+                    hx-target="#filechooser-table"
+                    hx-swap="outerHTML">
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link link-offset-3 {% if file_type != 'shared' %}active{% endif %}"
+                                id="owned-files"
+                                hx-get='{% url "ui:file-table" %}?file_type=owned'>
+                            Owned
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link link-offset-3 {% if file_type == 'shared' %}active{% endif %}"
+                                id="shared-files"
+                                hx-get='{% url "ui:file-table" %}?file_type=shared'>
+                            Shared
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                {{ form.non_field_errors.as_text }}
+                <div id="filechooser-table" class="filechooser-table">
+                    {% render_table table 'partials/table_template.html' %}
+                </div>
+                <div class="d-flex flex-row-reverse mt-2">
+                    <button class="btn btn-primary"
+                            type="submit"
+                            form="file-modal-form"
+                            title="Select">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

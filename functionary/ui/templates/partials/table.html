@@ -1,3 +1,37 @@
-{% load django_tables2 %}
+{% load renderers %}
 {% load widget_tweaks %}
-<div id="table-list-block">{% render_table table 'partials/table_template.html' %}</div>
+{% load extras %}
+<div id="table-list-block" class="pb-2">
+    {% render_table table 'partials/table_template.html' %}
+    {{ filter.form.cleaned_data|applied_filters|json_script:"filter-data" }}
+    <script>
+        function debounce(cb, delay = 500) {
+            let timeout
+            return (...args) => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    cb.apply(this, args)
+                }, delay)
+            }
+        }
+        function updateFilter() {
+            const filterBadgeEl = document.getElementById('filterBadge')
+            const activeFilters = JSON.parse(document.getElementById('filter-data').textContent)
+            filterBadgeEl.innerText = activeFilters.length
+            if(activeFilters.length == 0 && !filterBadgeEl.classList.contains('d-none')) {
+                filterBadgeEl.classList.add('d-none')
+            } else if(activeFilters.length != 0 && filterBadgeEl.classList.contains('d-none')) {
+                filterBadgeEl.classList.remove('d-none')
+            }
+        }
+        htmx.on("htmx:afterSwap", (event) => {
+            if(event.detail.target.id == 'table-list-block') {
+                updateFilter()
+            }
+        })
+        window.addEventListener("resize", function(event) {
+            const debouncedFilter = debounce(() => updateFilter())
+            debouncedFilter()
+        })
+    </script>
+</div>

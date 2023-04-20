@@ -1,6 +1,6 @@
 # Developing using VSCode
 
-For users of VSCode, a variety of tooling is provided in the functionary
+For users of VSCode, a variety of tooling is provided in the Functionary
 repository to help ease the development workflow.
 
 ## Workspace
@@ -37,7 +37,7 @@ code always adheres to those standards. You can see the various settings in the
 ### Docker Compose
 
 There are several processes and dependent services that are required to run in
-order to use functionary. A docker-compose.yml is provided to start and stop all
+order to use Functionary. A docker-compose.yml is provided to start and stop all
 of these processes with ease.
 
 From within VSCode, there are tasks available to run docker compose up or down.
@@ -71,7 +71,7 @@ To debug, a set of launch commands is provided:
 - runserver (functionary)
 - run_listener (functionary)
 - run_worker (functionary)
-- run_build_worker (functionary)
+- run_builder (functionary)
 - run_scheduler (functionary)
 - shell (functionary)
 - runner (runner)
@@ -86,10 +86,10 @@ set breakpoints in code for the different processes as needed.
 
 ### IMPORTANT NOTES
 
-- Be sure to have the correct python interpreter / virtual environment selected
-  before you start debugging. When you have a python file open in VSCode, a menu
+- Be sure to have the correct Python interpreter / virtual environment selected
+  before you start debugging. When you have a Python file open in VSCode, a menu
   item will appear on the far right of the bottom status bar that lets you
-  choose which python to use.
+  choose which Python to use.
 - When you exit debug mode, the container that was stopped is not automatically
   restarted. If you wish to restart it, you can do so easily via the docker
   extension tab in VSCode or by re-running the "functionary: docker compose up"

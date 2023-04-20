@@ -24,7 +24,7 @@ class Worker(Process):
     def __init__(self, name: str = "functionary: runner worker") -> None:
         super().__init__(name=name)
         self.app = app
-        self.loglevel = getLevelName(getenv("LOG_LEVEL", "INFO").upper())
+        self.loglevel = getLevelName(getenv("CELERY_LOG_LEVEL", "WARNING").upper())
 
     def run(self) -> None:
         """Runs the Worker process

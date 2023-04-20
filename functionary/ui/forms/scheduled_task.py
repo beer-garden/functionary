@@ -1,4 +1,5 @@
-from django.forms import CharField, ModelChoiceField, ModelForm
+from django.contrib.contenttypes.models import ContentType
+from django.forms import CharField, Form, ModelChoiceField
 from django.urls import reverse
 from django_celery_beat.validators import (
     day_of_month_validator,
@@ -8,10 +9,12 @@ from django_celery_beat.validators import (
     month_of_year_validator,
 )
 
-from core.models import Environment, Function, ScheduledTask
+from core.models import Environment, Function, ScheduledTask, Workflow
+
+from .custom_forms import BootstrapModelForm
 
 
-class ScheduledTaskForm(ModelForm):
+class ScheduledTaskForm(BootstrapModelForm):
     scheduled_minute = CharField(
         max_length=60 * 4, label="Minute", initial="*", validators=[minute_validator]
     )
@@ -36,10 +39,20 @@ class ScheduledTaskForm(ModelForm):
         initial="*",
         validators=[day_of_week_validator],
     )
-    function = ModelChoiceField(queryset=Function.active_objects.all(), required=True)
+    tasked_object = ModelChoiceField(
+        # This queryset will change on form initialization based on the tasked_type
+        queryset=Function.active_objects.all(),
+        required=True,
+    )
 
     class Meta:
         model = ScheduledTask
+        icons = {
+            "description": "fa-newspaper",
+            "name": "fa-font",
+            "status": "fa-heart-pulse",
+            "tasked_object": "fa-cube",
+        }
 
         # NOTE: The order of the fields matters. The clean_<field> methods run based on
         # the order they are defined in the 'fields =' attribute
@@ -48,27 +61,37 @@ class ScheduledTaskForm(ModelForm):
             "environment",
             "description",
             "status",
-            "function",
+            "tasked_object",
+            "tasked_type",
+            "tasked_id",
             "parameters",
         ]
 
     def __init__(
         self,
-        environment: Environment = None,
+        tasked_object: Function | Workflow,
+        environment: Environment,
         *args,
         **kwargs,
     ):
+        self._update_tasked_object_queryset(tasked_object, environment)
         super().__init__(*args, **kwargs)
-        self._setup_field_choices(kwargs.get("instance") is not None)
-        self._update_function_queryset(environment)
-        self._setup_field_classes()
+        self._setup_field_choices(kwargs.get("instance") is not None, tasked_object)
+        self._setup_crontab_fields()
 
-    def _update_function_queryset(self, environment: Environment):
-        if environment:
-            function_field = self.fields["function"]
-            function_field.queryset = function_field.queryset.filter(
-                environment=environment, active=True
-            )
+    def _update_tasked_object_queryset(
+        self, tasked_object: Function | Workflow, environment: Environment
+    ):
+        object_type = type(tasked_object)
+        if object_type not in [Function, Workflow]:
+            raise ValueError("Incorrect tasked object type")
+
+        self.declared_fields["tasked_object"].label = (
+            "Function" if isinstance(tasked_object, Function) else "Workflow"
+        )
+        self.declared_fields[
+            "tasked_object"
+        ].queryset = object_type.active_objects.filter(environment=environment)
 
     def _get_create_status_choices(self) -> list:
         """Don't want user to set status to Error"""
@@ -88,29 +111,17 @@ class ScheduledTaskForm(ModelForm):
         ]
         return choices
 
-    def _setup_field_choices(self, is_update: bool) -> None:
+    def _setup_field_choices(
+        self, is_update: bool, tasked_object: Function | Workflow
+    ) -> None:
         if is_update:
             self.fields["status"].choices = self._get_update_status_choices()
         else:
             self.fields["status"].choices = self._get_create_status_choices()
+        if not tasked_object:
+            raise ValueError("Unable to determine tasked object")
 
-    def _setup_field_classes(self) -> None:
-        for field in self.fields:
-            if field not in ["status", "function"]:
-                self.fields[field].widget.attrs.update({"class": "form-control"})
-            else:
-                self.fields[field].widget.attrs.update(
-                    {"class": "form-select-control", "role": "menu"}
-                )
-
-        self.fields["function"].widget.attrs.update(
-            {
-                "hx-get": reverse("ui:function-parameters"),
-                "hx-target": "#function-parameters",
-            }
-        )
-
-        self._setup_crontab_fields()
+        self.fields["tasked_object"].choices = [(tasked_object.id, tasked_object)]
 
     def _setup_crontab_fields(self):
         """Ugly method to attach htmx properties to the crontab components"""
@@ -118,9 +129,9 @@ class ScheduledTaskForm(ModelForm):
         crontab_fields = [
             "scheduled_minute",
             "scheduled_hour",
-            "scheduled_day_of_week",
             "scheduled_day_of_month",
             "scheduled_month_of_year",
+            "scheduled_day_of_week",
         ]
 
         for field in crontab_fields:
@@ -133,3 +144,38 @@ class ScheduledTaskForm(ModelForm):
                     "hx-target": f"#{field_id}_errors",
                 }
             )
+
+
+class ScheduledTaskWizardForm(Form):
+    name = CharField(label="Name", max_length=200, required=True)
+    tasked_object = ModelChoiceField(
+        # The queryset will be adjusted based on the passed in tasked_type
+        queryset=Function.active_objects.all(),
+        required=True,
+    )
+
+    def __init__(
+        self,
+        environment: Environment = None,
+        tasked_type: str | ContentType = None,
+        *args,
+        **kwargs,
+    ):
+        self._update_tasked_object_queryset(environment, tasked_type)
+        super().__init__(*args, **kwargs)
+
+    def _update_tasked_object_queryset(
+        self, environment: Environment, tasked_type: str | ContentType
+    ):
+        if hasattr(tasked_type, "name"):
+            tasked_type = tasked_type.name
+
+        object_manager = (
+            Function.active_objects
+            if tasked_type != "workflow"
+            else Workflow.active_objects
+        )
+        field = self.declared_fields["tasked_object"]
+        field.queryset = object_manager.filter(environment=environment)
+        field.empty_label = f"Select a {tasked_type}"
+        field.label = tasked_type.capitalize()

@@ -1,11 +1,12 @@
 """ Package model """
 import uuid
 
-from django.conf import settings
 from django.db import models, transaction
 from django.db.models import QuerySet
 
 from core.models import Environment
+from core.models.mixins import ModelSaveHookMixin
+from core.utils import registry
 
 
 class PACKAGE_STATUS:
@@ -26,7 +27,7 @@ class ActivePackageManager(models.Manager):
         return super().get_queryset().filter(status=PACKAGE_STATUS.ACTIVE)
 
 
-class Package(models.Model):
+class Package(ModelSaveHookMixin, models.Model):
     """A Package is a grouping of functions made available for tasking
 
     Attributes:
@@ -79,6 +80,11 @@ class Package(models.Model):
     def __str__(self):
         return self.name
 
+    def pre_save(self):
+        """Actions to run before save"""
+        if self.display_name is None:
+            self.display_name = self.name
+
     def update_image_name(self, image_name: str) -> None:
         """Update the package's image name with the given image name"""
         self.image_name = image_name
@@ -114,14 +120,9 @@ class Package(models.Model):
             self.save()
 
     @property
-    def render_name(self) -> str:
-        """Returns the template-renderable name of the package"""
-        return self.display_name if self.display_name else self.name
-
-    @property
     def full_image_name(self) -> str:
         """Returns the package's image name prepended with the registry info"""
-        return f"{settings.REGISTRY}/{self.image_name}"
+        return f"{registry.get_registry()}/{self.image_name}"
 
     @property
     def active_functions(self) -> QuerySet:

@@ -6,6 +6,9 @@ from django.views.decorators.http import require_GET, require_POST
 from django_htmx.http import HttpResponseClientRefresh
 from rest_framework.authtoken.models import Token
 
+from ui.tables.account_connections import AccountConnectionsTable
+from ui.templatetags.social_helper import configured_providers
+
 
 @login_required
 @require_GET
@@ -23,7 +26,15 @@ def details(request):
         )
 
     token, _ = Token.objects.get_or_create(user=request.user)
-    context = {"socialaccounts": account_data, "token": token}
+    context = {
+        "socialaccounts": account_data,
+        "token": token,
+    }
+    socialaccount_providers = configured_providers()
+    if socialaccount_providers:
+        context["socialaccounts_table"] = AccountConnectionsTable(
+            socialaccount_providers
+        )
 
     return render(request, "account/details.html", context)
 

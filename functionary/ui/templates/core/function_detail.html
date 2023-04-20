@@ -1,28 +1,21 @@
 {% extends "base.html" %}
 {% load extras %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb my-1 pb-1">
-            <li class="breadcrumb-item">
-                <a href="{% url 'ui:function-list' %}">Functions</a>
-            </li>
-            <li class="breadcrumb-item">
-                <i class="fa fa-cubes"></i>
-                <a href="{% url 'ui:package-detail' function.package.id %}">{{ function.package.render_name }}</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">{{ function.render_name }}</li>
-        </ol>
-    </nav>
+    <div class="d-flex">{% include "partials/breadcrumb.html" %}</div>
     <hr />
     <div class="row">
         <div class="col-10 col-md-8 col-xl-7">
             <h2 class="mt-2 mb-1">
                 <i class="fa fa-cube"></i>
-                <span>{{ function.render_name }}</span>
+                <span>{{ function.display_name }}</span>
             </h2>
-            {% if function.summary %}<p class="mb-1 text-muted">{{ function.summary }}</p>{% endif %}
+            {% if function.summary %}
+                <p class="mb-1 text-muted">{{ function.summary }}</p>
+            {% endif %}
             <div class="vstack gap-3 my-4">
-                {% if function.description %}<div>{{ function.description|linebreaks }}</div>{% endif %}
+                {% if function.description %}
+                    <div>{{ function.description|linebreaks }}</div>
+                {% endif %}
                 {% if function.return_type %}
                     <div>
                         <span class="fw-bold me-2">
@@ -31,40 +24,37 @@
                         {{ function.return_type }}
                     </div>
                 {% endif %}
-                {% if form is not None %}
+                {% if parameter_form is not None %}
                     {% if function.active %}
                         {% if missing_variables %}
                             <div class="alert alert-danger" role="alert">
-                                <p>Tasking this function may not work as expected; the following variables are missing:</p>
+                                <p>
+                                    Tasking this function may not work as expected; the following variables are missing:
+                                </p>
                                 <ul>
                                     {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
                                 </ul>
                             </div>
                         {% endif %}
-                        {% if form.fields %}
-                            <div class="border border-dark-subtle rounded form-fill">
-                                <div class="row mx-2 mt-3">
-                                    <div class="col col-lg-10 col-xl-9 col-xxl-8">
-                                        <form id="taskCreateForm"
-                                              method="post"
-                                              action="{% url 'ui:function-execute' %}"
-                                              enctype="multipart/form-data">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="function_id" value="{{ function.id }}"/>
-                                            {{ form.non_field_errors }}
-                                            {{ form }}
-                                        </form>
-                                    </div>
+                        <form id="taskCreateForm"
+                              method="post"
+                              action="{% url 'ui:function-execute' %}"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="function_id" value="{{ function.id }}" />
+                            {% if parameter_form.fields %}
+                                {{ parameter_form.non_field_errors.as_text }}
+                                <div class="card">
+                                    <div class="card-body pb-1">{{ parameter_form }}</div>
                                 </div>
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                            {% include "partials/task/task_metadata.html" %}
+                        </form>
                         <div>
                             <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
                                     type="submit"
                                     title="Execute"
-                                    form="taskCreateForm">
-                                Execute
-                            </button>
+                                    form="taskCreateForm">Execute</button>
                         </div>
                     {% else %}
                         <div class="alert alert-warning text-center" role="alert">

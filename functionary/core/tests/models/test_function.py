@@ -79,7 +79,7 @@ def scheduled_task(function, environment, user, periodic_task):
         name="testtask",
         description="description",
         creator=user,
-        function=function,
+        tasked_object=function,
         environment=environment,
         parameters={"name": "input", "summary": "summary", "type": "text"},
         periodic_task=periodic_task,

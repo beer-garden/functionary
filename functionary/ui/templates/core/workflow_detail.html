@@ -1,42 +1,93 @@
 {% extends "base.html" %}
+{% load extras %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb my-1 pb-1">
-            <li class="breadcrumb-item">
-                <a href="{% url 'ui:workflow-list' %}">Workflows</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">{{ workflow.name }}</li>
-        </ol>
-    </nav>
+    <div class="d-flex">{% include "partials/breadcrumb.html" %}</div>
     <hr />
     <div class="row">
         <div class="col-10 col-md-8 col-xl-7">
-            <div class="hstack gap-3 mt-2 mb-1">
-                <h2>
-                    <i class="fa fa-diagram-next"></i>
-                    {{ workflow.name }}
-                </h2>
-                <i class="fa fa-pencil-alt fa-lg text-info"
-                   type="button"
-                   title="Edit"
-                   hx-target="body"
-                   hx-swap="beforeend"
-                   hx-get="{% url 'ui:workflow-update' workflow.id %}?id={{ workflow.id }}"></i>
-            </div>
+            <h2 class="mt-2 mb-1">
+                <i class="fa fa-diagram-next"></i>
+                <span>{{ workflow.display_name }}</span>
+            </h2>
+            {% if workflow.summary %}
+                <p class="mb-1 text-muted">{{ workflow.summary }}</p>
+            {% endif %}
             <div class="vstack gap-3 my-4">
-                {% if workflow.description %}<div id="desc" class="ms-4">{{ workflow.description|linebreaks }}</div>{% endif %}
-                <div>
-                    <h3 class="fw-semibold">
-                        <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-                    </h3>
-                    {% include "partials/workflows/parameter_list.html" %}
-                </div>
-                <div>
-                    <h3 class="fw-semibold">
-                        <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
-                    </h3>
-                    {% include "partials/workflows/step_list.html" %}
-                </div>
+                {% if workflow.description %}
+                    <div>{{ workflow.description | linebreaks }}</div>
+                {% endif %}
+                {% if workflow.first_step %}
+                    <div id="envs" class="d-flex flex-wrap align-items-center gap-2">
+                        {% for step in workflow.ordered_steps %}
+                            <div class="card"
+                                 tabindex="0"
+                                 data-bs-html="true"
+                                 data-bs-toggle="popover"
+                                 data-bs-container="#envs"
+                                 data-bs-trigger="hover focus"
+                                 data-bs-placement="auto"
+                                 data-bs-content='<i class="fa fa-cube fa-sm fa-fw me-1"></i>{{ step.tasked_object.display_name }}'>
+                                <div class="card-body p-2 bg-body rounded-2">
+                                    <i class="fa fa-stairs fa-sm fa-fw me-1"></i>{{ step.name }}
+                                    <span class="visually-hidden">Task: {{ step.tasked_object.display_name }}</span>
+                                </div>
+                            </div>
+                            {% if not forloop.last %}
+                                <i class="fa fa-angle-right fa-sm fa-fw"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if parameter_form is not None %}
+                    {% if workflow.active %}
+                        {% if missing_variables %}
+                            <div class="alert alert-danger" role="alert">
+                                <p>
+                                    Tasking this workflow may not work as expected; the following variables are missing:
+                                </p>
+                                <ul>
+                                    {% for missing in missing_variables %}<li>{{ missing }}</li>{% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {{ parameter_form.non_field_errors.as_text }}
+                        <form id="taskCreateForm"
+                              method="post"
+                              action="{% url 'ui:function-execute' %}"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="card">
+                                <div class="card-body pb-1">
+                                    <input type="hidden" name="workflow_id" value="{{ workflow.id }}" />
+                                    {% if parameter_form.fields %}
+                                        {{ parameter_form }}
+                                    {% else %}
+                                        <p class="font-monospace m-0 mb-4">No parameters defined</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% include "partials/task/task_metadata.html" %}
+                        </form>
+                        {% if workflow.first_step %}
+                            <div>
+                                <button class="btn {% if missing_variables %}btn-warning{% else %}btn-primary{% endif %}"
+                                        type="submit"
+                                        title="Execute"
+                                        form="taskCreateForm">Execute</button>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info text-center" role="alert">
+                                <i class="fa fa-circle-info"></i>
+                                This workflow has no steps, so it cannot be executed.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-warning text-center" role="alert">
+                            <i class="fa fa-triangle-exclamation"></i>
+                            This workflow is currently inactive.
+                        </div>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
     </div>

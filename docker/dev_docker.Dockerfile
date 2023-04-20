@@ -13,7 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN apt-get update && \
     apt-get install -y \
     # python build deps
-    make gcc python3-dev libpq-dev \
+    make gcc python3-dev libpq-dev libldap2-dev libsasl2-dev \
     # packages for docker install
     ca-certificates curl gnupg lsb-release && \
     mkdir -p /etc/apt/keyrings && \

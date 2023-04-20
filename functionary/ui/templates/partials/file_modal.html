@@ -1,0 +1,67 @@
+<div id="file-modal"
+     class="modal"
+     tabindex="-1"
+     aria-labelledby="file-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div id="file-modal-content" class="modal-content">
+            <div class="modal-header text-bg-primary">
+                <h2 class="modal-title fs-5" id="file-modal-label"></h2>
+                <button type="button"
+                        title="Close"
+                        class="btn-close"
+                        aria-label="Close"
+                        onclick="toggleFileModal(false)"></button>
+            </div>
+            <div id="file-modal-body" class="modal-body"></div>
+            <div id="file-modal-footer" class="modal-footer"></div>
+        </div>
+    </div>
+    <script>
+        const fileModalEl = document.getElementById('file-modal')
+        fileModalEl.addEventListener('hidden.bs.modal', event => {
+            if (event.target === fileModalEl) {
+                // Check if this is for the file-modal
+                // clear modal contents
+                const titleEl = fileModalEl.getElementsByClassName('modal-title')[0]
+                titleEl.innerHTML = ''
+                const contentEl = fileModalEl.getElementsByClassName('modal-body')[0]
+                contentEl.replaceChildren()
+                const footerEl = fileModalEl.getElementsByClassName('modal-footer')[0]
+                footerEl.replaceChildren()
+                // cleanup any modal scripts
+                const scriptEl = fileModalEl.querySelectorAll('script')
+                scriptEl.forEach((el) => el.remove())
+            }
+        })
+        
+        function toggleFileModal(show) {
+            // myModalEl is included in the base.html via modal.html
+            const contentEl = myModalEl.getElementsByClassName('modal-body')[0]
+
+            if (show) {
+                // The contents get cleared on modal hide, if there's something there
+                // then we need to show it
+                if (contentEl.children.length > 0) {
+                    myModalEl.setAttribute('data-keep-contents', 'true')
+                    bootstrap.Modal.getInstance(myModalEl).hide()
+                }
+
+                // The first time around, the modal for fileModalEl won't
+                // exist since we're showing it via javascript
+                bootstrap.Modal.getOrCreateInstance(document.querySelector('#file-modal')).show()
+            } else {
+                // The contents get cleared on modal hide, if there's something there
+                // then we need to show it
+                if (contentEl.children.length > 0) {
+                    myModalEl.removeAttribute('data-keep-contents')
+                    bootstrap.Modal.getInstance(myModalEl).show()
+                }
+
+                // The first time around, the modal for fileModalEl won't
+                // exist since we're showing it via javascript
+                bootstrap.Modal.getInstance(fileModalEl).hide()
+            }
+        }
+    </script>
+</div>

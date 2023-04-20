@@ -1,14 +1,9 @@
 """Tests function views"""
-
-from io import BytesIO
-
 import pytest
-from django.test.client import Client
 from django.urls import reverse
 
-from core.models import Function, FunctionParameter, Package, Task, Team
+from core.models import Function, Package, Task, Team
 from core.models.package import PACKAGE_STATUS
-from core.utils.minio import S3FileUploadError
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -100,30 +95,22 @@ def test_execute_handles_optional_parameters(
     assert text_parameter.name in task.parameters
 
 
-def test_fail_file_upload(
-    mocker,
-    admin_client: Client,
-    file_function: Function,
-    file_parameter: FunctionParameter,
-):
-    def mock_file_upload(_task, _request):
-        """Mock the method of uploading a file to S3"""
-        raise S3FileUploadError("Failed to upload file")
-
-    mocker.patch("ui.views.function.handle_file_parameters", mock_file_upload)
-
+@pytest.mark.django_db
+def test_execute_handles_comments(admin_client, function, text_parameter):
+    """Comments submitted when executing a task are recorded on the Task"""
     session = admin_client.session
-    session["environment_id"] = str(file_function.environment.id)
+    session["environment_id"] = str(function.environment.id)
     session.save()
 
     url = reverse("ui:function-execute")
-
-    example_file = BytesIO(b"Hello World!")
+    comment = "This is my comment."
     data = {
-        "function_id": str(file_function.id),
-        f"task-parameter-{file_parameter.name}": example_file,
+        "function_id": str(function.id),
+        f"task-parameter-{text_parameter.name}": "arbitrary text",
+        "task-metadata-comment": comment,
     }
 
-    response = admin_client.post(url, data)
-    assert response.status_code == 503
-    assert not Task.objects.filter(tasked_id=file_function.id).exists()
+    admin_client.post(url, data)
+    task = Task.objects.get(tasked_id=function.id)
+
+    assert task.comment == comment

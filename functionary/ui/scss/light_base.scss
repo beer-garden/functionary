@@ -1,0 +1,56 @@
+@mixin light-base() {
+  .navbar {
+    --#{$prefix}navbar-color: #{$nav-highlight-color};
+    --#{$prefix}navbar-hover-color: #{$primary};
+    --#{$prefix}navbar-brand-color: #{$brand-color};
+    --#{$prefix}navbar-brand-hover-color: #{$white};
+    --#{$prefix}navbar-active-color: #{$white};
+  };
+  .navbar .dropdown-menu {
+    --#{$prefix}dropdown-bg: #{$nav-menu-color};
+    --#{$prefix}dropdown-link-color: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-color: #{$menu-light};
+    --#{$prefix}dropdown-header-color: #{$white};
+    --#{$prefix}dropdown-link-hover-color: var(--#{$prefix}dropdown-bg);
+    --#{$prefix}dropdown-link-hover-bg: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-link-active-color: #{$white};
+    --#{$prefix}dropdown-link-active-bg: var(--#{$prefix}dropdown-bg);
+    --#{$prefix}dropdown-divider-bg: var(--#{$prefix}navbar-color);
+  };
+  .nav-pills {
+    --#{$prefix}nav-pills-link-active-bg: #{$primary};
+  };
+  .dropdown-menu {
+    --#{$prefix}dropdown-bg: #{$menu-light};
+    --#{$prefix}dropdown-link-color: #{$primary};
+    --#{$prefix}dropdown-link-hover-color: #{$menu-light};
+    --#{$prefix}dropdown-link-hover-bg: #{$primary};
+    --#{$prefix}dropdown-link-active-color: #{$gray-600};
+    --#{$prefix}dropdown-link-active-bg: #{$menu-light};
+  };
+  .card {
+    --#{$prefix}card-bg: #{$shaded-light-color};
+  };
+  .offcanvas-xl {
+    --#{$prefix}offcanvas-bg: #{$shaded-light-color};
+  };
+  .accordion {
+    --#{$prefix}accordion-active-bg: #{$shaded-light-color};
+    --#{$prefix}accordion-active-color: #{$body-color};
+  };
+  .btn-link {
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-color: #{$btn-link-color};
+    --#{$prefix}btn-bg: transparent;
+    --#{$prefix}btn-border-color: transparent;
+    --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
+    --#{$prefix}btn-hover-border-color: transparent;
+    --#{$prefix}btn-active-color: #{$btn-link-hover-color};
+    --#{$prefix}btn-active-border-color: transparent;
+    --#{$prefix}btn-box-shadow: 0 0 0 #000; // Can't use `none` as keyword negates all values when used with multiple shadows
+    --#{$prefix}btn-focus-shadow-rgb: #{to-rgb(mix(color-contrast($link-color), $link-color, 15%))};
+  }
+  .btn-close {   
+    filter: var(--bs-btn-close-white-filter);
+  }
+}

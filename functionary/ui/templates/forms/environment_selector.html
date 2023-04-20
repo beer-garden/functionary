@@ -3,22 +3,28 @@
         {% for env in envs %}
             {% if environment_id == env.id|stringformat:'s' %}
                 <button type="button"
-                        class="btn btn-primary btn-block text-start ps-2"
-                        title="Change Environment"
+                        class="btn btn-primary btn-block text-start p-0"
                         data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    <i class="fa fa-lg fa-building fa-fw"></i>
-                    <span class="ms-1 d-none d-md-inline" id="btnLabel">{{ env.name }}</span>
-                    <span class="visually-hidden">Toggle Dropdown</span>
+                    <div class="p-2"
+                         data-bs-toggle="popover"
+                         data-bs-trigger="hover focus"
+                         data-bs-container="#top-navbar"
+                         data-bs-custom-class="d-md-none text-nowrap"
+                         data-bs-content="Change Environment">
+                        <i class="fa fa-lg fa-building fa-fw"></i>
+                        <span class="ms-1 d-none d-md-inline" id="btnLabel">{{ env.name }}</span>
+                        <span class="visually-hidden">Toggle Environment Dropdown</span>
+                    </div>
                 </button>
-                <ul class="dropdown-menu shadow-lg dropdown-menu-dark">
+                <ul class="dropdown-menu shadow-lg">
                     {% for team, envs in user_environments.items %}
                         <li>
                             <span class="dropdown-header"><i class="fa fa-sm fa-users fa-fw me-1"></i>{{ team }}</span>
                         </li>
                         {% for env in envs %}
                             <li>
-                                <button class="dropdown-item {% if environment_id == env.id|stringformat:'s' %}fw-semibold active{% endif %}"
+                                <button class="dropdown-item link-offset-3 {% if environment_id == env.id|stringformat:'s' %}fw-semibold active{% endif %}"
                                         type="button"
                                         title="{{ env.name }}"
                                         {% if environment_id == env.id|stringformat:'s' %}{% endif %}
@@ -37,14 +43,20 @@
                     {% endfor %}
                 </ul>
                 <button type="button"
-                        title="Management"
-                        class="btn btn-primary btn-block dropdown-toggle dropdown-toggle-split"
+                        class="btn btn-primary btn-block dropdown-toggle dropdown-toggle-split p-0"
                         data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    <i class="fa fa-ellipsis"></i>
-                    <span class="visually-hidden">Toggle Dropdown</span>
+                    <div class="p-2"
+                         data-bs-toggle="popover"
+                         data-bs-trigger="hover focus"
+                         data-bs-container="#top-navbar"
+                         data-bs-custom-class="d-md-none"
+                         data-bs-content="Management">
+                        <i class="fa fa-ellipsis"></i>
+                        <span class="visually-hidden">Toggle Management Dropdown</span>
+                    </div>
                 </button>
-                <div class="dropdown-menu shadow-lg dropdown-menu-dark">
+                <div class="dropdown-menu shadow-lg">
                     <a href="{% url 'ui:environment-detail' pk=environment_id %}"
                        class="dropdown-item"
                        title="Manage Environment">

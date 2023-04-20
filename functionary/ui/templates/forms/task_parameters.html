@@ -1,11 +1,28 @@
+{% load widget_tweaks %}
 {% for field in form %}
-    <div class="mb-4">
-        <label class="form-label" for="{{ field.id_for_label }}">
-            <b {% if field.errors %}class="text-danger"{% endif %}>{{ field.label }}</b>:
-            <span class="text-muted">{{ field.field.label_suffix }}</span>
-        </label>
-        <div>{{ field }}</div>
-        <div id="{{ field.label }}HelpBlock" class="form-text">{{ field.help_text }}</div>
+    <div class="mb-3">
+        <div class="d-flex justify-content-between">
+            {{ field.label_tag }}
+            {% with widget=field.field.widget %}
+                {% if form.allow_templates and widget.attrs.base_type not in "text,file" %}
+                    <button type="button"
+                            class="py-0 btn btn-link fs-8"
+                            onclick="template_clicked(this, '{{ field.id_for_label }}')">
+                        {% if widget.input_type == widget.attrs.base_type %}
+                            template: off
+                        {% else %}
+                            template: on
+                        {% endif %}
+                    </button>
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% with field.id_for_label|add:"-error "|add:field.id_for_label|add:"-helpBlock" as desId %}
+            {% render_field field aria-describedby=desId %}
+        {% endwith %}
+        {% if field.help_text %}
+            <small class="form-text text-muted" id="{{ field.id_for_label }}-helpBlock">{{ field.help_text }}</small>
+        {% endif %}
         {{ field.errors }}
     </div>
 {% endfor %}

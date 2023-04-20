@@ -1,0 +1,16 @@
+{% load renderers %}
+<div id="workflow-steps" class="mt-2 mb-4">
+    <form>
+        {% render_table step_table 'partials/table_template.html' %}
+    </form>
+    <button class="btn btn-primary fa-plus"
+            type="button"
+            title="Add Step"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowstep-create' workflow.pk %}">
+        Add
+    </button>
+</div>

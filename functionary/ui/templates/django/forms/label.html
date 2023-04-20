@@ -1,0 +1,14 @@
+<label {% if field.errors %}class="text-danger"{% endif %}
+       {% include "django/forms/widgets/attrs.html" %}
+       for="{{ field.id_for_label }}">
+    <span class="fw-semibold">
+        {% if field.field.icon %}
+            <i class="fa {{ field.field.icon }} fa-sm fa-fw me-1"></i>
+        {% endif %}
+        {{ field.label }}
+    </span>
+    {% if field.field.label_suffix %}
+        <span class="text-muted">: {{ field.field.label_suffix }}</span>
+    {% endif %}
+    {% if field.field.required %}*{% endif %}
+</label>

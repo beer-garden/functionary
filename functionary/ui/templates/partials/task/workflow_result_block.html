@@ -1,0 +1,11 @@
+{% if steps %}
+    <div class="accordion" id="step-container">
+        {% for step in steps %}
+            <div class="accordion-item"
+                 id="step_{{ step.step.step_order }}"
+                 {% if not step.task.finished and step.step.step_order == 1 %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
+                {% include "partials/task/workflow_result.html" %}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

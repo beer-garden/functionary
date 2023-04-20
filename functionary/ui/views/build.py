@@ -1,8 +1,10 @@
+from django.urls import reverse
+
 from builder.models import Build
 from ui.tables.build import BuildFilter, BuildTable
 
 from .generic import PermissionedDetailView, PermissionedListView
-from .task import FINISHED_STATUS
+from .task.utils import FINISHED_STATUS
 
 
 class BuildListView(PermissionedListView):
@@ -15,7 +17,7 @@ class BuildListView(PermissionedListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["breadcrumb"] = "Builds"
+        context["breadcrumbs"] = [{"label": "Builds"}]
 
         return context
 
@@ -31,6 +33,13 @@ class BuildDetailView(PermissionedDetailView):
         context = super().get_context_data(**kwargs)
         completed = self.object.status in FINISHED_STATUS
 
+        context["breadcrumbs"] = [
+            {
+                "label": "Builds",
+                "url": reverse("ui:build-list"),
+            },
+            {"label": self.object.package.display_name},
+        ]
         context["completed"] = completed
         if hasattr(self.object, "buildlog"):
             context["build_log"] = self.object.buildlog

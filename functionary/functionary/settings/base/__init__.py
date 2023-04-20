@@ -14,18 +14,15 @@ from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .auth_ import *  # noqa
+from .allauth_ import *  # noqa
 from .builder_ import *  # noqa
-from .celery_ import *  # noqa
 from .constance_ import *  # noqa
-from .core_ import *  # noqa
 from .logging_ import *  # noqa
-from .rabbitmq_ import *  # noqa
 from .rest_framework_ import *  # noqa
 from .ui_ import *  # noqa
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -40,9 +37,21 @@ DEBUG = True if os.environ.get("DEBUG", "false").lower() == "true" else False
 # Required if DEBUG is False
 ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS")
 if ALLOWED_HOSTS_ENV is None:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 else:
     ALLOWED_HOSTS = list(map(lambda host: host.strip(), ALLOWED_HOSTS_ENV.split(",")))
+
+# CSRF Config
+CSRF_TRUSTED_ORIGINS_ENV = os.environ.get("CSRF_TRUSTED_ORIGINS")
+if CSRF_TRUSTED_ORIGINS_ENV is None:
+    CSRF_TRUSTED_ORIGINS = []
+else:
+    CSRF_TRUSTED_ORIGINS = list(
+        map(lambda host: host.strip(), CSRF_TRUSTED_ORIGINS_ENV.split(","))
+    )
+
+# Expose OpenSSL standard env variable via django settings
+SSL_CERT_FILE = os.getenv("SSL_CERT_FILE")
 
 # Application definition
 INSTALLED_APPS = [
@@ -51,6 +60,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
+    "django.forms",
     "constance",
     "constance.backends.database",
     "allauth",
@@ -89,7 +100,7 @@ ROOT_URLCONF = "functionary.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR.parent.parent / "ui" / "templates"],
+        "DIRS": [BASE_DIR / "ui" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -97,7 +108,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "ui.views.utils.user_environments",
+                "ui.views.context_processors.user_environments",
+                "ui.views.context_processors.active_nav",
+                "ui.views.context_processors.settings",
             ],
         },
     },
@@ -159,8 +172,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
     "core.auth.backends.CoreBackend",
+    "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
@@ -186,3 +199,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Storage engine settings
+STORAGES = {"default": {"BACKEND": "core.utils.storage.S3Storage"}}

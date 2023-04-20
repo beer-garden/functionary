@@ -1,8 +1,13 @@
-<button class="btn btn-primary btn-sm d-xl-none py-1 h-75"
+{% load extras %}
+<button class="btn btn-primary btn-sm position-relative d-xl-none py-1"
         title="Filter"
         type="button"
         data-bs-toggle="offcanvas"
         data-bs-target="#filterOC"
         aria-controls="filterOC">
     <i class="fa fa-filter fa-xs me-1"></i>Filter
+    <span id="filterBadge"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-warning{% if filter.form.cleaned_data|applied_filters|length == 0 %} d-none{% endif %}">
+        {{ filter.form.cleaned_data|applied_filters|length }}
+    </span>
 </button>

@@ -1,0 +1,11 @@
+{% if output_format == "log" %}
+    {% include "partials/log_block.html" with log=task.log %}
+{% elif task.result is None %}
+    {% include "partials/task/output_none.html" %}
+{% elif output_format == "json" %}
+    {% include "partials/task/output_json.html" %}
+{% elif output_format == "table" %}
+    {% include "partials/task/output_table.html" %}
+{% else %}
+    {% include "partials/task/output_string.html" %}
+{% endif %}

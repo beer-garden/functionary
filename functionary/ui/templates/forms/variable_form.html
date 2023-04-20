@@ -1,50 +1,44 @@
-{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">
     {% if variable %}
         Update
     {% else %}
         Add
     {% endif %}
-    Variable
-{% endblock modal_title %}
-{% block modal_content %}
+Variable</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
     <form method="post"
-          id="variable-modal-form"
-          hx-target="#variable-list"
-          hx-swap="outerHTML"
+          id="modal-form"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend"
           hx-post="{% if variable %}{% url 'ui:variable-update' variable.id parent_id %}{% else %}{% url 'ui:variable-create' parent_id %}{% endif %}">
         {% csrf_token %}
-        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label for="name-input"
-                   class="form-label {% if form.name.errors %}text-danger{% endif %}">Name</label>
-            {% render_field form.name class="form-control" placeholder=form.name.name id="name-input" aria-describedby="nameError" %}
-            <div id="nameError" class="text-danger">{{ form.name.errors }}</div>
-        </div>
-        <div class="form-check form-switch mb-3">
-            {% render_field form.protect class="form-check-input" type="checkbox" role="switch" id="{{ form.protect.id_for_label }}" %}
-            <label class="form-check-label" for="{{ form.protect.id_for_label }}">Protect</label>
+            {{ form.name.label_tag }}
+            {% render_field form.name autofocus=true %}
+            {{ form.name.errors }}
         </div>
         <div class="mb-3">
-            <label for="description-input"
-                   class="form-label {% if form.description.errors %}text-danger{% endif %} ">
-                Description
-            </label>
-            {% render_field form.description class="form-control textarea" placeholder=form.description.name rows=2 cols=40 id="description-input" aria-describedby="descripError" %}
-            <div id="descripError" class="text-danger">{{ form.description.errors }}</div>
+            {{ form.protect.label_tag }}
+            {{ form.protect }}
+            {{ form.protect.errors }}
         </div>
         <div class="mb-3">
-            <label for="value-input"
-                   class="form-label {% if form.value.errors %}text-danger{% endif %} ">Value</label>
-            {% render_field form.value class="form-control textarea" placeholder=form.value.name rows=2 cols=40 id="value-input" aria-describedby="valueError" %}
-            <div id="valueError" class="text-danger">{{ form.value.errors }}</div>
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.value.label_tag }}
+            {{ form.value }}
+            {{ form.value.errors }}
         </div>
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
     <button class="btn btn-primary"
-            form="variable-modal-form"
+            form="modal-form"
             type="submit"
             title="{% if variable %}Update{% else %}Add{% endif %}">
         {% if variable %}
@@ -53,4 +47,4 @@
             Add
         {% endif %}
     </button>
-{% endblock modal_footer %}
+</div>

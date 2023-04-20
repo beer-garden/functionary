@@ -1,0 +1,82 @@
+# (required): schema version for the package portion of the yaml. This would inform which serializer / parser
+# to use in the event that we needed to make breaking changes to the way packages are defined.
+version: 1.0
+package:
+  # (required) human-friendly unique identifier (team + package name must be unique)
+  name: js_calculator
+
+  # (optional) Summary of the packages purpose
+  summary: Simple calculator example package (in javascript!)
+
+  # (optional) Detailed description
+  description:
+    The calculator package contains many functions useful for calculating
+    values.
+
+  # (required) Language that the functions are written in
+  language: javascript
+
+  # (required)
+  functions:
+    # Similar to package level fields, but for the function
+    - name: add
+      summary: Add two integers
+      description: This function consumes two integers and outputs the sum.
+      return_type: integer
+
+      # (required) Parameters that the function takes
+      parameters:
+        - name: "x"
+          type: integer
+          default: 1
+          required: true
+        - name: "y"
+          type: integer
+          default: 1
+          required: true
+    - name: subtract
+      summary: Subtracts two integers
+      description:
+        This function consumes two integers and outputs the difference.
+      return_type: integer
+
+      # (required) Parameters that the function takes
+      parameters:
+        - name: "x"
+          type: integer
+          default: 1
+          required: true
+        - name: "y"
+          type: integer
+          default: 1
+          required: true
+    - name: multiply
+      summary: Multiplies two integers
+      description: This function consumes two integers and outputs the product.
+      return_type: integer
+
+      # (required) Parameters that the function takes
+      parameters:
+        - name: "x"
+          type: integer
+          default: 1
+          required: true
+        - name: "y"
+          type: integer
+          default: 1
+          required: true
+    - name: divide
+      summary: Divides two integers
+      description: This function divides two integers and returns the result.
+      return_type: float
+
+      # (required) Parameters that the function takes
+      parameters:
+        - name: "x"
+          type: integer
+          default: 1
+          required: true
+        - name: "y"
+          type: integer
+          default: 1
+          required: true

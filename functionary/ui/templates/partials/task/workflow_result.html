@@ -1,0 +1,23 @@
+<h2 class="accordion-header" id="heading-{{ step.step.id }}">
+    <button class="accordion-button collapsed"
+            type="button"
+            {% if step.finished %}hx-get="{% url 'ui:task-results' step.task.id %}?output=display_raw" hx-target="#body-{{ step.step.id }}" hx-trigger="click once"{% else %}disabled title="No details available for pending steps."{% endif %}
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse-{{ step.step.id }}"
+            aria-expanded="false"
+            aria-controls="collapse-{{ step.step.id }}">
+        <i class="fa {{ step.icon }} fa-sm fa-fw me-1 status-color"
+           title="{{ step.status }}"></i>{{ step.name }}
+    </button>
+</h2>
+<div id="collapse-{{ step.step.id }}"
+     class="accordion-collapse collapse"
+     data-bs-parent="#step-container"
+     aria-labelledby="heading-{{ step.step.id }}">
+    <div class="accordion-body">
+        {% if step.task.id %}
+            <a href="{% url 'ui:task-detail' step.task.id %}">More details</a> about this step.
+        {% endif %}
+        <div id="body-{{ step.step.id }}" class="mt-2"></div>
+    </div>
+</div>

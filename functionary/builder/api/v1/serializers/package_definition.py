@@ -1,4 +1,5 @@
 """ Serializers for defining a package """
+from drf_jsonschema_serializer import JSONSchemaField
 from rest_framework import serializers
 
 from core.utils.parameter import PARAMETER_TYPE_CHOICES
@@ -7,12 +8,11 @@ LANGUAGES = [("python", "Python"), ("javascript", "JavaScript")]
 RETURN_TYPE_CHOICES = PARAMETER_TYPE_CHOICES[:]
 
 
-class ParameterOptionSerializer(serializers.Serializer):
-    name = serializers.CharField()
-
-    # TODO: This should probably preserve numeric values rather than convert
-    #       them to a string
-    value = serializers.CharField()
+options_schema = {
+    "type": "array",
+    "items": {"type": ["string", "number"]},
+    "title": "Options",
+}
 
 
 class ParameterSerializer(serializers.Serializer):
@@ -25,7 +25,7 @@ class ParameterSerializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=PARAMETER_TYPE_CHOICES, required=True)
 
     required = serializers.BooleanField(default=False)
-    options = ParameterOptionSerializer(many=True, required=False)
+    options = JSONSchemaField(options_schema, required=False)
 
     # TODO: This should probably preserve numeric values rather than convert
     #       them to a string

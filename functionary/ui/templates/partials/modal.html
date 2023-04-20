@@ -1,43 +1,37 @@
-<div id="modal-group">
-    <div class="modal show"
-         id="form-modal"
-         tabindex="-1"
-         role="dialog"
-         style="display: block"
-         aria-labelledby="form-modal-label"
-         aria-hidden="false">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h2 class="modal-title text-light fs-5" id="form-modal-label">
-                        {% block modal_title %}
-                        {% endblock modal_title %}
-                    </h2>
-                    <button type="button"
-                            title="Close"
-                            class="btn btn-close btn-close-white"
-                            data-bs-dismiss="modal"
-                            data-bs-target="#form-modal"
-                            aria-label="Close"
-                            onclick="document.querySelector('#modal-group').remove();">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p class="lead">
-                        {% block modal_description %}
-                        {% endblock modal_description %}
-                    </p>
-                    <p>
-                        {% block modal_content %}
-                        {% endblock modal_content %}
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    {% block modal_footer %}
-                    {% endblock modal_footer %}
-                </div>
+<div id="form-modal"
+     class="modal"
+     tabindex="-1"
+     aria-labelledby="form-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div id="form-modal-content" class="modal-content">
+            <div class="modal-header text-bg-primary">
+                <h2 class="modal-title fs-5" id="form-modal-label"></h2>
+                <button type="button"
+                        title="Close"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
+            <div id="form-modal-body" class="modal-body"></div>
+            <div id="form-modal-footer" class="modal-footer"></div>
         </div>
     </div>
-    <div class="modal-backdrop show"></div>
+    <script>
+        const myModalEl = document.getElementById('form-modal')
+        myModalEl.addEventListener('hidden.bs.modal', event => {
+            if (event.target === myModalEl && !myModalEl.hasAttribute("data-keep-contents")) {
+                // clear modal contents
+                const titleEl = document.getElementById('form-modal-label')
+                titleEl.innerHTML = ''
+                const contentEl = document.getElementById('form-modal-body')
+                contentEl.replaceChildren()
+                const footerEl = document.getElementById('form-modal-footer')
+                footerEl.replaceChildren()
+                // cleanup any modal scripts
+                const scriptEl = myModalEl.querySelectorAll('script')
+                scriptEl.forEach((el) => el.remove())
+            }
+        })
+    </script>
 </div>

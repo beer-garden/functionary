@@ -1,0 +1,21 @@
+<div class="text-end">
+    <button class="btn btn-sm btn-outline-info border-0"
+            type="button"
+            title="Edit"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:workflowparameter-update' workflow.pk record.pk %}">
+        <i class="fa fa-pencil-alt"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-danger border-0"
+            type="button"
+            title="Delete"
+            hx-confirm="Are you sure you want to delete {{ record.name }}?"
+            hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk record.pk %}"
+            hx-target="closest tr"
+            hx-swap="outerHTML">
+        <i class="fa fa-trash"></i>
+    </button>
+</div>

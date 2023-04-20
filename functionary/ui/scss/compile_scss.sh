@@ -8,7 +8,7 @@ if ! which npm &>/dev/null; then
     printf "\tapt-get install nodejs\n"
 fi
 
-export BOOTSTRAP_VERSION="5.3.0-alpha1"
+export BOOTSTRAP_VERSION="5.3.0"
 
 # Make a working directory and find the directory of this script
 TMP_DIR=$(mktemp -d)
@@ -22,9 +22,13 @@ pushd "${SCRIPT_DIR}" &> /dev/null || exit
 
 # Install sass into the directory custom.scss is in, the /tmp
 # directory may not have execute set on it
-echo "Installing sass"
-npm install --silent sass
+echo "Installing sass and autoprefixer"
+npm install --silent sass@1.64.2 postcss postcss-cli autoprefixer # silence warning  https://sass-lang.com/documentation/breaking-changes/abs-percent/
+
 cp custom.scss "${TMP_DIR}/"
+cp light_base.scss "${TMP_DIR}/"
+cp dark_base.scss "${TMP_DIR}/"
+cp theme_color_remap.scss "${TMP_DIR}/"
 
 echo
 echo "Changing to ${TMP_DIR}"
@@ -54,6 +58,14 @@ echo "Compiling CSS"
 "${SCRIPT_DIR}/node_modules/.bin/sass" custom.scss "${SCRIPT_DIR}/../static/css/custom_bootstrap.css"
 if [ $? -ne 0 ]; then
     echo "Failed to generate the custom css!"
+    exit 3
+fi
+
+# Auto prefixer
+echo "Adding vendor prefixes to CSS"
+"${SCRIPT_DIR}/node_modules/.bin/postcss" "${SCRIPT_DIR}/../static/css/custom_bootstrap.css" --use autoprefixer --replace --map
+if [ $? -ne 0 ]; then
+    echo "Failed to autoprefix the custom css!"
     exit 3
 fi
 

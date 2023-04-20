@@ -1,0 +1,23 @@
+{% if request.session.user_can_update_userrole %}
+    <button class="btn btn-sm btn-outline-info border-0"
+            title="Edit user"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-get="{% url 'ui:teamuserrole-update' team_id record.team_user_role_id %}"
+            hx-swap="beforeend"
+            hx-target="#form-modal-content">
+        <i class="fa fa-pencil-alt"></i>
+    </button>
+{% endif %}
+{% if request.session.user_can_delete_userrole %}
+    <button class="btn btn-sm btn-outline-danger border-0"
+            title="Delete"
+            type="button"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            hx-post="{% url 'ui:teamuserrole-delete' team_id record.team_user_role_id %}"
+            hx-confirm="Are you sure you want to remove {{ record.user.username }}'s role from this team?">
+        <i class="fa fa-trash"></i>
+    </button>
+{% endif %}

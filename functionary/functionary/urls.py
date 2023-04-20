@@ -13,7 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from importlib import resources
+
 from django.apps import apps
+from django.templatetags.static import static
 from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -22,26 +25,40 @@ from drf_spectacular.views import (
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
+from ui.views.login import LoginView
+
 urlpatterns = [
+    path("", include("ui.urls")),
     path("api/v1/", include("core.api.v1.urls")),
     path("api/v1/", include("builder.api.v1.urls")),
     path("api/v1/api-token-auth", obtain_auth_token),
+    path("admin/", include("ui.admin.urls")),
+    # allauth.urls includes its own account_login endpoint, but defining this one
+    # first gives it precedence, since the first match wins when routing.
+    path("accounts/login/", LoginView.as_view(), name="account_login"),
+    path("accounts/", include("allauth.urls")),
+]
+
+# Use the generated schema if it exists
+schema_kwargs = {}
+if resources.files("core").joinpath("static", "functionary.yaml").is_file():
+    schema_kwargs["url"] = static("functionary.yaml")
+else:
+    schema_kwargs["url_name"] = "schema"
+
+urlpatterns += [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/swagger/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
+        SpectacularSwaggerView.as_view(**schema_kwargs),
         name="swagger",
     ),
     path(
         "api/docs/redoc/",
-        SpectacularRedocView.as_view(url_name="schema"),
+        SpectacularRedocView.as_view(**schema_kwargs),
         name="redoc",
     ),
-    path("ui/", include("ui.urls")),
-    path("admin/", include("ui.admin.urls")),
-    path("accounts/", include("allauth.urls")),
 ]
-
 
 # Add URLs for debug plugins if they are installed
 if apps.is_installed("debug_toolbar"):

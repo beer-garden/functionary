@@ -38,12 +38,12 @@
       "justMyCode": true
     },
     {
-      "name": "run_build_worker",
+      "name": "run_builder",
       "type": "python",
       "request": "launch",
-      "preLaunchTask": "build_worker_stop_container",
+      "preLaunchTask": "builder_stop_container",
       "program": "${workspaceFolder}/manage.py",
-      "args": ["run_build_worker"],
+      "args": ["run_builder"],
       "envFile": "${workspaceFolder}/.vscode/.debug.env",
       "django": true,
       "justMyCode": true

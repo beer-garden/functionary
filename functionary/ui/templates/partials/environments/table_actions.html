@@ -1,0 +1,33 @@
+{% if request.session.user_can_update_userrole %}
+    {% if record.environment_user_role_id %}
+        <button class="btn btn-sm btn-outline-info border-0"
+                title="Edit user"
+                type="button"
+                hx-get="{% url 'ui:environmentuserrole-update' environment_id record.environment_user_role_id %}"
+                data-bs-toggle="modal"
+                data-bs-target="#form-modal"
+                hx-swap="beforeend"
+                hx-target="#form-modal-content">
+            <i class="fa fa-pencil-alt"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger border-0"
+                title="Delete"
+                type="button"
+                hx-post="{% url 'ui:environmentuserrole-delete' environment_id record.environment_user_role_id %}"
+                hx-confirm="Are you sure you want to remove {{ record.user.username }}'s explicit role from this environment?">
+            <i class="fa fa-trash"></i>
+        </button>
+    {% else %}
+        <button class="btn btn-sm btn-outline-success border-0"
+                title="Create role"
+                type="button"
+                hx-get="{% url 'ui:environmentuserrole-create' environment_id %}"
+                hx-vals='{"user_id": "{{ record.user.id }}"}'
+                data-bs-toggle="modal"
+                data-bs-target="#form-modal"
+                hx-swap="beforeend"
+                hx-target="#form-modal-content">
+            <i class="fa fa-plus"></i>
+        </button>
+    {% endif %}
+{% endif %}

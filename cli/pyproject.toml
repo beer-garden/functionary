@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools >= 68.0.0"]
+
+[project]
+name = "functionary"
+description = "Functionary CLI"
+requires-python = ">=3.8"
+dependencies = [
+    "Click>=8.0.0",
+    "importlib-resources>=2.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=0.20.0",
+    "rich>=12.5.0",
+    "urllib3>=1.26",
+]
+dynamic = ["version"]
+
+[project.scripts]
+functionary = "functionary.__main__:cli"
+
+[tool.flake8]
+max-line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "functionary.VERSION"}
+
+[tool.setuptools.package-data]
+"*" = ["*"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

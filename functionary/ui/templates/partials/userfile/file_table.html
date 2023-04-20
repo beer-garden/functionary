@@ -1,0 +1,19 @@
+{% load renderers %}
+<button type="button"
+        class="nav-link link-offset-3 {% if file_type == 'shared' %}active{% endif %}"
+        id="shared-files"
+        hx-get='{% url "ui:file-table" %}?file_type=shared'
+        hx-swap-oob="outerHTML">Shared</button>
+<button type="button"
+        class="nav-link link-offset-3 {% if file_type == 'owned' %}active{% endif %}"
+        id="owned-files"
+        hx-get='{% url "ui:file-table" %}?file_type=owned'
+        hx-swap-oob="outerHTML">Owned</button>
+<input type="hidden"
+       id="file_type"
+       name="file_type"
+       value="{{ file_type }}"
+       hx-swap-oob="outerHTML" />
+<div id="filechooser-table" class="filechooser-table">
+    {% render_table table 'partials/table_template.html' %}
+</div>

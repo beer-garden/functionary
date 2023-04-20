@@ -3,6 +3,8 @@ from django.views.generic.detail import DetailView
 
 from core.auth import Permission
 from core.models import Environment, Package, Variable
+from ui.tables.environment_users import EnvironmentUserTable
+from ui.tables.variables import VariableTable
 
 from .utils import get_user_roles
 
@@ -16,12 +18,14 @@ class EnvironmentDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         env = self.get_object()
 
         context["packages"] = Package.active_objects.filter(environment=env)
-        context["user_details"] = get_user_roles(env)
+        context["user_table"] = EnvironmentUserTable(get_user_roles(env))
         context["environment_id"] = str(env.id)
-        context["variables"] = (
-            env.vars
-            if self.request.user.has_perm(Permission.VARIABLE_READ, env)
-            else Variable.objects.none()
+        context["variable_table"] = VariableTable(
+            (
+                env.vars.all()
+                if self.request.user.has_perm(Permission.VARIABLE_READ, env)
+                else Variable.objects.none()
+            )
         )
         return context
 

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Union
 
-from django import forms
-from django.urls import reverse
+from django.core.exceptions import ValidationError
+from django.forms import HiddenInput, ModelChoiceField, ModelForm
 
 from core.models import Function, WorkflowStep
 from core.models.workflow_step import VALID_STEP_NAME
@@ -12,15 +12,28 @@ if TYPE_CHECKING:
     from core.models import Environment
 
 
-class WorkflowStepCreateForm(forms.ModelForm):
+class WorkflowStepCreateForm(ModelForm):
     """Form for WorkflowStep creation"""
 
     template_name = "forms/workflow/step_edit.html"
 
+    tasked_object = ModelChoiceField(
+        label="Function",
+        queryset=Function.active_objects.all(),
+        required=True,
+    )
+
     class Meta:
         model = WorkflowStep
-        fields = ["workflow", "name", "function", "next"]
-        widgets = {"workflow": forms.HiddenInput(), "next": forms.HiddenInput()}
+        fields = [
+            "workflow",
+            "name",
+            "tasked_object",
+            "tasked_type",
+            "tasked_id",
+            "next",
+        ]
+        widgets = {"workflow": HiddenInput(), "next": HiddenInput()}
 
     def __init__(
         self,
@@ -32,21 +45,14 @@ class WorkflowStepCreateForm(forms.ModelForm):
 
         Args:
             environment: Environment instance or id. When provided, the queryset of the
-                function field will be filtered to only the functions for the
+                tasked_object field will be filtered to only the functions for the
                 environment.
         """
+        self.declared_fields["tasked_object"].queryset = Function.active_objects.filter(
+            environment=environment
+        )
         super().__init__(*args, **kwargs)
 
-        # Add htmx attributes to the function widget
-        self.fields["function"].widget.attrs.update(
-            {
-                "class": "form-control",
-                "hx-get": reverse("ui:function-parameters"),
-                "hx-vals": '{"allow_template_variables": "true"}',
-                "hx-target": "#function-parameters",
-                "hx-swap": "innerHTML",
-            }
-        )
         self.fields["name"].widget.attrs.update(
             {
                 "pattern": VALID_STEP_NAME.regex.pattern,
@@ -54,18 +60,19 @@ class WorkflowStepCreateForm(forms.ModelForm):
             }
         )
 
-        # Narrow the available function list down to just those
-        # active in the environment
-        if environment:
-            function_field = self.fields["function"]
-            function_field.queryset = Function.active_objects.filter(
-                environment=environment
-            )
-
 
 class WorkflowStepUpdateForm(WorkflowStepCreateForm):
     """Form for WorkflowStep updates"""
 
     class Meta:
         model = WorkflowStep
-        fields = ["name", "function"]
+        fields = ["name", "tasked_object", "tasked_type", "tasked_id"]
+
+    def full_clean(self):
+        # Run the base full_clean() first. The constraints run against a model
+        # instance and self.instance isn't update until _post_clean() is run.
+        super().full_clean()
+        try:
+            self.instance.validate_constraints()
+        except ValidationError as e:
+            self._update_errors(e)

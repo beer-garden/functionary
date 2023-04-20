@@ -1,0 +1,44 @@
+{% load widget_tweaks %}
+<form id="modal-form"
+      method="post"
+      hx-target="#form-modal-content"
+      hx-swap="beforeend"
+      hx-post="{% url 'ui:schedule-create' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors.as_text }}
+    <div class="mb-3">
+        {{ form.name.label_tag }}
+        {% with form.name.id_for_label|add:"_chooser" as formId and form.name.id_for_label|add:"-error" as desId %}
+            {% render_field form.name id=formId aria-describedby=desId autofocus=true %}
+        {% endwith %}
+        {{ form.name.errors }}
+    </div>
+    <div class="mb-3" hx-target="#tasked_object" hx-swap="innerHTML">
+        <input type="radio"
+               class="btn-check"
+               name="tasked_type"
+               value="function"
+               id="function"
+               autocomplete="off"
+               {% if tasked_type != "workflow" %}checked{% endif %}
+               hx-get="{% url 'ui:taskable-objects' %}" />
+        <label class="btn btn-outline-primary" for="function" title="Function">
+            <i class="fa fa-cube"></i> Function
+        </label>
+        <input type="radio"
+               class="btn-check"
+               name="tasked_type"
+               id="workflow"
+               value="workflow"
+               autocomplete="off"
+               {% if tasked_type == "workflow" %}checked{% endif %}
+               hx-get="{% url 'ui:taskable-objects' %}" />
+        <label class="btn btn-outline-primary" for="workflow" title="Workflow">
+            <i class="fa fa-diagram-next"></i> Workflow
+        </label>
+        <div class="mt-3" id="tasked_object">
+            {% include "partials/tasked_object_chooser.html" %}
+            {{ form.tasked_object.errors }}
+        </div>
+    </div>
+</form>

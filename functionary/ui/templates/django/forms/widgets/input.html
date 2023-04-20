@@ -1,0 +1,7 @@
+<input {% include "django/forms/widgets/attrs.html" %}
+       type="{{ widget.type }}"
+       name="{{ widget.name }}"
+       {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+       class="form-control"
+       aria-label="{{ widget.name }}"
+       aria-describedby="{{ widget.attrs.id }}-error" />

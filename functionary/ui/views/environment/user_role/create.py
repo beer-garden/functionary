@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django_htmx.http import HttpResponseClientRedirect
 
 from core.models import Environment, EnvironmentUserRole, User
 from ui.forms.environments import EnvironmentUserRoleForm
@@ -17,6 +18,11 @@ class EnvironmentUserRoleCreateView(PermissionedCreateView):
         return reverse(
             "ui:environment-detail", kwargs={"pk": self.kwargs.get("environment_pk")}
         )
+
+    def form_valid(self, form):
+        """Valid form handler"""
+        form.save()
+        return HttpResponseClientRedirect(self.get_success_url())
 
     def get_context_data(self, *args, **kwargs) -> dict:
         context = super().get_context_data(*args, **kwargs)

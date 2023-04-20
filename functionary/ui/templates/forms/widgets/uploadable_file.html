@@ -1,0 +1,22 @@
+<div class="d-flex justify-content-between"
+     id="{{ widget.attrs.id }}-container">
+    <input {% include "django/forms/widgets/attrs.html" %}
+           type="hidden"
+           name="{{ widget.name }}"
+           {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+           class="form-control">
+    <input type="text"
+           readonly
+           class="form-control-plaintext"
+           id="name-display"
+           aria-label="{{ widget.name }}"
+           aria-describedby="{{ widget.attrs.id }}-error"
+           value="{% if name %}{{ name }}{% elif widget.attrs.file_name %}{{ widget.attrs.file_name }}{% else %}No file selected{% endif %}">
+    <button class="btn btn-link fs-7"
+            title="Select or upload file"
+            type="button"
+            hx-target="#file-modal-body"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:file-chooser' %}?parameter={{ widget.name }}&parameter_id={{ widget.attrs.id }}"
+            onclick="toggleFileModal(true)">Select File</button>
+</div>

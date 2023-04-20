@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from core.models import Package
 from ui.tables.package import PackageFilter, PackageTable
 
@@ -11,8 +13,13 @@ class PackageListView(PermissionedListView):
     ordering = ["name"]
     table_class = PackageTable
     filterset_class = PackageFilter
-    extra_context = {"breadcrumb": "Packages"}
     queryset = Package.active_objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumbs"] = [{"label": "Packages"}]
+
+        return context
 
 
 class PackageDetailView(PermissionedDetailView):
@@ -20,3 +27,15 @@ class PackageDetailView(PermissionedDetailView):
 
     def get_queryset(self):
         return super().get_queryset().select_related("environment")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumbs"] = [
+            {
+                "label": "Packages",
+                "url": reverse("ui:package-list"),
+            },
+            {"label": self.object.display_name},
+        ]
+
+        return context

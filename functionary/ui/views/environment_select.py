@@ -18,4 +18,4 @@ class EnvironmentSelectView(LoginRequiredMixin, TemplateView):
 
         set_session_environment(request, environment)
 
-        return http.HttpResponseClientRedirect("/ui")
+        return http.HttpResponseClientRedirect("/")

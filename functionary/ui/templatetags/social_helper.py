@@ -43,26 +43,30 @@ def configured_providers() -> list[dict[str, Provider]]:
 @register.simple_tag(takes_context=True)
 def unwrap_exception(context) -> dict[str, str | None]:
     """This tag attempts to unwrap the exception stored in auth_error.
-    It will recurse until it finds a populated 'strerror' value.
+    It will recurse until it finds the root exception.
     """
     exc = context.get("auth_error", {}).get("exception", None)
 
     try:
         while exc:
-            # Ultimately verify_message or strerror is the informative value to display.
-            # Check if args is populated when reason isnt, it's the desired exception
-            # to unwind. Otherwise check if reason is populated.
-            if hasattr(exc, "strerror") and exc.strerror:
+            # Nested exceptions are chained in via __context__. Unwind these until it
+            # is None, then we are at the root.
+            if exc.__context__ is None:
+                # If there's a strerror member, show that.
+                # Otherwise, try args[0], that should be the string it was made with.
+                # Default to just stringify the exception
+                if hasattr(exc, "strerror") and exc.strerror:
+                    message = exc.strerror
+                elif (args := getattr(exc, "args", None)) and isinstance(args[0], str):
+                    message = args[0]
+                else:
+                    message = str(exc)
+
                 return {
-                    "reason": exc.reason,
-                    "message": exc.verify_message or exc.strerror,
+                    "reason": getattr(exc, "reason", exc.__class__.__name__),
+                    "message": message,
                 }
-            elif not hasattr(exc, "reason") and hasattr(exc, "args"):
-                exc = exc.args[0]
-            elif hasattr(exc, "reason"):
-                exc = exc.reason
-            else:
-                break
+            exc = exc.__context__
     except Exception:
         pass
 

@@ -1,4 +1,6 @@
 """ UserRole models """
+import uuid
+
 from django.conf import settings
 from django.db import models
 
@@ -10,6 +12,7 @@ ROLE_CHOICES = [(role.name, role.value) for role in Role]
 class UserRole(models.Model):
     """Base model for common components of TeamUserRole and EnvironmentUserRole"""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="%(class)ss"
     )

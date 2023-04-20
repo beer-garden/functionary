@@ -26,6 +26,7 @@
                         {% else %}
                             {{ item.name }}
                         {% endif %}
+                        {% if item.form_field.field.required %}*{% endif %}
                         <a class="item-anchor"
                            href="#{{ item.name|slugify }}"
                            title="Link to this setting">¶</a>
@@ -40,7 +41,7 @@
                     {% endif %}
                     {{ item.form_field }}
                     {% if not item.is_file %}
-                        <br/>
+                        <br />
                         <a href="#"
                            class="reset-link"
                            data-field-id="{{ item.form_field.auto_id }}"
@@ -51,10 +52,14 @@
                 <td>
                     {% if item.modified %}
                         <img src="{% static 'admin/img/icon-yes.'|add:icon_type %}"
-                             alt="{{ item.modified }}"/>
+                             alt="{{ item.modified }}"
+                             height="13"
+                             width="13" />
                     {% else %}
                         <img src="{% static 'admin/img/icon-no.'|add:icon_type %}"
-                             alt="{{ item.modified }}"/>
+                             alt="{{ item.modified }}"
+                             height="13"
+                             width="13" />
                     {% endif %}
                 </td>
             </tr>

@@ -4,7 +4,72 @@
     <link rel="stylesheet" href="{% static 'css/brands.css' %}" />
 {% endblock extra_style %}
 {% block content %}
-    {% include "partials/socialaccount/connections.html" %}
-    <br/>
-    {% include "partials/token.html" %}
+    <div class="vstack gap-3">
+        <div>
+            <span class="fw-semibold fs-4">
+                <i class="fa fa-paintbrush fa-sm fa-fw pe-1"></i>
+                Theme
+            </span>
+            <div class="ms-4">
+                <div class="col-9 my-1">
+                    <div class="btn-group" role="group" aria-label="Theme selection">
+                        <input type="radio"
+                               class="btn-check"
+                               name="btnradio"
+                               id="lightTheme"
+                               autocomplete="off"
+                               hx-post="{% url 'ui:set-theme' %}"
+                               hx-vals='{"theme": "light"}'
+                               hx-swap="none"
+                               {% if request.user.preferences.theme == 'light' %}checked{% endif %}
+                               title="Light theme">
+                        <label class="btn btn-outline-primary" for="lightTheme">
+                            <i class="fa fa-sm fa-sun fa-fw me-1"></i>Light
+                        </label>
+                        <input type="radio"
+                               class="btn-check"
+                               name="btnradio"
+                               id="darkTheme"
+                               autocomplete="off"
+                               hx-post="{% url 'ui:set-theme' %}"
+                               hx-vals='{"theme": "dark"}'
+                               hx-swap="none"
+                               {% if request.user.preferences.theme == 'dark' %}checked{% endif %}
+                               title="Light theme">
+                        <label class="btn btn-outline-primary" for="darkTheme">
+                            <i class="fa fa-sm fa-moon fa-fw me-1"></i>Dark
+                        </label>
+                        <input type="radio"
+                               class="btn-check"
+                               name="btnradio"
+                               id="lightHCTheme"
+                               autocomplete="off"
+                               hx-post="{% url 'ui:set-theme' %}"
+                               hx-vals='{"theme": "light-hc"}'
+                               hx-swap="none"
+                               {% if request.user.preferences.theme == 'light-hc' %}checked{% endif %}
+                               title="High contrast theme">
+                        <label class="btn btn-outline-primary" for="lightHCTheme">
+                            <i class="fa fa-sm fa-paint-roller fa-fw me-1"></i>Light Contrast
+                        </label>
+                        <input type="radio"
+                               class="btn-check"
+                               name="btnradio"
+                               id="darkHCTheme"
+                               autocomplete="off"
+                               hx-post="{% url 'ui:set-theme' %}"
+                               hx-vals='{"theme": "dark-hc"}'
+                               hx-swap="none"
+                               {% if request.user.preferences.theme == 'dark-hc' %}checked{% endif %}
+                               title="High contrast theme">
+                        <label class="btn btn-outline-primary" for="darkHCTheme">
+                            <i class="fa fa-sm fa-fill-drip fa-fw me-1"></i>Dark Contrast
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include "partials/socialaccount/connections.html" %}
+        {% include "partials/token.html" %}
+    </div>
 {% endblock content %}

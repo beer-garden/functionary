@@ -1,54 +1,50 @@
-{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
-    Add Role
-{% endblock modal_title %}
-{% block modal_description %}
-    Assign role to user for this environment.
-{% endblock modal_description %}
-{% block modal_content %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">Add Role</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <p class="lead">Assign role to user for this environment.</p>
     <form hx-post="{% url 'ui:environmentuserrole-create' environment_id %}"
           method="post"
-          id="user-add-modal-form"
-          hx-swap="outerHTML"
-          hx-target="#form-modal">
+          id="modal-form"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend">
         {% csrf_token %}
-        <input type="hidden" name="environment" value="{{ environment_id }}"/>
-        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <input type="hidden" name="environment" value="{{ environment_id }}" />
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="form-label {% if form.user.errors %}text-danger{% endif %}"
-                   for="user">User</label>
+            {{ form.user.label_tag }}
             <input class="form-control"
                    name="user"
                    id="user"
                    list="user-list"
-                   {% if username %}disabled{% endif %}
-                   {% if username %}placeholder="{{ username }}"{% else %}placeholder="Type to search..."{% endif %}
+                   {% if username %}disabled{% else %}autofocus{% endif %}
+                   placeholder="{% if username %}{{ username }}{% else %}Type to search...{% endif %}"
                    hx-get="{% url 'ui:get-users' %}"
                    hx-trigger="keyup changed delay:500ms"
                    hx-swap="outerHTML"
-                   hx-target="#user-list-block"/>
+                   hx-target="#user-list-block"
+                   required />
             {% if not username %}
                 {% include "partials/teams/user_list.html" with usernames=usernames %}
-                <div class="text-danger">{{ form.user.errors }}</div>
+                {{ form.user.errors }}
             {% else %}
                 {% comment %} Username value needs to be in this hidden field, not in the above disabled field {% endcomment %}
-                <input type="hidden" name="user" value="{{ username }}"/>
+                <input type="hidden" name="user" value="{{ username }}" />
             {% endif %}
         </div>
         <div class="mb-3">
-            <label class="form-label {% if form.role.errors %}text-danger{% endif %}"
-                   for="{{ form.role.id_for_label }}">
-                Role
-            </label>
-            {% render_field form.role class="form-select" aria-label=form.role.label role="menu" %}
-            <div class="text-danger">{{ form.role.errors }}</div>
+            {{ form.role.label_tag }}
+            {% if not username %}
+                {{ form.role }}
+            {% else %}
+                {% render_field form.role autofocus=true %}
+            {% endif %}
+            {{ form.role.errors }}
         </div>
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
     <button class="btn btn-primary"
             type="submit"
-            form="user-add-modal-form"
+            form="modal-form"
             title="Add Role">Add Role</button>
-{% endblock modal_footer %}
+</div>

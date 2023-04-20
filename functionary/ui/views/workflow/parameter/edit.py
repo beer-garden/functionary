@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_htmx.http import HttpResponseClientRedirect
@@ -19,10 +20,11 @@ class WorkflowParameterFormViewMixin:
     def form_valid(self, form):
         """Valid form handler"""
         parameter = form.save()
-        success_url = reverse(
-            "ui:workflow-detail", kwargs={"pk": parameter.workflow.pk}
-        )
+        messages.success(self.request, "Workflow saved.")
 
+        success_url = reverse(
+            "ui:workflow-update", kwargs={"pk": parameter.workflow.pk}
+        )
         return HttpResponseClientRedirect(success_url)
 
     def get_context_data(self, **kwargs):

@@ -5,17 +5,10 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from core.models.mixins import ModelSaveHookMixin
 from core.models.package import PACKAGE_STATUS
 from core.utils.parameter import get_schema
-
-
-def list_of_strings(value):
-    if isinstance(value, list) and all(isinstance(item, str) for item in value):
-        return
-
-    raise ValidationError(
-        '"%(value)s" is not a list of strings', params={"value": value}
-    )
+from core.utils.validators import list_of_strings
 
 
 class ActiveFunctionManager(models.Manager):
@@ -32,7 +25,7 @@ class ActiveFunctionManager(models.Manager):
         )
 
 
-class Function(models.Model):
+class Function(ModelSaveHookMixin, models.Model):
     """Function is a unit of work that can be tasked
 
     Attributes:
@@ -62,6 +55,11 @@ class Function(models.Model):
     return_type = models.CharField(max_length=64, null=True)
     tasks = GenericRelation(
         to="Task", content_type_field="tasked_type", object_id_field="tasked_id"
+    )
+    scheduled_tasks = GenericRelation(
+        to="ScheduledTask",
+        content_type_field="tasked_type",
+        object_id_field="tasked_id",
     )
     active = models.BooleanField(default=True)
 
@@ -94,6 +92,11 @@ class Function(models.Model):
     def clean(self):
         self._clean_environment()
 
+    def pre_save(self):
+        """Actions to run before save"""
+        if self.display_name is None:
+            self.display_name = self.name
+
     def deactivate(self):
         """Deactivate the function and pause any associated scheduled tasks"""
         self.active = False
@@ -102,7 +105,12 @@ class Function(models.Model):
 
     def pause_scheduled_tasks(self) -> None:
         """Pauses all scheduled tasks."""
-        for scheduled_task in self.scheduled_tasks.all():
+        # Building the queryset this way lets us avoid importing ScheduledTask
+        active_scheduled_tasks = (
+            self.scheduled_tasks.all() & self.scheduled_tasks.model.active_objects.all()
+        )
+
+        for scheduled_task in active_scheduled_tasks:
             scheduled_task.pause()
 
     @property
@@ -110,11 +118,6 @@ class Function(models.Model):
         """Convenience alias for functionparameter_set"""
         # Provides better static type checking than using related_name
         return self.functionparameter_set
-
-    @property
-    def render_name(self) -> str:
-        """Returns the template-renderable name of the function"""
-        return self.display_name if self.display_name else self.name
 
     @property
     def schema(self) -> dict:

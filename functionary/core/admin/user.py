@@ -3,8 +3,10 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm
+from django.core.exceptions import ValidationError
 
 from core.models import EnvironmentUserRole, TeamUserRole, User
+from core.utils.user import normalize_dn
 
 
 class UserAdminCreationForm(forms.ModelForm):
@@ -56,6 +58,12 @@ class UserAdminChangeForm(UserChangeForm):
         password = self.fields.get("password")
         if password:
             password.help_text = password.help_text.format("../password/")
+
+    def clean_distinguished_name(self):
+        try:
+            return normalize_dn(self.cleaned_data.get("distinguished_name", None))
+        except ValueError as v:
+            raise ValidationError("Invalid DN") from v
 
 
 class EnvironmentRoleInline(admin.TabularInline):
@@ -132,6 +140,7 @@ class UserAdmin(BaseUserAdmin):
             {
                 "fields": (
                     "username",
+                    "distinguished_name",
                     "password",
                 )
             },

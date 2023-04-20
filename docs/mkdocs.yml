@@ -1,0 +1,56 @@
+# Project info
+site_name: Functionary
+repo_name: functionary/functionary
+repo_url: https://github.com/beer-garden/functionary
+
+# Theme
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Navigation
+nav:
+  - Overview: index.md
+  - Getting Started:
+      - Introduction: getting_started/introduction.md
+      - Create a Package: getting_started/create_a_package.md
+  - Developer Guide:
+      - Introduction: developer_guide/introduction.md
+      - CLI: developer_guide/cli.md
+      - Defining Packages: developer_guide/defining_packages.md
+      - Parameter Types: developer_guide/parameter_types.md
+      - Languages:
+          - Python: developer_guide/languages/python.md
+          - JavaScript: developer_guide/languages/javascript.md
+  - User Guide:
+      - Navigation: user_guide/navigation.md
+  - Administrator Guide:
+      - Introduction: administrator_guide/introduction.md
+      - Architecture: administrator_guide/architecture.md

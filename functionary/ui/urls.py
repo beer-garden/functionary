@@ -9,10 +9,14 @@ from .views import (
     environment_select,
     function,
     home,
+    message,
     package,
     scheduled_task,
     task,
+    taskable_objects,
     team,
+    theme_select,
+    userfile,
     variable,
     workflow,
 )
@@ -35,24 +39,25 @@ For action based URLs, use <model>-<verb> with the following verbs:
 
 
 urlpatterns = [
-    path("", home.home, name="home"),
+    # path("", task.list.TaskListView.as_view(), name="task-default"),
+    path("", home.HomeView.as_view(), name="home"),
     path(
-        "build_list/",
+        "builds/",
         (build.BuildListView.as_view()),
         name="build-list",
     ),
     path(
-        "build/<uuid:pk>",
+        "builds/<uuid:pk>",
         (build.BuildDetailView.as_view()),
         name="build-detail",
     ),
     path(
-        "function_list/",
+        "functions/",
         (function.FunctionListView.as_view()),
         name="function-list",
     ),
     path(
-        "function/<uuid:pk>",
+        "functions/<uuid:pk>",
         (function.FunctionDetailView.as_view()),
         name="function-detail",
     ),
@@ -63,31 +68,31 @@ urlpatterns = [
         name="function-parameters",
     ),
     path(
-        "package_list/",
+        "packages/",
         (package.PackageListView.as_view()),
         name="package-list",
     ),
     path(
-        "package/<uuid:pk>",
+        "packages/<uuid:pk>",
         (package.PackageDetailView.as_view()),
         name="package-detail",
     ),
-    path("task_list/", (task.TaskListView.as_view()), name="task-list"),
+    path("tasks/", (task.list.TaskListView.as_view()), name="task-list"),
     path(
-        "task/<uuid:pk>",
-        (task.TaskDetailView.as_view()),
+        "tasks/<uuid:pk>",
+        (task.detail.TaskDetailView.as_view()),
         name="task-detail",
     ),
-    path("task/<pk>/log", (task.get_task_log), name="task-log"),
+    path("task/<pk>/log", (task.detail.get_task_log), name="task-log"),
     path(
-        "task/<uuid:pk>/results",
-        (task.TaskResultsView.as_view()),
+        "tasks/<uuid:pk>/results",
+        (task.detail.TaskResultsView.as_view()),
         name="task-results",
     ),
     path(
-        "variables/<parent_id>",
-        (variable.all_variables),
-        name="all-variables",
+        "taskable_objects/",
+        (taskable_objects.TaskableObjectsView.as_view()),
+        name="taskable-objects",
     ),
     path(
         "add_variable/<parent_id>",
@@ -105,14 +110,24 @@ urlpatterns = [
         name="variable-delete",
     ),
     path(
-        "detail_variable/<pk>",
-        (variable.VariableView.as_view()),
-        name="variable-detail",
-    ),
-    path(
         "environment_select/",
         (environment_select.EnvironmentSelectView.as_view()),
         name="set-environment",
+    ),
+    path(
+        "theme_select/",
+        (theme_select.ThemeSelectView.as_view()),
+        name="set-theme",
+    ),
+    path(
+        "messages/",
+        (message.retrieve_messages),
+        name="retrieve-messages",
+    ),
+    path(
+        "errors/",
+        (message.display_generic_error),
+        name="display-error",
     ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
@@ -128,22 +143,22 @@ account_urlpatterns = [
 
 environment_urlpatterns = [
     path(
-        "environment/<uuid:pk>",
+        "environments/<uuid:pk>",
         (environment.EnvironmentDetailView.as_view()),
         name="environment-detail",
     ),
     path(
-        "environment/<uuid:environment_pk>/user_role/create",
+        "environments/<uuid:environment_pk>/user_role/create",
         (environment.EnvironmentUserRoleCreateView.as_view()),
         name="environmentuserrole-create",
     ),
     path(
-        "environment/<uuid:environment_pk>/user_role/<int:pk>/delete",
+        "environments/<uuid:environment_pk>/user_role/<uuid:pk>/delete",
         (environment.EnvironmentUserRoleDeleteView.as_view()),
         name="environmentuserrole-delete",
     ),
     path(
-        "environment/<uuid:environment_pk>/user_role/<int:pk>/update",
+        "environments/<uuid:environment_pk>/user_role/<uuid:pk>/update",
         (environment.EnvironmentUserRoleUpdateView.as_view()),
         name="environmentuserrole-update",
     ),
@@ -156,19 +171,34 @@ scheduling_urlpatterns = [
         name="scheduledtask-create",
     ),
     path(
-        "schedule/<uuid:pk>",
+        "schedules/create",
+        (scheduled_task.ScheduleCreateView.as_view()),
+        name="schedule-create",
+    ),
+    path(
+        "schedules/<uuid:pk>",
         (scheduled_task.ScheduledTaskDetailView.as_view()),
         name="scheduledtask-detail",
     ),
     path(
-        "schedule/<uuid:pk>/update",
+        "schedules/<uuid:pk>/update",
         (scheduled_task.ScheduledTaskUpdateView.as_view()),
         name="scheduledtask-update",
     ),
     path(
-        "schedule_list/",
+        "schedules/<uuid:pk>/update_status",
+        (scheduled_task.update_status),
+        name="scheduledtask-update-status",
+    ),
+    path(
+        "schedules/",
         (scheduled_task.ScheduledTaskListView.as_view()),
         name="scheduledtask-list",
+    ),
+    path(
+        "schedules/archive",
+        (scheduled_task.ScheduledTaskArchiveListView.as_view()),
+        name="scheduledtask-archive-list",
     ),
     path(
         "crontab_minute_param/",
@@ -181,11 +211,6 @@ scheduling_urlpatterns = [
         name="scheduled-hour-param",
     ),
     path(
-        "crontab_day_of_week_param/",
-        (scheduled_task.crontab_day_of_week_param),
-        name="scheduled-day-of-week-param",
-    ),
-    path(
         "crontab_day_of_month_param/",
         (scheduled_task.crontab_day_of_month_param),
         name="scheduled-day-of-month-param",
@@ -195,26 +220,31 @@ scheduling_urlpatterns = [
         (scheduled_task.crontab_month_of_year_param),
         name="scheduled-month-of-year-param",
     ),
+    path(
+        "crontab_day_of_week_param/",
+        (scheduled_task.crontab_day_of_week_param),
+        name="scheduled-day-of-week-param",
+    ),
 ]
 
 team_urlpatterns = [
     path(
-        "team/<uuid:pk>",
+        "teams/<uuid:pk>",
         (team.TeamDetailView.as_view()),
         name="team-detail",
     ),
     path(
-        "team/<uuid:team_pk>/create",
+        "teams/<uuid:team_pk>/create",
         (team.TeamUserRoleCreateView.as_view()),
         name="teamuserrole-create",
     ),
     path(
-        "team/<uuid:team_pk>/delete/<pk>",
+        "teams/<uuid:team_pk>/delete/<pk>",
         (team.TeamUserRoleDeleteView.as_view()),
         name="teamuserrole-delete",
     ),
     path(
-        "team/<uuid:team_pk>/update/<pk>",
+        "teams/<uuid:team_pk>/update/<pk>",
         (team.TeamUserRoleUpdateView.as_view()),
         name="teamuserrole-update",
     ),
@@ -223,72 +253,114 @@ team_urlpatterns = [
 
 workflows_urlpatterns = [
     path(
-        "workflow_list/",
+        "workflows/",
         (workflow.WorkflowListView.as_view()),
         name="workflow-list",
     ),
     path(
-        "workflow/create",
+        "workflows/archive",
+        (workflow.WorkflowArchiveListView.as_view()),
+        name="workflow-archive-list",
+    ),
+    path(
+        "workflows/create",
         (workflow.WorkflowCreateView.as_view()),
         name="workflow-create",
     ),
     path(
-        "workflow/<uuid:pk>",
+        "workflows/<uuid:pk>",
         (workflow.WorkflowDetailView.as_view()),
         name="workflow-detail",
     ),
     path(
-        "workflow/<uuid:pk>/edit",
+        "workflows/<uuid:pk>/edit",
         (workflow.WorkflowUpdateView.as_view()),
         name="workflow-update",
     ),
     path(
-        "workflow/<uuid:pk>/delete",
+        "workflows/<uuid:pk>/update_status",
+        (workflow.update_status),
+        name="workflow-update-status",
+    ),
+    path(
+        "workflows/<uuid:pk>/delete",
         (workflow.WorkflowDeleteView.as_view()),
         name="workflow-delete",
     ),
     path(
-        "workflow/<uuid:pk>/task",
-        (workflow.WorkflowTaskCreateView.as_view()),
-        name="workflow-task",
-    ),
-    path(
-        "workflow/<uuid:workflow_pk>/parameter/create",
+        "workflows/<uuid:workflow_pk>/parameter/create",
         (workflow.WorkflowParameterCreateView.as_view()),
         name="workflowparameter-create",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/parameter/<uuid:pk>/delete",
+        "workflows/<uuid:workflow_pk>/parameter/<uuid:pk>/delete",
         (workflow.WorkflowParameterDeleteView.as_view()),
         name="workflowparameter-delete",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/parameter/<uuid:pk>/edit",
+        "workflows/<uuid:workflow_pk>/parameter/<uuid:pk>/edit",
         (workflow.WorkflowParameterUpdateView.as_view()),
-        name="workflowparameter-edit",
+        name="workflowparameter-update",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/step/create",
+        "workflows/<uuid:workflow_pk>/step/create",
         (workflow.WorkflowStepCreateView.as_view()),
         name="workflowstep-create",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/delete",
+        "workflows/<uuid:workflow_pk>/step/<uuid:pk>/delete",
         (workflow.WorkflowStepDeleteView.as_view()),
         name="workflowstep-delete",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/edit",
+        "workflows/<uuid:workflow_pk>/step/<uuid:pk>/edit",
         (workflow.WorkflowStepUpdateView.as_view()),
-        name="workflowstep-edit",
+        name="workflowstep-update",
     ),
     path(
-        "workflow/<uuid:workflow_pk>/step/<uuid:pk>/move",
+        "workflows/<uuid:workflow_pk>/step/<uuid:pk>/move",
         (workflow.move_workflow_step),
         name="workflowstep-move",
     ),
+    path(
+        "workflows/<uuid:workflow_pk>/steps/reorder",
+        (workflow.reorder_workflow_steps),
+        name="workflowsteps-reorder",
+    ),
 ]
 
+files_urlpatterns = [
+    path(
+        "files/",
+        (userfile.UserFileListView.as_view()),
+        name="file-list",
+    ),
+    path(
+        "files/create",
+        (userfile.UserFileCreateView.as_view()),
+        name="file-create",
+    ),
+    path(
+        "files/<uuid:pk>/update/<str:action>",
+        (userfile.UserFileUpdateView.as_view()),
+        name="file-update",
+    ),
+    path(
+        "files/<uuid:pk>/share",
+        (userfile.update_share),
+        name="file-share",
+    ),
+    path(
+        "files/chooser",
+        (userfile.UserFileChooserView.as_view()),
+        name="file-chooser",
+    ),
+    path(
+        "files/table",
+        (userfile.UserFileChooserView.as_view()),
+        name="file-table",
+    ),
+]
 
 """
 Append App URL patterns to a main urlpatterns list.
@@ -301,6 +373,7 @@ teams, environments, schedules, tasks, etc.
 """
 urlpatterns += account_urlpatterns
 urlpatterns += environment_urlpatterns
+urlpatterns += files_urlpatterns
 urlpatterns += scheduling_urlpatterns
 urlpatterns += team_urlpatterns
 urlpatterns += workflows_urlpatterns

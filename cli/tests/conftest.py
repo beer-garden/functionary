@@ -11,11 +11,11 @@ def fakefs(fs):
     return fs
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def config(fakefs):
     fakefs.create_file(config_file)
     conf = (
-        "host='http://localhost:8000\n"
+        "host='http://testhost'\n"
         "token='05139f102fbbce91f32153511011b7a185992f54'\n"
         "current_environment_id='e8c5c607-8b03-4e94-a93e-cd3c45c33ffd'"
     )

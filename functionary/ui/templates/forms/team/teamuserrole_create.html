@@ -1,46 +1,40 @@
-{% extends "partials/modal.html" %}
-{% load widget_tweaks %}
-{% block modal_title %}
-    Add Role
-{% endblock modal_title %}
-{% block modal_description %}
-    Assign role to user for this team.
-{% endblock modal_description %}
-{% block modal_content %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">Add Role</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <p class="lead">Assign role to user for this team.</p>
     <form hx-post="{% url 'ui:teamuserrole-create' team_id %}"
           method="post"
-          id="user-add-modal-form"
-          hx-swap="outerHTML"
-          hx-target="#form-modal">
+          id="modal-form"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend">
         {% csrf_token %}
-        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="{% if form.user.errors %}text-danger{% endif %} form-label"
-                   for="user">User</label>
+            {{ form.user.label_tag }}
             <input class="form-control"
                    name="user"
                    id="user"
+                   autofocus
                    list="user-list"
+                   placeholder="Type to search..."
                    hx-get="{% url 'ui:get-users' %}"
                    hx-trigger="keyup changed delay:500ms"
                    hx-swap="outerHTML"
-                   hx-target="#user-list-block"/>
+                   hx-target="#user-list-block"
+                   required />
             {% include "partials/teams/user_list.html" with usernames=usernames %}
-            <input type="hidden" name="team" value="{{ team_id }}"/>
-            <div class="text-danger">{{ form.user.errors }}</div>
+            {{ form.user.errors }}
         </div>
         <div class="mb-3">
-            <label class="{% if form.role.errors %}text-danger{% endif %} form-label"
-                   for="{{ form.role.id_for_label }}">
-                Role
-            </label>
-            {% render_field form.role class="form-select" id=form.role.id_for_label aria-label=form.role.label role="menu" %}
+            {{ form.role.label_tag }}
+            {{ form.role }}
+            {{ form.role.errors }}
         </div>
+        <input type="hidden" name="team" value="{{ team_id }}" />
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
     <button class="btn btn-primary"
             type="submit"
-            form="user-add-modal-form"
+            form="modal-form"
             title="Add Role">Add Role</button>
-{% endblock modal_footer %}
+</div>

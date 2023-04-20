@@ -9,13 +9,17 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.html import format_html
 from django.views.decorators.http import require_GET, require_POST
 
 from core.auth import Permission
 from core.models import Environment, Function, Task, Workflow
-from core.utils.minio import S3Error, handle_file_parameters
 from core.utils.tasking import start_task
-from ui.forms.tasks import TaskParameterForm, TaskParameterTemplateForm
+from ui.forms.tasks import (
+    TaskMetadataForm,
+    TaskParameterForm,
+    TaskParameterTemplateForm,
+)
 from ui.tables.function import FunctionFilter, FunctionTable
 
 from .generic import PermissionedDetailView, PermissionedListView
@@ -23,11 +27,16 @@ from .generic import PermissionedDetailView, PermissionedListView
 
 class FunctionListView(PermissionedListView):
     model = Function
-    ordering = ["package__name", "name"]
+    ordering = ["package__display_name", "display_name"]
     table_class = FunctionTable
     filterset_class = FunctionFilter
     queryset = Function.active_objects.select_related("package")
-    extra_context = {"breadcrumb": "Functions"}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["breadcrumbs"] = [{"label": "Functions"}]
+
+        return context
 
 
 class FunctionDetailView(PermissionedDetailView):
@@ -56,9 +65,24 @@ class FunctionDetailView(PermissionedDetailView):
             ]
 
         context["missing_variables"] = missing_variables
+        context["breadcrumbs"] = [
+            {
+                "label": "Functions",
+                "url": reverse("ui:function-list"),
+            },
+            {
+                "label": function.package.display_name,
+                "url": reverse("ui:package-detail", kwargs={"pk": function.package.id}),
+                "icon": format_html('<i class="fa fa-cubes"></i>'),
+            },
+            {"label": function.display_name},
+        ]
 
         if self.request.user.has_perm(Permission.TASK_CREATE, env):
-            context["form"] = TaskParameterForm(function)
+            context["parameter_form"] = TaskParameterForm(
+                tasked_object=function, creator=self.request.user
+            )
+            context["metadata_form"] = TaskMetadataForm()
 
         return context
 
@@ -85,9 +109,13 @@ def execute(request: HttpRequest) -> HttpResponse:
     else:
         return HttpResponseBadRequest("function_id or workflow_id is required")
 
-    form = TaskParameterForm(tasked_object, data, files=request.FILES)
+    parameter_form = TaskParameterForm(
+        tasked_object=tasked_object, creator=request.user, data=data
+    )
 
-    if form.is_valid():
+    metadata_form = TaskMetadataForm(data=data)
+
+    if parameter_form.is_valid() and metadata_form.is_valid():
         # Clean the task fields before saving the Task
         task = None
         try:
@@ -96,29 +124,19 @@ def execute(request: HttpRequest) -> HttpResponse:
                 environment=env,
                 creator=request.user,
                 tasked_object=tasked_object,
-                parameters=form.cleaned_data,
+                parameters=parameter_form.cleaned_data,
                 return_type=getattr(tasked_object, "return_type", None),
+                **metadata_form.cleaned_data,
             )
             task.clean()
-            handle_file_parameters(task, request)
         except ValidationError:
             task = None
             status_code = 400
-            form.add_error(
+            parameter_form.add_error(
                 None,
                 ValidationError(
                     "The given parameters do not conform to function schema.",
                     code="invalid",
-                ),
-            )
-        except S3Error:
-            task = None
-            status_code = 503
-            form.add_error(
-                None,
-                (
-                    "Unable to upload file; please try again. "
-                    "If the problem persists, contact your system administrator."
                 ),
             )
 
@@ -129,14 +147,15 @@ def execute(request: HttpRequest) -> HttpResponse:
             return HttpResponseRedirect(reverse("ui:task-detail", args=(task.id,)))
 
     context = {}
-    context["form"] = form
+    context["parameter_form"] = parameter_form
+    context["metadata_form"] = metadata_form
 
     if isinstance(tasked_object, Function):
         context["function"] = tasked_object
         template = "core/function_detail.html"
     else:
         context["workflow"] = tasked_object
-        template = "core/workflow_task.html"
+        template = "core/workflow_detail.html"
 
     return render(request, template, context, status=status_code)
 
@@ -157,15 +176,20 @@ def function_parameters(request: HttpRequest) -> HttpResponse:
     if not request.user.has_perm(Permission.TASK_CREATE, env):
         return HttpResponseForbidden()
 
+    if (tasked_id := request.GET.get("tasked_id")) in ["", None]:
+        return HttpResponse("Nothing selected to task.")
+    if (tasked_type := request.GET.get("tasked_type")) in ["", None]:
+        return HttpResponse("Unable to determine task type")
+
     if request.GET.get("allow_template_variables") == "true":
         form_class = TaskParameterTemplateForm
     else:
         form_class = TaskParameterForm
 
-    if (function_id := request.GET.get("function")) in ["", None]:
-        return HttpResponse("No function selected.")
+    if tasked_type == "function":
+        tasked_object = get_object_or_404(Function, id=tasked_id, environment=env)
+    else:
+        tasked_object = get_object_or_404(Workflow, id=tasked_id, environment=env)
 
-    function = get_object_or_404(Function, id=function_id, environment=env)
-
-    form = form_class(tasked_object=function)
+    form = form_class(tasked_object=tasked_object, creator=request.user)
     return render(request, form.template_name, {"form": form})

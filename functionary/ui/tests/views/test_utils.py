@@ -4,7 +4,7 @@ import pytest
 
 from core.auth import Role
 from core.models import EnvironmentUserRole, Team, User
-from ui.views.utils import set_session_environment, user_environments
+from ui.views.utils import set_session_environment
 
 
 @pytest.fixture
@@ -41,14 +41,3 @@ def test_set_session_environment(environment, user):
     # User with READ_ONLY role should *not* have non-read permissions
     assert request.session["user_can_create_function"] is False
     assert request.session["user_can_create_task"] is False
-
-
-@pytest.mark.django_db
-def test_user_environments(environment, user):
-    """user's environments are returned by the user_environments context processor"""
-    request = Mock()
-    request.user = user
-
-    context = user_environments(request)
-
-    assert environment in context["user_environments"][environment.team.name]

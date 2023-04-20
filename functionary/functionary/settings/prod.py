@@ -1,9 +1,22 @@
+import os
+
 from .base import *  # noqa
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+# WhiteNoiseMiddleware must go immediately after SecurityMiddleware
+# See https://whitenoise.readthedocs.io/en/stable/django.html#enable-whitenoise
+whitenoise_index = 1 + MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
+MIDDLEWARE.insert(whitenoise_index, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-# TODO: Deploy another container to serve the staticfiles, or use whitenoise
-STATIC_ROOT = f"{BASE_DIR}/static"
+STORAGES.update(
+    {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        }
+    }
+)
+
+WHITENOISE_MANIFEST_STRICT = False

@@ -3,6 +3,8 @@ from django.views.generic.detail import DetailView
 
 from core.auth import Permission
 from core.models import Team, Variable
+from ui.tables.team_user import TeamUserTable
+from ui.tables.variables import VariableTable
 from ui.views.team.utils import get_user_roles
 
 
@@ -19,12 +21,12 @@ class TeamDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
         context["team_id"] = str(team.id)
         context["environments"] = team.environments.all()
-        context["user_details"] = user_details
-        context["variables"] = (
-            team.vars
+        context["variable_table"] = VariableTable(
+            team.vars.all()
             if self.request.user.has_perm(Permission.VARIABLE_READ, team)
             else Variable.objects.none()
         )
+        context["user_table"] = TeamUserTable(user_details)
         return context
 
     def test_func(self):

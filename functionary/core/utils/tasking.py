@@ -1,26 +1,52 @@
 import logging
 from uuid import UUID
 
+from celery import Task as CeleryTask
+from celery.exceptions import Reject
 from celery.utils.log import get_task_logger
 from django.conf import settings
 
 from core.celery import app
 from core.models import (
-    Environment,
     Function,
     ScheduledTask,
     Task,
     TaskLog,
     TaskResult,
+    UserFile,
     Workflow,
     WorkflowRunStep,
 )
 from core.utils.messaging import get_route, send_message
-from core.utils.minio import MinioInterface, generate_filename
 from core.utils.parameter import PARAMETER_TYPE
 
 logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
+
+
+class FailedTaskHandler(CeleryTask):
+    """Simple wrapper to make sure failed tasks don't stay in progress"""
+
+    def on_failure(self, exc, celery_task_id, args, kwargs, einfo):
+        """Error handler.
+
+        This is run by the worker when the task fails.
+
+        Arguments:
+            exc (Exception): The exception raised by the task.
+            celery_task_id (str): Unique celery id of the failed task.
+            args (Tuple): Original arguments for the task that failed.
+            kwargs (Dict): Original keyword arguments for the task that failed.
+            einfo (~billiard.einfo.ExceptionInfo): Exception information.
+
+        Returns:
+            None: The return value of this handler is ignored.
+        """
+        if (task_id := kwargs.get("task_id")) is None:
+            return
+
+        task = Task.objects.prefetch_related("tasked_object").get(id=task_id)
+        mark_error(task, "Unable to send task to runner.", exc)
 
 
 class InvalidStatus(Exception):
@@ -31,14 +57,14 @@ class InvalidContentObject(Exception):
     pass
 
 
-def _generate_task_message(task: Task) -> dict:
-    """Generates tasking message from the provided Task"""
+def _generate_task_message(task: Task, parameters: dict) -> dict:
+    """Generates tasking message from the provided Task and parameters"""
     variables = {var.name: var.value for var in task.variables}
     return {
         "id": str(task.id),
         "package": task.function.package.full_image_name,
         "function": task.function.name,
-        "function_parameters": task.parameters,
+        "function_parameters": parameters,
         "variables": variables,
     }
 
@@ -60,13 +86,14 @@ def _protect_output(task, output):
 
 
 @app.task(
+    base=FailedTaskHandler,
     default_retry_delay=30,
     retry_kwargs={
         "max_retries": 3,
     },
     autoretry_for=(Exception,),
 )
-def publish_task(task_id: UUID) -> None:
+def publish_task(*, task_id: UUID) -> None:
     """Publish the tasking message to the message broker so that it can be received
     and executed by a runner.
 
@@ -82,18 +109,21 @@ def publish_task(task_id: UUID) -> None:
     )
 
     try:
-        _handle_file_parameters(task)
-
         # This may be a retry, make sure the task is marked as IN_PROGRESS
         task.status = Task.IN_PROGRESS
         task.save()
 
         exchange, routing_key = get_route(task)
         send_message(
-            exchange, routing_key, "TASK_PACKAGE", _generate_task_message(task)
+            exchange,
+            routing_key,
+            "TASK_PACKAGE",
+            _generate_task_message(task, _handle_parameters(task)),
         )
     except Exception as exc:
-        mark_error(task, "Unable to send task to runner", exc)
+        logger.info(
+            f"Exception caught publishing task {task.id}, publish may be retried."
+        )
         raise exc
 
 
@@ -115,8 +145,8 @@ def record_task_result(task_result_message: dict) -> None:
         logger.error("Unable to record results for task %s: task not found", task_id)
         return
 
-    TaskLog.objects.create(task=task, log=_protect_output(task, output))
-    TaskResult.objects.create(task=task, result=result)
+    TaskLog(task=task).save_log(_protect_output(task, output))
+    TaskResult(task=task).save_result(result)
 
     # TODO: This status determination feels like it belongs in the runner. This should
     #       be reworked so that there are explicitly known statuses that could come
@@ -144,13 +174,21 @@ def run_scheduled_task(scheduled_task_id: str) -> None:
     Returns:
         None
     """
-    scheduled_task = ScheduledTask.objects.get(id=scheduled_task_id)
+    # This exception shouldn't occur. However, if it does, it will
+    # prevent all other schedules from running.
+    try:
+        scheduled_task = ScheduledTask.objects.get(id=scheduled_task_id)
+    except ScheduledTask.DoesNotExist:
+        raise Reject(
+            reason="Unable to find ScheduledTask: {0}".format(scheduled_task_id),
+            requeue=False,
+        )
 
     task = Task.objects.create(
         environment=scheduled_task.environment,
         creator=scheduled_task.creator,
-        tasked_object=scheduled_task.function,
-        return_type=scheduled_task.function.return_type,
+        tasked_object=scheduled_task.tasked_object,
+        return_type=scheduled_task.tasked_object.return_type,
         parameters=scheduled_task.parameters,
         scheduled_task=scheduled_task,
     )
@@ -191,50 +229,52 @@ def _handle_workflow_run(workflow_run_step: WorkflowRunStep, task: Task) -> None
             else:
                 workflow_task.status = Task.COMPLETE
                 workflow_task.save()
+                # When adding workflows of workflows, here's where you
+                # need to do something to continue the parent workflow
         case Task.ERROR:
             workflow_task.status = Task.ERROR
             workflow_task.save()
 
 
-def _handle_file_parameters(task: Task) -> None:
-    """Update all file parameter's filenames to presigned URLs
+def _handle_parameters(task: Task) -> dict:
+    """Handles processing of task parameters prior to execution.
 
-    This function will mutate all file parameters to their
-    corresponding presigned URLs. This should only be done
-    before a task is sent to the runner. The task should not
-    save the presigned URL to its database entry.
+    This function will currently mutate all file parameters into
+    their corresponding presigned URLs. Since this should only be done
+    before a task is sent to the runner and not be saved into the
+    database, the updated parameters are returned for use.
 
     Args:
         task: The task that is about to be sent to the runner
 
     Returns:
-        None
+        dict of the updated parameters
     """
     environment = task.environment
-    parameters = task.parameters
+    parameters = task.parameters.copy()
 
     for parameter in task.tasked_object.parameters.filter(
         parameter_type=PARAMETER_TYPE.FILE, name__in=parameters.keys()
     ):
         param_name = parameter.name
+        file_id = parameters[param_name]
 
-        filename = generate_filename(task, param_name, parameters[param_name])
-        parameters[param_name] = _get_presigned_url(filename, environment)
+        user_file = UserFile.objects.get(id=file_id, environment=environment)
+        parameters[param_name] = user_file.file.url
 
-
-def _get_presigned_url(filename: str, environment: Environment) -> str:
-    minio = MinioInterface(bucket_name=str(environment.id))
-    presigned_url = minio.get_presigned_url(filename)
-    return presigned_url
+    return parameters
 
 
 def _start_function_task(task: Task) -> None:
     """Publishes the task for execution"""
-    publish_task.delay(task.id)
+    publish_task.delay(task_id=task.id)
 
 
 def _start_workflow_task(task: Task) -> None:
     """Starts the workflow run associated with the given task"""
+    from core.utils.workflow import generate_run_steps
+
+    _ = generate_run_steps(task=task)
     task.workflow.first_step.execute(workflow_task=task)
 
 
@@ -285,9 +325,15 @@ def mark_error(task, message, error=None):
     if message:
         extra = f" Error: {str(error)}" if error else ""
         log_message = f"{message}{extra}"
-        task_log, created = TaskLog.objects.get_or_create(
-            task=task, defaults={"log": log_message}
-        )
+        task_log, created = TaskLog.objects.get_or_create(task=task)
+
         if not created:
-            task_log.log = f"{task_log.log}\n{log_message}"
-            task_log.save()
+            log_message = f"{task_log.log}\n{log_message}"
+
+        task_log.save_log(log_message)
+
+    if workflow_run_step := getattr(task, "workflow_run_step", None):
+        mark_error(
+            workflow_run_step.workflow_task,
+            f"Error in step {workflow_run_step.step_name}.",
+        )

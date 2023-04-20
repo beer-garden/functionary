@@ -1,21 +1,22 @@
-{% extends "partials/modal.html" %}
-{% block modal_title %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">
     {% if process == "connect" %}
         Connect {{ provider.name }}
     {% else %}
         Sign in via {{ provider.name }}
     {% endif %}
-{% endblock modal_title %}
-{% block modal_content %}
+</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
     {% if process == "connect" %}
         You are about to connect a new third party account from {{ provider.name }}.
     {% else %}
         You are about to sign in using a third party account from {{ provider.name }}.
     {% endif %}
-{% endblock modal_content %}
-{% block modal_footer %}
-    <form method="post"  action="{{ request.get_full_path }}">
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
+    <form method="post" action="{{ request.get_full_path }}">
         {% csrf_token %}
-        <button class="btn btn-success" type="submit" title="Continue">Continue</button>
+        <button class="btn btn-success" type="submit" title="Continue" autofocus>
+            Continue
+        </button>
     </form>
-{% endblock modal_footer %}
+</div>

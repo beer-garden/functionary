@@ -1,14 +1,32 @@
 :root {
     --breadcrumbs-fg: #FFFFCC;
 }
-.admin-header {
-    cursor: pointer;
-    display: flex;
-    align-items: flex-end;
+@font-face {
+    font-family: "Playball";
+    src: url("../webfonts/Functionary_Playball.woff2");
 }
-.admin-header img {
-    /* Filter to convert the white to yellow. Calculation from: https://codepen.io/sosuke/pen/Pjoqqp */
-    filter: invert(22%) sepia(46%) saturate(585%) hue-rotate(6deg);
+.admin-header {
+    width: 100%;
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    justify-content: space-between;
+    align-items: center;
+}
+.custom-f {
+    font-size: 4rem;
+    font-family: "Playball", cursive;
+    font-weight: 300;
+    line-height: 1.2;
+}
+.header-links {
+    text-transform: uppercase;
+    text-align: right;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 .deletelink-box:not(:last-child) {
     margin-bottom: 0em;
@@ -16,6 +34,15 @@
 }
 .module h2 {
     text-transform: capitalize;
+}
+/* Match header form button classes */
+.underline-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    font-weight: 300;
+    font-size: 0.6875rem;
+}
+.underline-header:hover {
+    border-bottom: 0px;
 }
 #branding {
     width: 100%;
@@ -43,4 +70,7 @@ tr.form-row td.delete {
 }
 a.cancel-link {
     box-sizing: content-box;
+}
+.text-danger {
+    color: var(--error-fg);
 }

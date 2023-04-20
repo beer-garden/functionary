@@ -182,6 +182,23 @@ class PermissionedListView(PermissionedViewMixin, SingleTableMixin, FilterView):
             return "partials/table.html"
         return super().get_template_names()
 
+    def paginate_queryset(self, queryset, page_size):
+        # This is overridden to work around double counting the queryset by
+        # django_tables2. It stores the number of objects here for use later.
+        paginator, page, object_list, more_pages = super().paginate_queryset(
+            queryset, page_size
+        )
+        self.object_count = paginator.count
+        return (paginator, page, object_list, more_pages)
+
+    def get_table_pagination(self, table):
+        # Work around querying the data again to get the count since
+        # we already know how many objects exist. This table.data is a wrapper
+        # around the value returned from get_table_data
+        table.data._length = self.object_count
+
+        return super().get_table_pagination(table)
+
 
 class PermissionedDetailView(PermissionedViewMixin, DetailView):
     """Extended DetailView with active environment permissions checking and queryset

@@ -32,6 +32,16 @@ This will authenticate to the functionary server and store your api key in the
 `~/.functionary` directory. This key will be used to authenticate you when
 running any other commands.
 
+### Config
+
+```shell
+functionary config <setting> <value>
+```
+
+The config command can be used to configure certain settings that the CLI uses,
+such as API token and client certificate. Use `--help` to see the configurable
+settings.
+
 ### Set Environment
 
 ```shell

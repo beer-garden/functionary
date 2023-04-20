@@ -15,7 +15,7 @@ package:
         "param2": "value2" }, { "param1": "value3", "param2": "value4" } ]'
       parameters:
         - name: input
-          summary: The JSON blob to render
+          description: The JSON blob to render
           type: json
           required: true
       return_type: json
@@ -28,7 +28,7 @@ package:
         option to be rendered as a table.
       parameters:
         - name: input
-          summary: The text to render
+          description: The text to render
           type: text
           required: true
       return_type: string
@@ -39,7 +39,7 @@ package:
         Sleeps for the specified duration to simulate a long running process
       parameters:
         - name: duration
-          summary: How long, in seconds, that the function should run for
+          description: How long, in seconds, that the function should run for
           type: integer
           required: false
           default: 60
@@ -61,14 +61,12 @@ package:
       parameters:
         - name: file
           display_name: File
-          summary: File to measure
-          description: Input file that will be measured
+          description: File to measure
           type: file
           required: true
         - name: other_param
           display_name: Other Param
-          summary: Other param argument
-          description: Prints parameter
+          description: Non-file parameter for test purposes
           type: text
           required: true
     - name: parameter_types
@@ -106,3 +104,24 @@ package:
         - name: text
           type: text
           required: False
+        - name: option_string
+          type: string
+          options:
+            - option1
+            - option2
+          required: False
+        - name: option_integer
+          type: integer
+          options:
+            - 1
+            - 2
+          required: False
+    - name: download_url
+      summary: Download content from a URL
+      display_name: Download URL
+      description: "Downloads the supplied URL"
+      parameters:
+        - name: url
+          description: The URL to download
+          type: string
+          required: true

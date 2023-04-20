@@ -1,15 +1,23 @@
 version: "3.5"
 
+x-rabbitmq-conf: &rabbitmq-conf
+  RABBITMQ_USER: ${RABBITMQ_USER:-bugs}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-wascallywabbit}
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: 5672
+
+x-registry-conf: &registry-conf
+  REGISTRY_HOST: registry
+  REGISTRY_PORT: 5000
+  REGISTRY_USER: testuser
+  REGISTRY_PASSWORD: testpassword
+
 x-environment:
   &environment
   DEBUG: TRUE
   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-supersecret}
   DJANGO_SETTINGS_MODULE: functionary.settings.debug
   LOG_LEVEL: DEBUG
-  RABBITMQ_USER: ${RABBITMQ_USER:-bugs}
-  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-wascallywabbit}
-  RABBITMQ_HOST: rabbitmq
-  RABBITMQ_PORT: 5672
   DB_ENGINE: POSTGRESQL
   DB_HOST: postgresql
   DB_NAME: functionary
@@ -21,17 +29,18 @@ x-environment:
 
 
 services:
-  django:
+  webserver:
     build:
       context: ../functionary
       dockerfile: ../docker/dev.Dockerfile
       args:
         uid: ${UID:-1000}
     image: functionary_django
-    container_name: functionary-django
+    container_name: functionary-webserver
     command: runserver
     environment:
       <<: *environment
+      DOCUMENTATION_LINK: http://localhost:7000
     networks:
       - functionary-network
     ports:
@@ -100,13 +109,13 @@ services:
     depends_on:
       - rabbitmq
       - database
-  build-worker:
+  builder:
     build:
       context: ../functionary
       dockerfile: ../docker/dev_docker.Dockerfile
     image: functionary_django_docker
-    container_name: functionary-build-worker
-    command: run_build_worker
+    container_name: functionary-builder
+    command: run_builder
     environment:
       <<: *environment
     networks:
@@ -128,8 +137,7 @@ services:
     container_name: functionary-runner
     command: start
     environment:
-      <<: *environment
-      RABBITMQ_HTTP_PORT: 15672
+      <<: [*environment, *rabbitmq-conf, *registry-conf]
       RUNNER_DEFAULT_VHOST: public
     networks:
       - functionary-network
@@ -140,6 +148,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - rabbitmq
+  docs:
+    build:
+      context: ../
+      dockerfile: docker/functionary.Dockerfile
+      target: docs
+    image: functionary_docs
+    container_name: functionary-docs
+    command: /docs/src/devserver.sh
+    ports:
+      - 7000:7000
+    volumes:
+      - ../docs:/docs/src
   database:
     image: postgres:latest
     container_name: functionary-database
@@ -161,7 +181,7 @@ services:
     hostname: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-bugs}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULTPASS:-wascallywabbit}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-wascallywabbit}
     networks:
       - functionary-network
     ports:

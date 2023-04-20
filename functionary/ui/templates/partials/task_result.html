@@ -1,7 +1,0 @@
-{% if output_format == "log" %}
-    {% include "partials/task_log.html" %}
-{% elif task.result is None %}
-    {% include "partials/output_none.html" %}
-{% else %}
-    {% include "partials/output.html" with output_format=output_format %}
-{% endif %}

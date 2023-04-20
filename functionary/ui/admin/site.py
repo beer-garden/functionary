@@ -2,6 +2,7 @@ import pprint
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admin import AdminSite, ModelAdmin
+from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
 from rest_framework.authtoken.models import Token
 
@@ -16,7 +17,7 @@ from core.models import Environment, Team, User
 class UIAdminSite(AdminSite):
     site_header = "Functionary Administration"
     site_title = "Functionary Admin"
-    site_url = "/ui"
+    site_url = "/"
 
 
 class SessionAdmin(ModelAdmin):
@@ -32,6 +33,7 @@ class SessionAdmin(ModelAdmin):
 
 
 ui_admin_site = UIAdminSite(name="ui_admin")
+ui_admin_site.login = login_required(ui_admin_site.login)
 
 ui_admin_site.register(Token)
 ui_admin_site.register(Session, SessionAdmin)

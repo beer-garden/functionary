@@ -1,31 +1,54 @@
-{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
-    Workflow Step
-{% endblock modal_title %}
-{% block modal_content %}
-    <form id="step-form"
+<span id="form-modal-label" hx-swap-oob="innerHTML">Workflow Step</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <form id="modal-form"
           method="post"
-          hx-post="{% if workflowstep %}{% url 'ui:workflowstep-edit' view.kwargs.workflow_pk workflowstep.pk %}{% else %}{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}{% endif %}"
-          hx-target="#form-modal"
-          hx-swap="outerHTML"
+          hx-post="{% if workflowstep %}{% url 'ui:workflowstep-update' view.kwargs.workflow_pk workflowstep.pk %}{% else %}{% url 'ui:workflowstep-create' view.kwargs.workflow_pk %}{% endif %}"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend"
           enctype="multipart/form-data">
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-            {% render_field form.name class="form-control" placeholder=form.name.label %}
-            <div class="text-danger">{{ form.name.errors }}</div>
+            {{ form.name.label_tag }}
+            {% with form.name.id_for_label|add:"_chooser" as formId and form.name.id_for_label|add:"-error" as desId %}
+                {% render_field form.name id=formId aria-describedby=desId autofocus=true %}
+            {% endwith %}
+            {{ form.name.errors }}
         </div>
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.function.id_for_label }}">{{ form.function.label }}</label>
-            {% render_field form.function class="form-select" aria-label=form.function.label role="menu" %}
-            <div class="text-danger">{{ form.function.errors }}</div>
+        {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+        <div class="mb-3" hx-target="#tasked_object" hx-swap="innerHTML">
+            <input type="hidden" name="tasked_type" value="function" />
+            <div class="mt-3" id="tasked_object">
+                {% include "partials/tasked_object_chooser.html" %}
+                {{ form.tasked_object.errors }}
+            </div>
         </div>
         <div class="mb-3" id="function-parameters">{{ parameter_form }}</div>
-        <div>{{ form.non_field_errors }}</div>
-        <div>{{ form.workflow }}</div>
-        <div>{{ form.next }}</div>
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
-    <button class="btn btn-primary" type="submit" form="step-form" title="Save">Save</button>
-{% endblock modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
+    <button class="btn btn-primary" type="submit" form="modal-form" title="Save">
+        Save
+    </button>
+</div>
+<script>
+        function template_clicked(trigger, field_id) {
+            const elem = document.getElementById(field_id)
+            if (elem) {
+                const field_type = elem.getAttribute("base_type")
+                if (elem.type !== field_type) {
+                    elem.type = field_type
+                    elem.placeholder = "Enter value"
+                    trigger.innerText = "template: off"
+                    if (field_type === "checkbox") {
+                        elem.className = "form-check-input"
+                    }
+                } else {
+                    elem.type = "text"
+                    elem.placeholder = "Enter \{\{template\}\}"
+                    elem.className = "form-control"
+                    trigger.innerText = "template: on"
+                }
+            }
+        }
+</script>

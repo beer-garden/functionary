@@ -2,24 +2,31 @@
 {% load static %}
 {% block content %}
     <div class="d-flex justify-content-between  align-items-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item active" aria-current="page">Schedules</li>
-            </ol>
-        </nav>
+        {% include "partials/breadcrumb.html" %}
         <div>
-            <a class="btn btn-primary btn-sm fa-plus py-1 h-75"
-               title="Create New Scheduled Task"
-               type="button"
-               href="{% url 'ui:scheduledtask-create' %}">
-                Create Scheduled Task
-            </a>
+            {% if request.session.user_can_create_scheduledtask %}
+                <button class="btn btn-primary btn-sm py-1 h-75"
+                        title="Schedule a new Task"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#form-modal"
+                        hx-target="#form-modal-content"
+                        hx-swap="beforeend"
+                        hx-get="{% url 'ui:schedule-create' %}">
+                    <i class="fa fa-plus fa-xs"></i> Schedule Task
+                </button>
+            {% endif %}
             {% include "partials/list_filter_button.html" %}
         </div>
     </div>
     <hr />
     <div class="row">
-        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
+        <div class="col me-xl-auto">
+            {% include "partials/table.html" %}
+            <a href="{% url 'ui:scheduledtask-archive-list' %}">
+                <i class="fa fa-box-archive"></i> Archive
+            </a>
+        </div>
         {% include "partials/list_filter.html" %}
     </div>
 {% endblock content %}

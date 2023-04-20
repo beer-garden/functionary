@@ -1,0 +1,31 @@
+[tool.djlint]
+max_line_length = 80
+profile = "django"
+
+# H030: Consider adding a meta description
+# H031: Consider adding meta keywords
+ignore = "H030,H031"
+
+[tool.flake8]
+max-line-length = 88
+exclude = "**/migrations/*"
+
+# F405: Name may be undefined, or defined from star imports
+per-file-ignores = ["functionary/*.py:F405"]
+
+[tool.isort]
+profile = "black"
+known_first_party = ["builder", "core", "ui"]
+skip_glob = "**/migrations/*"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "functionary.settings.test"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+# suppress deprecation warnings of third party packages
+filterwarnings = [
+    "ignore::django.utils.deprecation.RemovedInDjango50Warning:rest_framework",
+    "ignore::DeprecationWarning:cachetools",
+    "ignore::DeprecationWarning:celery",
+    "ignore::DeprecationWarning:kombu",
+]

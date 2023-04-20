@@ -1,10 +1,3 @@
-.logo-blue {
-    filter: brightness(0) saturate(100%) invert(29%) sepia(87%) saturate(1396%) hue-rotate(214deg) brightness(88%) contrast(80%);
-}
-.functionary-logo {
-    margin-bottom: -1px;
-    margin-right: -1rem;
-}
 .functionary-title {
     margin-left: -1rem;
 }
@@ -14,37 +7,15 @@
     flex-direction: column;
     justify-content: space-between;
 }
-.environment-select {
-    border: none;
-    background: none;
-    color:white;
-    font-size:1em;
-}
-.environment-select * {
-    color: black;
-}
-.errorlist > li {
-    color: var(--bs-danger-text);
-}
+.errorlist > li,
 .errors {
     color: var(--bs-danger-text);
-}
-.json-string {
-    color: #7a7a00;
-}
-.form-fill {
-    background-color: #F2F2F2; /* --bs-table-striped-bg over white */
-}
-details > summary {
-    font-size: 1.75rem;
-}
-details > summary > * {
-    display: inline;
 }
 .navbar .btn {
     color: var(--bs-navbar-color);
 }
 .navbar .btn:hover,
+.navbar .btn:focus,
 .navbar .btn.show {
     background-color: var(--bs-navbar-color);
     color: var(--bs-primary);
@@ -54,7 +25,7 @@ details > summary > * {
     background-color: var(--bs-nav-link-color);
 }
 .fa-sort {
-    color: var(--bs-gray-500);
+    color: var(--bs-sort-color);
 }
 .orderable a:hover .fa-sort {
     color: var(--bs-link-hover-color);
@@ -71,18 +42,27 @@ div:has(input[type="checkbox"][name="wrap"]:not(:checked)) ~ pre {
 .status-color[title="IN_PROGRESS"]{
     color: var(--bs-info);
 }
-.status-color[title="ACTIVE"]{
+.status-color[title="ACTIVE"],
+.status-color[title="COMPLETE"]{
     color: var(--bs-success);
 }
 .status-color[title="PAUSED"]{
-    color:  var(--bs-warning-text);
+    color:  var(--bs-warning-text-emphasis);
 }
 .status-color[title="ERROR"]{
     color: var(--bs-danger);
 }
-.status-color[title="ARCHIVED"],
-.status-color[title="COMPLETE"]{
-    color: var(--bs-dark);
+.status-color[title="ARCHIVED"]{
+    color: var(--bs-archive-color);
+}
+/* add style for programmatically focused buttons since focusVisible not supported */
+/* https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus */
+button[autofocus]:focus {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+    outline: 0;
+    box-shadow: var(--bs-btn-focus-box-shadow);
 }
 datalist{
     z-index: 1500;
@@ -95,18 +75,44 @@ pre {
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    font-size: inherit;
 }
 .missing-variables > ul {
     list-style: inside;
 }
-tr.htmx-swapping td {
-    opacity: 0;
-    transition: opacity 1s ease-out;
+.form-check:has(input[type="text"]) {
+    display: inherit;
 }
-body div aside {
-    max-width: fit-content;
+.form-switch:has(input[type="text"]) {
+    padding-left: 0em;
 }
-/* Re-apply backdrop color because table wipes it */
-table .modal-backdrop {
-    background-color: var(--bs-backdrop-bg);
+.filechooser-table {
+    min-height: 150px;
+    height: 33vh;
+    overflow-y: auto;
+}
+.grab {
+    cursor: grab;
+}
+tr.sortablejs-background-class {
+    --bs-table-striped-bg: var(--bs-secondary);
+    --bs-table-bg: var(--bs-secondary);
+}
+.sortablejs-background-class {
+	background-color: var(--bs-secondary);
+}
+
+.line-clamp {
+    /* avoid padding bottom as it could cause more lines to be displayed than expected */
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+    .animation {
+        animation-duration: 5000ms;
+        animation-iteration-count: infinite;
+  }
 }

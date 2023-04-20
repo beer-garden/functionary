@@ -1,0 +1,54 @@
+{% if request.session.user_can_update_userfile %}
+    <button type="button"
+            title="Management"
+            class="btn btn-outline-primary border-0 py-1"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+        <i class="fa fa-ellipsis-vertical"></i>
+        <span class="visually-hidden">Toggle Dropdown</span>
+    </button>
+    <form id="publicForm-{{ record.id }}"
+          method="post"
+          action="{% url 'ui:file-share' pk=record.id %}">
+        {% csrf_token %}
+    </form>
+    <div class="dropdown-menu shadow-lg">
+        <button class="dropdown-item"
+                title="Rename File"
+                data-bs-toggle="modal"
+                data-bs-target="#form-modal"
+                hx-target="#form-modal-content"
+                hx-swap="beforeend"
+                hx-get="{% url 'ui:file-update' pk=record.id action='rename' %}">
+            <i class="fa fa-sm fa-pencil-alt fa-fw me-1"></i>Rename
+        </button>
+        <button class="dropdown-item"
+                title="Update File"
+                data-bs-toggle="modal"
+                data-bs-target="#form-modal"
+                hx-target="#form-modal-content"
+                hx-swap="beforeend"
+                hx-get="{% url 'ui:file-update' pk=record.id action='replace' %}">
+            <i class="fa fa-sm fa-upload fa-fw me-1"></i>Replace
+        </button>
+        {% if record.public %}
+            <button class="dropdown-item"
+                    type="submit"
+                    title="Make Private"
+                    name="public"
+                    value="false"
+                    form="publicForm-{{ record.id }}">
+                <i class="fa fa-sm fa-lock fa-fw me-1"></i>Restrict
+            </button>
+        {% else %}
+            <button class="dropdown-item"
+                    type="submit"
+                    title="Make Public"
+                    name="public"
+                    value="true"
+                    form="publicForm-{{ record.id }}">
+                <i class="fa fa-sm fa-lock-open fa-fw me-1"></i>Share
+            </button>
+        {% endif %}
+    </div>
+{% endif %}

@@ -4,9 +4,11 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
+from django_htmx.http import HttpResponseClientRedirect
 
 from core.auth import Permission
 from core.models import Environment, Team, Variable
+from ui.tables.variables import VariableTable
 
 from ..forms.variables import VariableForm
 
@@ -16,25 +18,6 @@ def _get_parent(parent_id):
     if not parent:
         parent = Team.objects.filter(id=parent_id)
     return parent.get() if parent else None
-
-
-def _render_variable_row(request, parent_id, variable):
-    context = {
-        "parent_id": parent_id,
-        "variable": variable,
-    }
-
-    return render(request, "partials/variable_row.html", context)
-
-
-def _render_variable_rows(request, parent_id=None, parent=None):
-    parent = parent or _get_parent(parent_id)
-    context = {
-        "parent_id": parent_id,
-        "variables": parent.vars,
-    }
-
-    return render(request, "partials/variable_rows.html", context)
 
 
 def _render_variable_form(request, form, parent_id, variable=None, add=False):
@@ -65,9 +48,19 @@ def all_variables(request, parent_id):
 @login_required
 def delete_variable(request, pk):
     variable = get_object_or_404(Variable, id=pk)
+    parent = variable.parent
 
     if request.user.has_perm(Permission.VARIABLE_DELETE, variable):
         variable.delete()
+        if not parent.vars.exists():
+            context = {
+                "variable_table": VariableTable([]),
+                "parent_object": parent,
+                "parent_id": parent.id,
+            }
+            response = render(request, "partials/variables_section.html", context)
+            response["HX-Retarget"] = "#variable_section"
+            return response
         return HttpResponse("")
 
     return HttpResponseForbidden(f"Permission denied deleting {variable.name}")
@@ -88,7 +81,9 @@ class VariableView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         if form.is_valid():
             form.save()
-            return _render_variable_rows(request, parent=parent, parent_id=parent_id)
+            # Return to the page that the user was on
+            success_url = request.headers.get("Referer")
+            return HttpResponseClientRedirect(success_url)
 
         return _render_variable_form(request, form, parent_id, add=True)
 
@@ -121,7 +116,9 @@ class UpdateVariableView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         if form.is_valid():
             form.save()
-            return _render_variable_rows(request, parent_id=parent_id)
+            # Return to the page that the user was on
+            success_url = request.headers.get("Referer")
+            return HttpResponseClientRedirect(success_url)
 
         return _render_variable_form(request, form, parent_id, variable)
 

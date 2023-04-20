@@ -2,6 +2,7 @@ import pytest
 
 from core.models import Function, Package, Task, TaskResult, Team, User, Workflow
 from core.utils.parameter import PARAMETER_TYPE
+from core.utils.workflow import generate_run_steps
 
 
 @pytest.fixture
@@ -76,7 +77,7 @@ def test_workflow_step_generates_correct_task_parameters_for_int(workflow, funct
 
     workflow_step = workflow.steps.create(
         name="step1",
-        function=function,
+        tasked_object=function,
         parameter_template=parameter_template,
     )
 
@@ -89,6 +90,7 @@ def test_workflow_step_generates_correct_task_parameters_for_int(workflow, funct
         parameters=workflow_task_params,
     )
 
+    generate_run_steps(workflow_task)
     step_task = workflow_step.execute(workflow_task)
 
     assert (
@@ -103,7 +105,7 @@ def test_workflow_step_generates_correct_task_parameters_for_json(workflow, func
 
     workflow_step = workflow.steps.create(
         name="step1",
-        function=function,
+        tasked_object=function,
         parameter_template=parameter_template,
     )
 
@@ -116,6 +118,7 @@ def test_workflow_step_generates_correct_task_parameters_for_json(workflow, func
         parameters=workflow_task_params,
     )
 
+    generate_run_steps(workflow_task)
     step_task = workflow_step.execute(workflow_task)
 
     assert (
@@ -133,7 +136,7 @@ def test_workflow_step_generates_correct_task_parameters_for_str(workflow, funct
 
     workflow_step = workflow.steps.create(
         name="step1",
-        function=function,
+        tasked_object=function,
         parameter_template=parameter_template,
     )
 
@@ -147,6 +150,7 @@ def test_workflow_step_generates_correct_task_parameters_for_str(workflow, funct
         parameters=workflow_task_params,
     )
 
+    generate_run_steps(workflow_task)
     step_task = workflow_step.execute(workflow_task)
 
     assert step_task.parameters["func_str_param"] == f'fun quote: "{quote}"'
@@ -162,13 +166,13 @@ def test_workflow_step_properly_escapes_task_results(workflow, function):
 
     workflow_step2 = workflow.steps.create(
         name="step2",
-        function=function,
+        tasked_object=function,
         parameter_template=step2_template,
     )
 
     workflow_step1 = workflow.steps.create(
         name="step1",
-        function=function,
+        tasked_object=function,
         parameter_template=step1_template,
         next=workflow_step2,
     )
@@ -183,15 +187,60 @@ def test_workflow_step_properly_escapes_task_results(workflow, function):
         parameters=workflow_task_params,
     )
 
+    generate_run_steps(workflow_task)
     step1_task = workflow_step1.execute(workflow_task)
     step1_task.status = Task.COMPLETE
     step1_task.save()
 
-    TaskResult.objects.create(task=step1_task, result=f'fun quote: "{quote}"')
+    TaskResult(task=step1_task).save_result(f'fun quote: "{quote}"')
 
     step2_task = workflow_step2.execute(workflow_task)
 
     assert (
         step2_task.parameters["func_str_param"]
         == f'another quote: "{step1_task.result}"'
+    )
+
+
+@pytest.mark.django_db
+def test_workflow_step_generates_correct_task_parameters_for_json_results(
+    workflow, function
+):
+    """References to properties within JSON results are correctly translated to Task
+    parameters
+    """
+    step2_template = '{"func_str_param": "The word is: {{step1.result.words.2}}"}'
+
+    workflow_step2 = workflow.steps.create(
+        name="step2",
+        tasked_object=function,
+        parameter_template=step2_template,
+    )
+
+    workflow_step1 = workflow.steps.create(
+        name="step1",
+        tasked_object=function,
+        parameter_template="{}",
+        next=workflow_step2,
+    )
+
+    workflow_task = Task.objects.create(
+        tasked_object=workflow,
+        creator=workflow.creator,
+        environment=workflow.environment,
+        parameters={},
+    )
+
+    generate_run_steps(workflow_task)
+    step1_task = workflow_step1.execute(workflow_task)
+    step1_task.status = Task.COMPLETE
+    step1_task.save()
+
+    TaskResult(task=step1_task).save_result('{"words": ["cat", "dog", "bird"]}')
+
+    step2_task = workflow_step2.execute(workflow_task)
+
+    assert (
+        step2_task.parameters["func_str_param"]
+        == f"The word is: {step1_task.result['words'][2]}"
     )

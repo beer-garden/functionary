@@ -81,6 +81,8 @@ class SocialAppForm(forms.ModelForm):
         data = super().clean()
         provider = data.get("provider", None)
         config = data.get("provider_config", None)
+        # This is the most common form of URL parameter for the allauth providers
+        url_key = f"{provider.upper()}_URL"
 
         if provider:
             # The SocialApp page is the main point for changing the Constance
@@ -90,6 +92,12 @@ class SocialAppForm(forms.ModelForm):
             # probably ignored the setting so grab it from Constance.
             if config is None or (self.instance.id is None and not config):
                 data["provider_config"] = provider_config_from_constance(provider)
+            elif url := next((key for key in config.keys() if key.startswith(url_key))):
+                # If the provider url key exists and isn't set, it will default to
+                # contacting ourself, which won't work. Try prevent this
+                # misconfiguration.
+                if not config[url]:
+                    raise ValidationError(f"Missing value for {url}")
 
         return data
 

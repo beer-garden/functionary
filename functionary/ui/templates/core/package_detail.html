@@ -1,24 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
     {% with package.active_functions as functions %}
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb my-1 pb-1">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'ui:package-list' %}">Packages</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">{{ package.render_name }}</li>
-            </ol>
-        </nav>
+        <div class="d-flex">{% include "partials/breadcrumb.html" %}</div>
         <hr />
         <div class="row">
             <div class="col-10 col-md-8 col-xl-7">
                 <h2 class="mt-2 mb-1">
                     <i class="fa fa-cubes"></i>
-                    {{ package.render_name }}
+                    {{ package.display_name }}
                 </h2>
-                {% if package.summary %}<p class="mb-1 text-muted">{{ package.summary }}</p>{% endif %}
+                {% if package.summary %}
+                    <p class="mb-1 text-muted">{{ package.summary }}</p>
+                {% endif %}
                 <div class="vstack gap-3 my-4">
-                    {% if package.description %}<div>{{ package.description|linebreaks }}</div>{% endif %}
+                    {% if package.description %}
+                        <div>{{ package.description|linebreaks }}</div>
+                    {% endif %}
                     <div>
                         <div class="fw-semibold fs-4">
                             <i class="fa fa-cube fa-sm fa-fw me-1"></i>Functions
@@ -29,7 +26,7 @@
                                     {% for function in functions %}
                                         <a href="{% url 'ui:function-detail' function.id %}"
                                            class="list-group-item list-group-item-action">
-                                            <p class="fw-bold mb-0">{{ function.render_name }}</p>
+                                            <p class="fw-bold mb-0">{{ function.display_name }}</p>
                                             <p class="ms-4 mb-0">{{ function.summary }}</p>
                                         </a>
                                     {% endfor %}

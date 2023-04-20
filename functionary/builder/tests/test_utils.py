@@ -3,7 +3,7 @@ from yaml import YAMLError
 
 from builder import utils
 from builder.models import Build, BuildLog, BuildResource
-from builder.utils import BuilderError, DockerSocketConnectionError, PackageManager
+from builder.utils import BuilderError, DockerClientError, PackageManager
 from core.models import Function, Package, Team, User
 from core.utils.parameter import PARAMETER_TYPE
 
@@ -84,11 +84,11 @@ def function4(package2):
 
 
 @pytest.fixture
-def package_definition(function1):
+def package1_updated_definition():
     package_def = {
-        "name": function1.name,
-        "summary": function1.summary,
-        "display_name": function1.name,
+        "name": "package1",
+        "summary": "a package for testing",
+        "display_name": "Test Package",
         "language": "python",
     }
 
@@ -96,14 +96,34 @@ def package_definition(function1):
 
 
 @pytest.fixture
-def build(package1, user, environment, package_definition):
+def parameter_with_options():
+    return {
+        "name": "param1",
+        "type": "text",
+        "options": ["option1", "option2"],
+        "required": False,
+    }
+
+
+@pytest.fixture
+def package1_updated_functions_with_options(parameter_with_options):
+    return [
+        {
+            "name": "function1",
+            "parameters": [parameter_with_options],
+        }
+    ]
+
+
+@pytest.fixture
+def build(package1, user, environment, package1_updated_definition, package_contents):
     build = Build.objects.create(
         creator=user, environment=environment, package=package1
     )
     BuildResource(
         build=build,
-        package_contents=bytes(f"{package_definition}", encoding="utf-8"),
-        package_definition=package_definition,
+        package_contents=package_contents,
+        package_definition=package1_updated_definition,
         package_definition_version="1",
     ).save()
     return build
@@ -160,11 +180,11 @@ def test_delete_removed_function_parameters(function1):
 @pytest.mark.django_db
 def test_unavailable_docker_socket(mocker):
     def mock_unavailabe_docker_socket():
-        raise DockerSocketConnectionError("")
+        raise DockerClientError("")
 
     mocker.patch("builder.utils._get_docker_client", mock_unavailabe_docker_socket)
 
-    with pytest.raises(DockerSocketConnectionError):
+    with pytest.raises(DockerClientError):
         _ = utils._get_docker_client()
 
 
@@ -244,3 +264,33 @@ def test_invalid_package_yaml(mocker, package_contents):
 
     with pytest.raises(utils.InvalidPackage):
         utils.extract_package_definition(package_contents)
+
+
+@pytest.mark.django_db
+def test_package_manager_updates_package_fields(package1, package1_updated_definition):
+    """Fields with changed values in the package definition get updated correctly on the
+    Package."""
+
+    assert package1.display_name != package1_updated_definition["display_name"]
+    assert package1.summary != package1_updated_definition["summary"]
+
+    package_manager = PackageManager(package1)
+    package_manager.update_package(package1_updated_definition)
+    package1.refresh_from_db()
+
+    assert package1.display_name == package1_updated_definition["display_name"]
+    assert package1.summary == package1_updated_definition["summary"]
+
+
+@pytest.mark.django_db
+def test_package_manager_handles_function_parameter_with_options(
+    package1, parameter_with_options, package1_updated_functions_with_options
+):
+    package_manager = PackageManager(package1)
+    package_manager.update_functions(package1_updated_functions_with_options)
+
+    function = package1.functions.get(
+        name=package1_updated_functions_with_options[0]["name"]
+    )
+    parameter = function.parameters.get(name=parameter_with_options["name"])
+    assert parameter.options == parameter_with_options["options"]

@@ -1,3 +1,5 @@
+from django_filters import rest_framework as filters
+
 from core.api.permissions import HasEnvironmentPermissionForAction
 from core.api.viewsets import EnvironmentModelViewSet
 from core.models import Package
@@ -11,3 +13,5 @@ class PackageViewSet(EnvironmentModelViewSet):
     queryset = Package.active_objects.all()
     serializer_class = PackageSerializer
     permission_classes = [HasEnvironmentPermissionForAction]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ("id", "name", "display_name")

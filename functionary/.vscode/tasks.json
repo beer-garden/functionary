@@ -6,13 +6,13 @@
     {
       "label": "functionary: apply migrations and load fixtures",
       "type": "shell",
-      "command": "docker exec functionary-django ./run.sh init",
+      "command": "docker exec functionary-webserver ./run.sh init_dev && docker exec functionary-s3 mkdir -p /data/functionary",
       "problemMatcher": []
     },
     {
       "label": "runserver_stop_container",
       "type": "shell",
-      "command": "docker stop functionary-django",
+      "command": "docker stop functionary-webserver",
       "hide": true
     },
     {
@@ -28,9 +28,9 @@
       "hide": true
     },
     {
-      "label": "build_worker_stop_container",
+      "label": "builder_stop_container",
       "type": "shell",
-      "command": "docker stop functionary-build-worker",
+      "command": "docker stop functionary-builder",
       "hide": true
     },
     {

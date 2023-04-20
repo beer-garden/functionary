@@ -6,32 +6,33 @@ from django.utils.html import format_html
 from core.models import Function
 from ui.tables.meta import BaseMeta
 
-FIELDS = ("name", "summary")
+FIELDS = ("display_name", "summary")
 
 
 class FunctionFilter(django_filters.FilterSet):
-    name = django_filters.Filter(label="Function", lookup_expr="startswith")
+    display_name = django_filters.Filter(label="Function", lookup_expr="icontains")
     package = django_filters.Filter(
-        field_name="package__name", label="Package", lookup_expr="startswith"
+        field_name="package__display_name", label="Package", lookup_expr="icontains"
     )
 
 
 class FunctionTable(tables.Table):
-    name = tables.Column(
+    display_name = tables.Column(
         linkify=lambda record: reverse("ui:function-detail", kwargs={"pk": record.id}),
         verbose_name="Function",
         orderable=True,
     )
 
-    def render_name(self, value, record):
+    def render_display_name(self, value, record):
         return format_html(
-            "<span title='Package: {}'>{}<span class='text-muted ms-2 fs-8'>"
-            + "<span class='me-2'>:</span>{}</span></span>",
-            record.package,
-            value,
-            record.package,
+            "<span title='Package: {package}' aria-label='{value}, from package "
+            "{package}'>{value}<span class='text-muted ms-2 fs-8'>"
+            "<span class='me-2'>:</span>{package}</span></span>",
+            package=record.package.display_name,
+            value=value,
         )
 
     class Meta(BaseMeta):
         model = Function
         fields = FIELDS
+        empty_text = "No functions found"

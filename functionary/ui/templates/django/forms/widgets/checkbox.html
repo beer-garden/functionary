@@ -1,0 +1,9 @@
+<div class="form-check form-switch">
+    <input {% include "django/forms/widgets/attrs.html" %}
+           type="{{ widget.type }}"
+           name="{{ widget.name }}"
+           aria-label="{{ widget.name }}"
+           {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+           class="form-check-input"
+           role="switch" />
+</div>

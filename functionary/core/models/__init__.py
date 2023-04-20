@@ -5,10 +5,10 @@ from .package import PACKAGE_STATUS, Package  # noqa
 from .parameter import FunctionParameter, WorkflowParameter  # noqa
 from .scheduled_task import ScheduledTask  # noqa
 from .task import Task  # noqa
-from .task_log import TaskLog  # noqa
-from .task_result import TaskResult  # noqa
+from .task_output import TaskLog, TaskResult  # noqa
 from .team import Team  # noqa
 from .user import User  # noqa
+from .user_file import UserFile  # noqa
 from .user_role import EnvironmentUserRole, TeamUserRole  # noqa
 from .variable import Variable  # noqa
 from .workflow import Workflow  # noqa

@@ -1,0 +1,13 @@
+{% for nav_item in nav_list %}
+    <a class="nav-link px-2 link-offset-3 {% if active_nav == nav_item.active %}active fw-semibold{% endif %}"
+       href="{{ nav_item.link }}"
+       aria-label="{{ nav_item.label }}"
+       data-bs-toggle="popover"
+       data-bs-trigger="hover focus"
+       data-bs-container="#main-navbar"
+       data-bs-custom-class="d-md-none"
+       data-bs-content="{{ nav_item.label }}">
+        <i class="fa fa-lg {{ nav_item.icon }} fa-fw"></i>
+        <span class="d-none d-md-inline">{{ nav_item.label }}</span>
+    </a>
+{% endfor %}

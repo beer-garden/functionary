@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING, Set
 
 from django.apps import apps
@@ -29,11 +30,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username_validator = UnicodeUsernameValidator()
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(
         max_length=64,
         db_index=True,
         unique=True,
         validators=[username_validator],
+    )
+    distinguished_name = models.CharField(
+        max_length=255, blank=True, null=True, db_index=True, unique=True
     )
     password = models.CharField(max_length=255)
     first_name = models.CharField(max_length=64)
@@ -42,6 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     last_login = models.DateTimeField(blank=True, null=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    preferences = models.JSONField(default=dict)
 
     # TODO Possibly remove these fields after moving to our own permissions scheme
     is_staff = models.BooleanField(default=False)
@@ -118,3 +124,30 @@ class User(AbstractBaseUser, PermissionsMixin):
             return Environment.objects.filter(
                 models.Q(team__user_roles__user=self) | models.Q(user_roles__user=self)
             ).distinct()
+
+    def get_preference(self, preference: str):
+        """Retrieve a user preference
+
+        Args:
+            preference: The name of the user preference to retrieve
+
+        Returns:
+            The value of the requested preference
+        """
+        return self.preferences.get(preference)
+
+    def set_preference(self, preference: str, value, save: bool = False):
+        """Set a user preference
+
+        Args:
+            preference: The name of the user preference to set
+            value: The value to set the preference to
+            save: Save the instance if True. Defaults to False.
+
+        Returns:
+            None
+        """
+        self.preferences[preference] = value
+
+        if save is True:
+            self.save()

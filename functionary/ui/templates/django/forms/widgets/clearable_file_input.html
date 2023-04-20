@@ -1,0 +1,24 @@
+{% if widget.value is not None %}
+    <div class="d-flex justify-content-between">
+        <div>
+            {{ widget.initial_text }}: <span class="text-muted">{{ widget.value.instance.name }}</span>
+        </div>
+        <div>
+            {% if not widget.required %}
+                <input type="checkbox"
+                       class="form-check-input"
+                       name="{{ widget.checkbox_name }}"
+                       id="{{ widget.checkbox_id }}"
+                       aria-label="Clear {{ widget.name }}"
+                       {% if widget.attrs.disabled %}disabled{% endif %}>
+                <label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
+            {% endif %}
+        </div>
+    </div>
+    {{ widget.input_text }}:
+{% endif %}
+<input {% include "django/forms/widgets/attrs.html" %}
+       type="{{ widget.type }}"
+       class="form-control"
+       name="{{ widget.name }}"
+       aria-label="{{ widget.name }}">

@@ -1,66 +1,117 @@
 {% extends "base.html" %}
 {% load extras %}
 {% block content %}
-    <div id="task_detail"
-         {% if not completed %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb my-1 pb-1">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'ui:task-list' %}">Tasking</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">{{ task.function.render_name }}</li>
-            </ol>
-        </nav>
+    <div id="task_detail">
+        <div class="d-flex">{% include "partials/breadcrumb.html" %}</div>
         <hr />
         <div class="row">
-            <div class="col-10 col-md-8 col-xl-7">
+            <div class="col">
                 <div class="hstack gap-3 mt-2 mb-1 align-items-center">
                     <h2>
                         <i class="fa fa-digital-tachograph"></i>
-                        {{ task.function.render_name }}
+                        {{ task.tasked_object.display_name }}
                     </h2>
-                    <div class="status-color" title={{ task.status }}>
-                        <i class="fa fa-circle-info"></i>
-                        <span class="fs-5">{{ task.status }}</span>
-                    </div>
+                    {% include "partials/task/task_status_block.html" %}
+                    <button class="btn btn-primary d-lg-none ms-auto me-4"
+                            type="button"
+                            title="More details"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#task-detail-oc"
+                            aria-controls="task-detail-oc">
+                        <i class="fa fa-angles-left"></i>
+                    </button>
                 </div>
-                <div class="vstack gap-3 my-4">
-                    <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-user fa-sm fa-fw me-1"></i>Creator
-                        </h3>
-                        <p class="ms-4 my-2">
-                            {{ task.creator.first_name }} {{ task.creator.last_name }} <span class="text-muted">({{ task.creator.username }})</span>
-                            at {{ task.created_at }}
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
-                        </h3>
-                        <div class="my-2">
-                            {% if task.parameters %}
-                                <ol class="json-container wrap-json" id="json-parameters" />
-                            {% else %}
-                                <p class="ms-4 font-monospace">No parameters.</p>
-                            {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-lg-8">
+                <div class="vstack gap-3 my-2 my-lg-4">
+                    <div class="accordion" id="paramAccordion">
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button fw-semibold fs-5"
+                                        type="button"
+                                        hx-get="{% url 'ui:task-log' pk=task.id %}"
+                                        hx-target="#accordion-contents"
+                                        hx-trigger="click once"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#param-body"
+                                        aria-expanded="true"
+                                        aria-controls="param-body">
+                                    <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                                </button>
+                            </div>
+                            <div id="param-body" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    {% if task.parameters %}
+                                        <div class="json-container wrap-json bg-body" id="json-parameters"></div>
+                                    {% else %}
+                                        <div class="font-monospace">No parameters</div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div>
-                        <h3 class="fw-semibold">
-                            <i class="fa fa-clipboard-check fa-sm fa-fw me-1"></i>Result
-                        </h3>
-                        {% include "partials/task_result_block.html" %}
+                        <span class="fw-semibold fs-5">
+                            <i class="fa fa-clipboard-check fa-sm fa-fw me-1"></i>Result{{ steps|pluralize }}
+                        </span>
+                        <div class="ms-4 my-3">
+                            {% if task.tasked_type.model == "workflow" %}
+                                {% include "partials/task/workflow_result_block.html" %}
+                            {% else %}
+                                <div id="block-{{ task.id }}"
+                                     hx-target="this"
+                                     hx-swap="outerHTML"
+                                     {% if not task.finished %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
+                                    {% include "partials/task/task_result_block.html" %}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
+                    {% if task.tasked_type.model == "workflow" and task.log %}
+                        <div>
+                            <span class="fw-semibold fs-4">
+                                <i class="fa fa-book fa-sm fa-fw me-1"></i>Task Log
+                            </span>
+                            <div class="ms-4 my-3">
+                                <div class="accordion" id="logAccordion">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header">
+                                            <button class="accordion-button collapsed"
+                                                    type="button"
+                                                    hx-get="{% url 'ui:task-log' pk=task.id %}"
+                                                    hx-target="#accordion-contents"
+                                                    hx-trigger="click once"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#log-body"
+                                                    aria-expanded="false"
+                                                    aria-controls="log-body">
+                                                View logs
+                                            </button>
+                                        </div>
+                                        <div id="log-body" class="accordion-collapse collapse">
+                                            <div class="accordion-body" id="accordion-contents"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
+            </div>
+            <div class="col-0 col-lg-4 border-start">
+                {% include "partials/task/offcanvas_content.html" %}
             </div>
         </div>
     </div>
     <script data-task-parameters="{{ task.parameters | pretty_json }}">
         var parsed_parameters = JSON.parse(document.currentScript.dataset.taskParameters)
         var parameters_element = document.getElementById('json-parameters')
-        parameters_element.innerHTML = prettyPrintJson.toHtml(parsed_parameters, {
-            "quoteKeys": true
-        })
+        if (parameters_element) {
+            parameters_element.innerHTML = prettyPrintJson.toHtml(parsed_parameters, {
+                "quoteKeys": true
+            })
+        }
     </script>
 {% endblock content %}

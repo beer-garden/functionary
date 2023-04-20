@@ -5,6 +5,7 @@
 black
 coverage
 flake8
+flake8-pyproject
 isort
 pyfakefs
 pytest-mock

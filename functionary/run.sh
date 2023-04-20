@@ -6,22 +6,39 @@
 # User defined functions #
 ##########################
 
-migrate() {
+makemigrations() {
     python manage.py makemigrations
+}
+
+migrate() {
     python manage.py migrate
 }
 
-load_fixture() {
-    python manage.py loaddata bootstrap
+load_fixtures_prod() {
+    python manage.py loaddata bootstrap_prod
 }
 
-init() {
-    migrate
-    load_fixture
+load_fixtures_dev() {
+    python manage.py loaddata bootstrap_dev
+}
 
+create_vhost() {
     # Temporary manual creation of runner vhost. Remove once runner registration
     # is implemented
     python manage.py shell -c "from core.utils.rabbitmq import create_vhost; create_vhost('public')"
+}
+
+init_dev() {
+    makemigrations
+    migrate
+    load_fixtures_dev
+    create_vhost
+}
+
+init_prod() {
+    migrate
+    load_fixtures_prod
+    create_vhost
 }
 
 runserver() {
@@ -40,12 +57,21 @@ run_scheduler() {
     python manage.py run_scheduler
 }
 
-run_build_worker() {
-    python manage.py run_build_worker
+run_builder() {
+    python manage.py run_builder
 }
 
 start() {
-    echo "Not yet implemented"
+    if [[ ${SKIP_INIT} -ne 1 ]]; then
+        migration_status=$(python manage.py showmigrations)
+        migrations_run=$(echo "${migration_status}" | grep "\[X\]" | wc -l)
+        
+        if [[ ${migrations_run:-0} -eq 0 ]]; then
+            echo "No migrations run, initializing database"
+            init_prod
+        fi
+    fi
+    gunicorn --bind=${BIND_ADDRESS:-0.0.0.0} --workers=${NUM_WORKERS:-4} functionary.wsgi
 }
 
 ######################
@@ -55,13 +81,14 @@ start() {
 ####
 # Expected run modes (passed in via docker run cmd)
 #
-# init              - Migrate and load fixtures
+# init_dev          - Initialize a dev environment
+# init_prod         - Initialize a prod environment
 # migrate           - Complete data migrations
-# load_fixture      - Load fixture data
 # runserver         - Start django dev server
 # run_listener      - Start the message listener
+# run_scheduler     - Start the task scheduler
 # run_worker        - Start the general task worker
-# run_build_worker  - Start the package build worker
+# run_builder       - Start the package build worker
 # start             - Start application in Production mode
 ####
 
@@ -69,27 +96,39 @@ source $HOME/venv/bin/activate
 
 mode=$1
 case $mode in
-    init)
-    init;;
+init_dev)
+    init_dev
+    ;;
 
-    migrate)
-    migrate;;
+init_prod | init)
+    init_prod
+    ;;
 
-    runserver)
-    runserver;;
+migrate)
+    migrate
+    ;;
 
-    run_listener)
-    run_listener;;
+runserver)
+    runserver
+    ;;
 
-    run_worker)
-    run_worker;;
+run_builder)
+    run_builder
+    ;;
 
-    run_scheduler)
-    run_scheduler;;
+run_listener)
+    run_listener
+    ;;
 
-    run_build_worker)
-    run_build_worker;;
+run_worker)
+    run_worker
+    ;;
 
-    start|*)
-    start;;
+run_scheduler)
+    run_scheduler
+    ;;
+
+start | *)
+    start
+    ;;
 esac

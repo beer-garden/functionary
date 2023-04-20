@@ -1,53 +1,64 @@
 {% load widget_tweaks %}
-<div class="col-12 d-xl-none"></div>
 <div class="col-auto pt-4">
     <div class="offcanvas-xl offcanvas-end"
          tabindex="-1"
          id="filterOC"
          aria-labelledby="offcanvasLabel">
-        <div class="offcanvas-header bg-primary text-white">
+        <div class="offcanvas-header text-bg-primary">
             <h2 class="offcanvas-title fs-4" id="offcanvasLabel">
                 <i class="fa fa-filter fa-xs me-1"></i>Filter
             </h2>
             <button type="button"
-                    class="btn-close btn-close-white"
+                    class="btn-close"
                     data-bs-dismiss="offcanvas"
                     data-bs-target="#filterOC"
-                    aria-label="Close">
-            </button>
+                    aria-label="Close"></button>
         </div>
         <div class="offcanvas-body border rounded">
-            <div class="vstack px-2 pt-2 form-fill">
-                <h2 class="fs-6 d-none mb-3 ms-1 d-xl-block">
-                    <i class="fa fa-filter fa-xs me-1"></i>Filter
-                </h2>
-                <form hx-get="{{ filter.request.path }}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
-                      hx-trigger="submit delay:500ms"
-                      hx-push-url="true"
-                      hx-headers='{"x-filter": "filter"}'
-                      hx-swap="outerHTML"
-                      hx-target="#table-list-block">
-                    {% for field in filter.form %}
-                        <div class="form-floating mb-3">
-                            {% with WIDGET_ERROR_CLASS="is-invalid" %}
-                                {% if field.widget_type == "select" %}
-                                    {% render_field field class="form-select form-select-sm" onchange="requestSubmit()" role="menu" %}
-                                {% elif field.widget_type == 'datetime' %}
-                                    {% render_field field class="form-control form-control-sm" onchange="requestSubmit()" %}
-                                {% else %}
-                                    {% render_field field class="form-control form-control-sm" onkeyup="requestSubmit()" %}
-                                {% endif %}
-                            {% endwith %}
-                            <label for={{ field.id_for_label }} class="col-form-label-sm">{{ field.label }}
-                            </label>
-                            {% if field.errors %}
-                                <ul class="list-unstyled errorlist">
-                                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
-                                </ul>
-                            {% endif %}
+            <div class="card border-0">
+                <div class="card-body p-1">
+                    <div class="vstack px-2 pt-2">
+                        <div class="d-none d-xl-block">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h2 class="fs-6 mb-0 ms-1">
+                                    <i class="fa fa-filter fa-xs me-1"></i>Filter
+                                </h2>
+                                <a class="p-2 fs-7"
+                                   form="filterForm"
+                                   href="{{ filter.request.path }}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+                                   title="Clear all filters">Clear</a>
+                            </div>
                         </div>
-                    {% endfor %}
-                </form>
+                        <form hx-get="{{ filter.request.path }}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+                              hx-trigger="submit delay:500ms"
+                              hx-push-url="true"
+                              hx-headers='{"x-filter": "filter"}'
+                              hx-swap="outerHTML"
+                              hx-target="#table-list-block"
+                              id="filterForm">
+                            {% for field in filter.form.visible_fields %}
+                                <div class="form-floating mb-3">
+                                    {% with WIDGET_ERROR_CLASS="is-invalid" labelText="Filter by "|add:field.name %}
+                                        {% if field.widget_type == "select" %}
+                                            {% render_field field class="form-select form-select-sm" onchange="requestSubmit()" role="menu" aria-label=labelText %}
+                                        {% elif field.widget_type == 'datetime' %}
+                                            {% render_field field class="form-control form-control-sm" onchange="requestSubmit()" aria-label=labelText %}
+                                        {% else %}
+                                            {% render_field field class="form-control form-control-sm" onkeyup="requestSubmit()" aria-label=labelText %}
+                                        {% endif %}
+                                    {% endwith %}
+                                    <label for={{ field.id_for_label }} class="col-form-label-sm{% if field.errors %} text-danger{% endif %}">{{ field.label }}
+                                    </label>
+                                    {{ field.errors }}
+                                </div>
+                            {% endfor %}
+                        </form>
+                        <a class="d-xl-none d-block text-center"
+                           form="filterForm"
+                           href="{{ filter.request.path }}{% if request.GET.sort %}?sort={{ request.GET.sort }}{% endif %}"
+                           title="Clear all filters">Clear</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

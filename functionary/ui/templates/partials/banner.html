@@ -1,0 +1,19 @@
+{% if settings.banners %}
+    {% if top %}
+        <header class="fixed-top text-center">
+            {% for banner in settings.banners %}
+                <div style="background-color: {{ banner.bg }}; color:{{ banner.fg }}">
+                    {{ banner.text }}
+                </div>
+            {% endfor %}
+        </header>
+    {% else %}
+        <footer class="fixed-bottom text-center">
+            {% for banner in settings.banners %}
+                <div style="background-color: {{ banner.bg }}; color:{{ banner.fg }}">
+                    {{ banner.text }}
+                </div>
+            {% endfor %}
+        </footer>
+    {% endif %}
+{% endif %}

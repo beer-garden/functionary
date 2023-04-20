@@ -1,40 +1,71 @@
-{% extends "partials/modal.html" %}
-{% load widget_tweaks %}
-{% block modal_title %}
-    Workflow
-{% endblock modal_title %}
-{% block modal_content %}
-    <form id="workflow-form"
-          method="post"
-          hx-post="{% if workflow %}{% url 'ui:workflow-update' workflow.id %}{% else %}{% url 'ui:workflow-create' %}{% endif %}"
-          hx-target="#form-modal"
-          hx-swap="outerHTML">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
-            {% render_field form.name class="form-control" placeholder=form.name.label %}
+{% extends "base.html" %}
+{% block content %}
+    {% include "partials/sortable_js.html" %}
+    <div class="d-flex">{% include "partials/breadcrumb.html" %}</div>
+    <hr />
+    <h2 class="my-2">
+        <i class="fa fa-diagram-next"></i>
+        Update Workflow
+    </h2>
+    {% if not workflow.active %}
+        <div class="alert alert-warning text-center" role="alert">
+            <i class="fa fa-triangle-exclamation"></i>
+            This workflow is currently inactive.
         </div>
-        {{ form.name.errors }}
-        <div class="mb-3">
-            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
-            {% render_field form.description class="form-control" rows=2 cols=40 placeholder=form.description.label %}
-        </div>
-        {{ form.description.errors }}
-        <input type="hidden"
-               name="environment"
-               value="{{ request.session.environment_id }}"/>
-        {{ form.non_field_errors }}
-    </form>
-{% endblock modal_content %}
-{% block modal_footer %}
-    <button class="btn btn-primary"
-            type="submit"
-            form="workflow-form"
-            title="{% if workflow %}Save{% else %}Next{% endif %}">
-        {% if workflow %}
-            Save
-        {% else %}
-            Next
+    {% endif %}
+    <div class="vstack gap-4 my-4">
+        {% if form %}
+            <div class="row">
+                <div class="col-10 col-md-8 col-xl-7">
+                    {{ form.non_field_errors.as_text }}
+                    <div class="card">
+                        <div class="card-body pb-1">
+                            <form id="workflow-form"
+                                  method="post"
+                                  hx-post="{% url 'ui:workflow-update' workflow.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ form.name.label_tag }}
+                                    {{ form.name }}
+                                    {{ form.name.errors }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.description.label_tag }}
+                                    {{ form.description }}
+                                    {{ form.description.errors }}
+                                </div>
+                                <input type="hidden"
+                                       name="environment"
+                                       value="{{ request.session.environment_id }}" />
+                            </form>
+                            <div class="mb-3">
+                                <button class="btn btn-primary"
+                                        type="submit"
+                                        form="workflow-form"
+                                        title="Save name and description">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
-    </button>
-{% endblock modal_footer %}
+        <div class="row">
+            <div class="col col-xl-11">
+                <div>
+                    <span class="fw-semibold fs-4">
+                        <i class="fa fa-list fa-sm fa-fw me-1"></i>Parameters
+                    </span>
+                    {% include "partials/workflows/parameter_list.html" %}
+                </div>
+                <div>
+                    <span class="fw-semibold fs-4">
+                        <i class="fa fa-stairs fa-sm fa-fw me-1"></i>Steps
+                    </span>
+                    {% include "partials/workflows/step_table.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

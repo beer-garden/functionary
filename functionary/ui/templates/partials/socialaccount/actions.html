@@ -1,0 +1,29 @@
+{% load socialaccount %}
+{% load social_helper %}
+<div class="text-end">
+    {% find_account record.provider.id as existing_account %}
+    {% if existing_account %}
+        <input id="id_account_{{ existing_account.id }}"
+               type="hidden"
+               name="account"
+               value="{{ existing_account.id }}" />
+        <button class="btn btn-sm btn-outline-danger border-0"
+                title="Disconnect {{ record.name }} account"
+                type="submit"
+                hx-params="id_account_{{ existing_account.id }}">
+            <i class="fa fa-unlink"></i>
+        </button>
+    {% else %}
+        <button class="btn btn-sm btn-outline-success border-0"
+                type="submit"
+                title="Connect {{ record.name }} account"
+                data-bs-toggle="modal"
+                data-bs-target="#form-modal"
+                hx-target="#form-modal-content"
+                hx-swap="beforeend"
+                hx-vals='{"next": "/account/details"}'
+                hx-get="{% provider_login_url record.provider.id process="connect" scope=scope auth_params=auth_params %}">
+            <i class="fa fa-plus"></i>
+        </button>
+    {% endif %}
+</div>

@@ -1,0 +1,69 @@
+<div class="offcanvas-lg offcanvas-end"
+     data-bs-scroll="true"
+     data-bs-backdrop="false"
+     tabindex="-1"
+     id="task-detail-oc"
+     aria-labelledby="task-detail-label">
+    <div class="offcanvas-header text-bg-primary">
+        <h5 class="offcanvas-title fs-4" id="task-detail-label">
+            {{ task.tasked_object.display_name }}
+        </h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                data-bs-target="#task-detail-oc"
+                aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="vstack gap-3 mt-2 mt-lg-4">
+            <div>
+                <div class="fw-bold">
+                    <i class="fa fa-user fa-sm fa-fw me-1"></i>Created By
+                </div>
+                <div class="ms-4">
+                    {{ task.creator.first_name }} {{ task.creator.last_name }}
+                    <div class="text-muted">{{ task.creator.username }}</div>
+                </div>
+                <div class="ms-4 fs-8 text-muted">
+                    {% if task.scheduled_task %}
+                        via
+                        <a href="{% url 'ui:scheduledtask-detail' task.scheduled_task.id %}">
+                            <i class="fa fa-clock fa-sm fa-fw"></i>
+                            {{ task.scheduled_task.display_name }}
+                        </a>
+                    {% elif task.workflow_run_step %}
+                        via
+                        <a href="{% url 'ui:task-detail' task.workflow_run_step.workflow_task.id %}">
+                            <i class="fa fa-diagram-next fa-sm fa-fw"></i>
+                            {{ task.workflow_run_step.workflow_task.workflow.display_name }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="fw-bold">
+                    <i class="fa fa-clock fa-sm fa-fw me-1"></i>Created At
+                </div>
+                <div class="text-muted ms-4">{{ task.created_at }}</div>
+            </div>
+            {% if task.tasked_type.model == "function" %}
+                <div>
+                    <div class="fw-bold">
+                        <i class="fa fa-cubes fa-sm fa-fw me-1"></i>Package
+                    </div>
+                    <div class="text-muted ms-4">{{ task.tasked_object.package }}</div>
+                </div>
+            {% endif %}
+            <div>
+                <div class="fw-bold">
+                    <i class="fa fa-comment-dots fa-sm fa-fw me-1"></i>Comment
+                </div>
+                {% if task.comment %}
+                    <p class="ms-4 text-muted">{{ task.comment }}</p>
+                {% else %}
+                    <p class="ms-4 font-monospace text-muted">No comment</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

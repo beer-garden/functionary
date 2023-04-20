@@ -1,7 +1,7 @@
 <div id="user-list-block">
     {% if not usernames|length and username|length %}
-        <ul class="text-danger">
-            <li>User not found.</li>
+        <ul class="list-unstyled mb-0">
+            <li class="text-danger form-text">User not found.</li>
         </ul>
     {% endif %}
     <datalist id="user-list">

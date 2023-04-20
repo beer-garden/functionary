@@ -6,6 +6,7 @@ from .views import (
     PackageViewSet,
     TaskViewSet,
     TeamViewSet,
+    UserFileViewSet,
     UserViewSet,
 )
 
@@ -15,6 +16,7 @@ router.register(r"packages", PackageViewSet)
 router.register(r"tasks", TaskViewSet)
 router.register(r"teams", TeamViewSet)
 router.register(r"users", UserViewSet)
+router.register(r"user_files", UserFileViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

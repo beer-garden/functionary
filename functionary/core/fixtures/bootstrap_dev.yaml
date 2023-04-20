@@ -1,0 +1,241 @@
+- model: core.environment
+  pk: 2d113b21-bf1f-4c74-ba12-e37d8f34b72a
+  fields:
+    name: prod
+    team: 29f146e9-4fd0-4cd1-b02d-68c75679c144
+- model: core.environment
+  pk: 3764e110-2e14-4ab6-a8be-ee7b5b6345d6
+  fields:
+    name: dev
+    team: 29f146e9-4fd0-4cd1-b02d-68c75679c144
+- model: core.environment
+  pk: 9b999837-9de0-451f-8875-d8da5936b271
+  fields:
+    name: default
+    team: 87bce48d-529a-4578-bbea-fd96d1de91f4
+- model: core.team
+  pk: 29f146e9-4fd0-4cd1-b02d-68c75679c144
+  fields:
+    name: FunctionFoundry
+- model: core.team
+  pk: 87bce48d-529a-4578-bbea-fd96d1de91f4
+  fields:
+    name: ScriptSanctuary
+- model: core.user
+  pk: 597e28d2-ed7f-4c7e-9ec9-2d7c5341c953
+  fields:
+    username: admin
+    password: pbkdf2_sha256$390000$K5yDcPRbjMUBEdLLXEstNK$k0ztbdLDFsN6Q6DgCOXH1wVpzpT1+FXIJw44X55AiuU= # admin
+    first_name: ""
+    last_name: ""
+    email: ""
+    is_active: true
+    last_login: null
+    created_at: 2022-09-23 14:45:53.705000+00:00
+    is_staff: true
+    is_superuser: true
+    groups: []
+    user_permissions: []
+- model: core.user
+  pk: 0b4a9bb8-53a2-4b27-9a84-df6513f62f6a
+  fields:
+    username: ff-admin
+    password: pbkdf2_sha256$390000$iQENJqHVQKpued6uiIlFzt$B0VEeU8iT6eZ9c/nL/2kxFP9vAtPhzNBY0BUTgwyOAM= # ff-admin
+    first_name: Sam
+    last_name: Administrator
+    email: ""
+    is_active: true
+    last_login: null
+    created_at: 2022-10-13 03:23:36.842002+00:00
+    is_staff: false
+    is_superuser: false
+    groups: []
+    user_permissions: []
+- model: core.user
+  pk: 28033b54-059a-4e61-86ce-93274f010a10
+  fields:
+    username: ff-developer
+    password: pbkdf2_sha256$390000$Ln0I2w7hZPWvhuOeBx8YZP$jYjOru8pfnvbrh6WKiyUjeRFX6gfGMDGBk+xOIbmTX4= # ff-developer
+    first_name: Joe
+    last_name: Developer
+    email: ""
+    is_active: true
+    last_login: null
+    created_at: 2022-10-13 03:24:08.235549+00:00
+    is_staff: false
+    is_superuser: false
+    groups: []
+    user_permissions: []
+- model: core.user
+  pk: cc469916-2c66-488a-bc75-5415ba74211f
+  fields:
+    username: ff-operator
+    password: pbkdf2_sha256$390000$bz4pPoESJWGPxxyif3wcCT$gBt1ULCzDFx1Cm1wviODIYJzBSZ1nGfLH9KjgWV0/FM= # ff-operator
+    first_name: Jane
+    last_name: Operator
+    email: ""
+    is_active: true
+    last_login: null
+    created_at: 2022-10-13 03:24:28.528741+00:00
+    is_staff: false
+    is_superuser: false
+    groups: []
+    user_permissions: []
+- model: core.user
+  pk: d68b0910-d269-4ca9-add9-24d5d8b923d7
+  fields:
+    username: ff-readonly
+    password: pbkdf2_sha256$390000$rdJdNLYRBpUG1cTFRcT3a3$7Ct7bOn+P5YRQ+zC8iJvtb8xcIjLbovQfTf4yfDha50= # ff-readonly
+    first_name: Mike
+    last_name: Readonly
+    email: ""
+    is_active: true
+    last_login: null
+    created_at: 2022-10-13 03:24:59.841908+00:00
+    is_staff: false
+    is_superuser: false
+    groups: []
+    user_permissions: []
+- model: core.teamuserrole
+  pk: 27241b81-351f-41db-95da-670ebb035370
+  fields:
+    user: 0b4a9bb8-53a2-4b27-9a84-df6513f62f6a
+    role: ADMIN
+    updated_at: 2022-10-13 03:25:11.945677+00:00
+    team: 29f146e9-4fd0-4cd1-b02d-68c75679c144
+- model: core.teamuserrole
+  pk: 4cc98de9-56ec-499e-9b51-916afac46d21
+  fields:
+    user: d68b0910-d269-4ca9-add9-24d5d8b923d7
+    role: READ_ONLY
+    updated_at: 2022-10-13 03:25:22.561696+00:00
+    team: 29f146e9-4fd0-4cd1-b02d-68c75679c144
+- model: core.environmentuserrole
+  pk: 9f2f1e63-8163-439d-a3df-86cb51d11ee7
+  fields:
+    user: 28033b54-059a-4e61-86ce-93274f010a10
+    role: DEVELOPER
+    updated_at: 2022-10-13 03:25:47.438761+00:00
+    environment: 3764e110-2e14-4ab6-a8be-ee7b5b6345d6
+- model: core.environmentuserrole
+  pk: c59e5e5a-588a-47cd-9212-d8aea7b8fa4c
+  fields:
+    user: cc469916-2c66-488a-bc75-5415ba74211f
+    role: OPERATOR
+    updated_at: 2022-10-13 03:25:56.915799+00:00
+    environment: 2d113b21-bf1f-4c74-ba12-e37d8f34b72a
+- model: database.constance
+  pk: 1
+  fields:
+    key: constance:functionary:SOCIALACCOUNT_PROVIDERS
+    value: gAJ9cQAoWAYAAABnaXRodWJxAX1xAlgGAAAAZ2l0bGFicQN9cQRYCgAAAEdJVExBQl9VUkxxBVgAAAAAcQZzWAgAAABrZXljbG9ha3EHfXEIdS4=
+- model: database.constance
+  pk: 2
+  fields:
+    key: constance:functionary:S3_HOST
+    value: gAJYBQAAAG1pbmlvcQAu
+- model: database.constance
+  pk: 3
+  fields:
+    key: constance:functionary:S3_PORT
+    value: 9000
+- model: database.constance
+  pk: 4
+  fields:
+    key: constance:functionary:S3_REGION
+    value: gAJYAAAAAHEALg==
+- model: database.constance
+  pk: 5
+  fields:
+    key: constance:functionary:S3_SECURE
+    value: false
+- model: database.constance
+  pk: 6
+  fields:
+    key: constance:functionary:S3_ACCESS_KEY
+    value: gAJYCAAAAFJPT1RVU0VScQAu # ROOTUSER
+- model: database.constance
+  pk: 7
+  fields:
+    key: constance:functionary:S3_SECRET_KEY
+    value: gAJYCwAAAENIQU5HRU1FMTIzcQAu # CHANGEME123
+- model: database.constance
+  pk: 8
+  fields:
+    key: constance:functionary:S3_PRESIGNED_URL_TIMEOUT_MINUTES
+    value: 5
+- model: database.constance
+  pk: 9
+  fields:
+    key: constance:functionary:S3_BUCKET
+    value: gAJYCwAAAGZ1bmN0aW9uYXJ5cQAu # functionary
+- model: database.constance
+  pk: 10
+  fields:
+    key: constance:functionary:RABBITMQ_HOST
+    value: gAJYCAAAAHJhYmJpdG1xcQAu # rabbitmq
+- model: database.constance
+  pk: 11
+  fields:
+    key: constance:functionary:RABBITMQ_PORT
+    value: 5672
+- model: database.constance
+  pk: 12
+  fields:
+    key: constance:functionary:RABBITMQ_MANAGEMENT_PORT
+    value: 15672
+- model: database.constance
+  pk: 13
+  fields:
+    key: constance:functionary:RABBITMQ_USER
+    value: gAJYBAAAAGJ1Z3NxAC4= # bugs
+- model: database.constance
+  pk: 14
+  fields:
+    key: constance:functionary:RABBITMQ_PASSWORD
+    value: gAJYDgAAAHdhc2NhbGx5d2FiYml0cQAu # wascallywabbit
+- model: database.constance
+  pk: 15
+  fields:
+    key: constance:functionary:RABBITMQ_TLS
+    value: false
+- model: database.constance
+  pk: 16
+  fields:
+    key: constance:functionary:RABBITMQ_CACERT
+    value: gAJYAAAAAHEALg==
+- model: database.constance
+  pk: 17
+  fields:
+    key: constance:functionary:RABBITMQ_CERT
+    value: gAJYAAAAAHEALg==
+- model: database.constance
+  pk: 18
+  fields:
+    key: constance:functionary:RABBITMQ_KEY
+    value: gAJYAAAAAHEALg==
+- model: database.constance
+  pk: 19
+  fields:
+    key: constance:functionary:REGISTRY_HOST
+    value: gAJYCAAAAHJlZ2lzdHJ5cQAu # registry
+- model: database.constance
+  pk: 20
+  fields:
+    key: constance:functionary:REGISTRY_PORT
+    value: 5000
+- model: database.constance
+  pk: 21
+  fields:
+    key: constance:functionary:REGISTRY_NAMESPACE
+    value: gAJYAAAAAHEALg==
+- model: database.constance
+  pk: 22
+  fields:
+    key: constance:functionary:REGISTRY_USER
+    value: gAJYCAAAAHRlc3R1c2VycQAu # testuser
+- model: database.constance
+  pk: 23
+  fields:
+    key: constance:functionary:REGISTRY_PASSWORD
+    value: gAJYDAAAAHRlc3RwYXNzd29yZHEALg== # testpassword

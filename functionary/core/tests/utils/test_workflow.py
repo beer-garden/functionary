@@ -1,8 +1,17 @@
+from uuid import uuid4
+
 import pytest
 
-from core.models import Function, Package, Team, User, Workflow, WorkflowStep
+from core.models import Function, Package, Task, Team, User, Workflow, WorkflowStep
 from core.utils.parameter import PARAMETER_TYPE
-from core.utils.workflow import add_step, move_step, remove_step
+from core.utils.workflow import (
+    InvalidSteps,
+    add_step,
+    generate_run_steps,
+    move_step,
+    remove_step,
+    reorder_steps,
+)
 
 
 @pytest.fixture
@@ -47,7 +56,7 @@ def workflow(function, environment, user):
     last = WorkflowStep.objects.create(
         workflow=workflow_,
         name="last",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 3}',
         next=None,
     )
@@ -55,7 +64,7 @@ def workflow(function, environment, user):
     middle = WorkflowStep.objects.create(
         workflow=workflow_,
         name="middle",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 2}',
         next=last,
     )
@@ -63,7 +72,7 @@ def workflow(function, environment, user):
     _ = WorkflowStep.objects.create(
         workflow=workflow_,
         name="first",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 1}',
         next=middle,
     )
@@ -80,7 +89,7 @@ def other_workflow(function, environment, user):
     _ = WorkflowStep.objects.create(
         workflow=other_workflow_,
         name="first",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 99}',
         next=None,
     )
@@ -94,7 +103,7 @@ def test_add_step_at_end(workflow, function):
     new_last = add_step(
         workflow=workflow,
         name="new_last",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 12}',
     )
 
@@ -109,7 +118,7 @@ def test_add_step_in_middle(workflow, function):
     second = add_step(
         workflow=workflow,
         name="second",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 12}',
         next=workflow.steps.get(name="middle"),
     )
@@ -125,7 +134,7 @@ def test_add_step_workflow_must_match_next(workflow, other_workflow, function):
         _ = add_step(
             workflow=workflow,
             name="new_step",
-            function=function,
+            tasked_object=function,
             parameter_template='{"prop1": 99}',
             next=other_workflow.steps.get(name="first"),
         )
@@ -171,4 +180,102 @@ def test_move_step_only_within_same_workflow(workflow, other_workflow):
     with pytest.raises(ValueError):
         move_step(
             workflow.steps.get(name="first"), other_workflow.steps.get(name="first")
+        )
+
+
+@pytest.mark.django_db
+def test_generate_run_steps(workflow):
+    """WorkflowRunStep instances are properly created for a workflow task"""
+    task = Task.objects.create(
+        tasked_object=workflow,
+        environment=workflow.environment,
+        creator=workflow.creator,
+        parameters={},
+    )
+
+    run_steps = generate_run_steps(task)
+    workflow_steps = workflow.ordered_steps
+
+    assert len(run_steps) == len(workflow_steps)
+
+    for order, step in enumerate(workflow_steps):
+        run_step = run_steps[order]
+        assert run_step.workflow_step == step
+        assert run_step.step_name == step.name
+        assert run_step.step_order == order + 1
+
+
+@pytest.mark.django_db
+def test_reorder_step(workflow):
+    """Steps can be reordered in Workflow"""
+    first = workflow.steps.get(name="first")
+    middle = workflow.steps.get(name="middle")
+    last = workflow.steps.get(name="last")
+
+    reorder_steps(step_ids=[last.id, middle.id, first.id], workflow=workflow)
+
+    workflow.refresh_from_db()
+    first.refresh_from_db()
+    middle.refresh_from_db()
+    last.refresh_from_db()
+
+    # New order should be last, middle, first
+    ordered_steps = workflow.ordered_steps
+    assert ordered_steps[0] == last
+    assert ordered_steps[1] == middle
+    assert ordered_steps[2] == first
+
+
+@pytest.mark.django_db
+def test_reorder_steps_handles_multiple_changes(workflow):
+    """Steps can be reordered in Workflow"""
+    first = workflow.steps.get(name="first")
+    middle = workflow.steps.get(name="middle")
+    last = workflow.steps.get(name="last")
+
+    reorder_steps(step_ids=[middle.id, last.id, first.id], workflow=workflow)
+
+    workflow.refresh_from_db()
+    first.refresh_from_db()
+    middle.refresh_from_db()
+    last.refresh_from_db()
+
+    # New order should be middle, last, first
+    ordered_steps = workflow.ordered_steps
+    assert ordered_steps[0] == middle
+    assert ordered_steps[1] == last
+    assert ordered_steps[2] == first
+
+
+@pytest.mark.django_db
+def test_reorder_steps_handles_duplicate_ids(workflow):
+    """Step id list can not have duplicates"""
+    first = workflow.steps.get(name="first")
+    middle = workflow.steps.get(name="middle")
+    last = workflow.steps.get(name="last")
+    with pytest.raises(InvalidSteps):
+        reorder_steps(
+            step_ids=[middle.id, last.id, middle.id, first.id], workflow=workflow
+        )
+
+
+@pytest.mark.django_db
+def test_reorder_steps_handles_missing_ids(workflow):
+    """Step id list needs to can not be missing any steps in Workflow"""
+    first = workflow.steps.get(name="first")
+    middle = workflow.steps.get(name="middle")
+    with pytest.raises(InvalidSteps):
+        # step_ids is missing the third step id
+        reorder_steps(step_ids=[middle.id, first.id], workflow=workflow)
+
+
+@pytest.mark.django_db
+def test_reorder_steps_handles_extra_ids(workflow):
+    """Step id list can not have any steps that are not in the Workflow"""
+    first = workflow.steps.get(name="first")
+    middle = workflow.steps.get(name="middle")
+    last = workflow.steps.get(name="last")
+    with pytest.raises(InvalidSteps):
+        reorder_steps(
+            step_ids=[middle.id, last.id, first.id, uuid4()], workflow=workflow
         )

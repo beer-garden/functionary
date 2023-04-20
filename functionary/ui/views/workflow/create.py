@@ -10,7 +10,7 @@ class WorkflowCreateView(PermissionedCreateView):
     """Create view for the Workflow model"""
 
     model = Workflow
-    template_name = "forms/workflow/workflow_edit.html"
+    template_name = "forms/workflow/workflow_create.html"
     fields = ["name", "description", "environment"]
 
     def form_valid(self, form):
@@ -18,7 +18,7 @@ class WorkflowCreateView(PermissionedCreateView):
         form.instance.creator = self.request.user
         form.save()
 
-        success_url = reverse("ui:workflow-detail", kwargs={"pk": form.instance.pk})
+        success_url = reverse("ui:workflow-update", kwargs={"pk": form.instance.pk})
 
         return HttpResponseClientRedirect(success_url)
 

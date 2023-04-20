@@ -1,0 +1,51 @@
+{% load widget_tweaks %}
+{% with taskable_objects|length as num_groups %}
+    {% comment %}Show the package filter if scheduling a function{% endcomment %}
+    {% if num_groups == 0 %}
+        <span>No {{ tasked_type }}s found</span>
+    {% else %}
+        {% if tasked_type == "function" %}
+            <div class="d-flex justify-content-start my-3">
+                <div class="flex-shrink-0 align-self-center me-2">
+                    {{ filter.form.package.label_tag }}:
+                </div>
+                {{ filter.form.package }}
+                {{ filter.form.package.errors }}
+            </div>
+        {% endif %}
+        <label {% include "django/forms/widgets/attrs.html" %}
+               for="tasked_id"
+               class="fw-semibold">{{ tasked_type|capfirst }} *</label>
+        <select class="form-select"
+                id="tasked_id"
+                name="tasked_id"
+                role="menu"
+                required
+                aria-label="Select a {{ tasked_type }}"
+                hx-get="{% url "ui:function-parameters" %}"
+                hx-vals='{"allow_template_variables": "true", "tasked_type": "{{ tasked_type }}"}'
+                hx-target="#function-parameters"
+                hx-swap="innerHTML">
+            {% comment %} If nothing is selected, show a default {% endcomment %}
+            {% if not tasked_object %}
+                <option value disabled selected hidden>Select a {{ tasked_type }}</option>
+            {% endif %}
+            {% for group, tasks in taskable_objects.items %}
+                {% comment %} If there is more than one group, group the options{% endcomment %}
+                {% if num_groups > 1 %}<optgroup label="{{ group }}">{% endif %}
+                    {% for tasked_obj in tasks %}
+                        <option title="{{ tasked_obj.display_name }}"
+                                value="{{ tasked_obj.id }}"
+                                {% if tasked_object == tasked_obj.id|stringformat:'s' or tasked_object == tasked_obj %}selected{% endif %}>
+                            {{ tasked_obj.display_name }}
+                        </option>
+                    {% endfor %}
+                    {% comment %}Close the group if necessary{% endcomment %}
+                    {% if num_groups > 1 %}</optgroup>{% endif %}
+            {% endfor %}
+        </select>
+    {% endif %}
+{% endwith %}
+{% if clear_parameters %}
+    <div class="mb-3" id="function-parameters" hx-swap-oob="outerHTML"></div>
+{% endif %}

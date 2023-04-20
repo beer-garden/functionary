@@ -7,6 +7,13 @@ from django.db import models
 from core.utils.parameter import get_schema
 
 
+class ActiveWorkflowManager(models.Manager):
+    """Manager that filters out Workflows marked inactive."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(active=True)
+
+
 class Workflow(models.Model):
     """A Workflow defines a series of tasks to be executed in sequence.
 
@@ -31,7 +38,15 @@ class Workflow(models.Model):
     tasks = GenericRelation(
         to="Task", content_type_field="tasked_type", object_id_field="tasked_id"
     )
+    scheduled_tasks = GenericRelation(
+        to="ScheduledTask",
+        content_type_field="tasked_type",
+        object_id_field="tasked_id",
+    )
     active = models.BooleanField(default=True)
+
+    objects = models.Manager()
+    active_objects = ActiveWorkflowManager()
 
     class Meta:
         constraints = [
@@ -49,6 +64,9 @@ class Workflow(models.Model):
                 name="workflow_created_at",
             ),
         ]
+
+    def __str__(self):
+        return self.name
 
     @property
     def steps(self):
@@ -84,20 +102,44 @@ class Workflow(models.Model):
         return self.workflowparameter_set  # type: ignore
 
     @property
+    def display_name(self) -> str:
+        """Returns the template-renderable name of the workflow"""
+        return self.name
+
+    @property
     def schema(self) -> dict:
         """Workflow definition schema"""
         return get_schema(self)
+
+    def activate(self):
+        """Activate the workflow"""
+        self.active = True
+        self.save()
 
     def deactivate(self):
         """Deactivate the workflow and pause any associated scheduled tasks"""
         self.active = False
         self.save()
+        self.pause_scheduled_tasks()
 
-        # TODO: Once scheduled_tasks support workflows come back and do something like:
-        # for scheduled_task in self.scheduled_tasks.all():
-        #     scheduled_task.pause()
+    def pause_scheduled_tasks(self) -> None:
+        """Pauses all scheduled tasks."""
+        # Building the queryset this way lets us avoid importing ScheduledTask
+        active_scheduled_tasks = (
+            self.scheduled_tasks.all() & self.scheduled_tasks.model.active_objects.all()
+        )
+
+        for scheduled_task in active_scheduled_tasks:
+            scheduled_task.pause()
 
     @property
     def is_active(self) -> bool:
         """Returns true if the workflow is active"""
         return self.active
+
+    @property
+    def return_type(self) -> str | None:
+        """The Workflows return type should be the value of the
+        final step in the workflow"""
+        last_step = self.ordered_steps[-1]
+        return last_step.return_type

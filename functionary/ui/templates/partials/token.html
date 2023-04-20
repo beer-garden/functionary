@@ -1,7 +1,8 @@
 <div id="token">
-    <h3 class="fw-semibold">
-        <i class="fa fa-id-badge fa-sm fa-fw pe-1"></i>Token
-    </h3>
+    <span class="fw-semibold fs-4">
+        <i class="fa fa-id-badge fa-sm fa-fw pe-1"></i>
+        Token
+    </span>
     <div class="ms-4">
         <div class="form-check form-switch my-3">
             <input class="form-check-input"
@@ -9,21 +10,24 @@
                    name="show"
                    role="switch"
                    id="show-toggle"
-                   onclick="toggleToken()"/>
-            <label class="form-check-label" for="show-toggle">Show token</label>
+                   aria-label="Toggle viewing token"
+                   onclick="toggleToken()" />
+            <label class="form-check-label fw-semibold" for="show-toggle">
+                Show token
+            </label>
         </div>
         <div class="col-9 my-1">
-            <form >
+            <form>
                 {% csrf_token %}
                 <span class="col-7 font-monospace d-none" data-token="{{ token.key }}">{{ token.key }}</span>
                 <span id="masked_token" class="col-7 font-monospace">••••••••••••••••••••••••••••••••••••••••</span>
-                <button class="btn btn-sm border-0 btn-outline"
+                <button class="btn btn-sm btn-outline-success border-0"
                         type="submit"
                         title="Regenerate Token"
                         hx-target="#token"
                         hx-swap="outerHTML"
                         hx-post="{% url 'ui:token-refresh' %}">
-                    <icon class="fa fa-recycle text-success" />
+                    <i class="fa fa-recycle"></i>
                 </button>
             </form>
         </div>

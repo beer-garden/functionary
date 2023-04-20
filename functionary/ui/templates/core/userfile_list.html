@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center">
+        {% include "partials/breadcrumb.html" %}
+        <div>
+            {% if request.session.user_can_create_userfile %}
+                <button class="btn btn-primary btn-sm py-1 h-75"
+                        title="Upload a new File"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#form-modal"
+                        hx-target="#form-modal-content"
+                        hx-swap="beforeend"
+                        hx-get="{% url 'ui:file-create' %}">
+                    <i class="fa fa-plus fa-xs"></i> Upload File
+                </button>
+            {% endif %}
+            {% include "partials/list_filter_button.html" %}
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col me-xl-auto">{% include "partials/table.html" %}</div>
+        {% include "partials/list_filter.html" %}
+    </div>
+{% endblock content %}

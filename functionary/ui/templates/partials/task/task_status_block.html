@@ -1,0 +1,8 @@
+<div id="task_status"
+     class="status-color"
+     title="{{ task.status }}"
+     {% if task.status == "PENDING" %}hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 15s" {% endif %}
+     hx-swap-oob="true">
+    <i class="fa fa-circle-info"></i>
+    <span class="fs-5">{{ task.status }}</span>
+</div>

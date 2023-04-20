@@ -1,42 +1,35 @@
-{% extends "partials/modal.html" %}
 {% load widget_tweaks %}
-{% block modal_title %}
-    Update User's Role
-{% endblock modal_title %}
-{% block modal_description %}
-    Update user's role for the team.
-{% endblock modal_description %}
-{% block modal_content %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">Update User's Role</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <p class="lead">Update user's role for the team.</p>
     <form hx-post="{% url 'ui:teamuserrole-update' teamuserrole.team.id teamuserrole.id %}"
           method="post"
-          id="user-update-modal-form"
-          hx-swap="outerHTML"
-          hx-target="#form-modal">
+          id="modal-form"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend">
         {% csrf_token %}
-        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="form-label" for="user">User</label>
+            {{ form.user.label_tag }}
             <input id="user"
                    class="form-control"
                    disabled
-                   placeholder="{{ teamuserrole.user.username }}"/>
+                   placeholder="{{ teamuserrole.user.username }}" />
             {% comment %} Username value needs to be in this hidden field, not in the above disabled field {% endcomment %}
-            <input type="hidden" name="user" value="{{ teamuserrole.user.username }}"/>
-            <input type="hidden" name="team" value="{{ teamuserrole.team.id }}"/>
-            <div class="text-danger">{{ form.user.errors }}</div>
+            <input type="hidden" name="user" value="{{ teamuserrole.user.username }}" />
+            <input type="hidden" name="team" value="{{ teamuserrole.team.id }}" />
+            {{ form.user.errors }}
         </div>
         <div class="mb-3">
-            <label class="{% if form.role.errors %}text-danger{% endif %} form-label"
-                   for="{{ form.role.id_for_label }}">
-                Role
-            </label>
-            {% render_field form.role class="form-select" id=form.role.id_for_label aria-label=form.role.label role="menu" %}
+            {{ form.role.label_tag }}
+            {% render_field form.role autofocus=true %}
+            {{ form.role.errors }}
         </div>
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
     <button class="btn btn-primary"
             type="submit"
-            form="user-update-modal-form"
+            form="modal-form"
             title="Update Role">Update Role</button>
-{% endblock modal_footer %}
+</div>

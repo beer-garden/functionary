@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">Workflow</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    {{ form.non_field_errors.as_text }}
+    <form id="modal-form"
+          method="post"
+          hx-post="{% if workflow %}{% url 'ui:workflow-update' workflow.id %}{% else %}{% url 'ui:workflow-create' %}{% endif %}"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.name.label_tag }}
+            {% render_field form.name autofocus=true %}
+            {{ form.name.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <input type="hidden"
+               name="environment"
+               value="{{ request.session.environment_id }}" />
+    </form>
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
+    <button class="btn btn-primary"
+            type="submit"
+            form="modal-form"
+            title="{% if workflow %}Save{% else %}Next{% endif %}">
+        {% if workflow %}
+            Save
+        {% else %}
+            Next
+        {% endif %}
+    </button>
+</div>

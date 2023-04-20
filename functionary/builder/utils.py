@@ -17,6 +17,8 @@ from docker.errors import APIError, BuildError, DockerException
 from yaml import YAMLError, safe_load
 
 from core.models import Function, FunctionParameter, Package
+from core.utils.messaging import get_route, send_message
+from core.utils.registry import get_registry, get_registry_config
 
 from .celery import app
 from .exceptions import InvalidPackage
@@ -36,7 +38,7 @@ logger = get_task_logger(__name__)
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))
 
 
-class DockerSocketConnectionError(Exception):
+class DockerClientError(Exception):
     pass
 
 
@@ -48,6 +50,23 @@ class PackageManager:
     def __init__(self, package: Package) -> None:
         self.package = package
         self.environment = package.environment
+
+    def update_package(self, package_definition: dict) -> None:
+        """Update the package instance based on the supplied definition
+
+        Args:
+            package_definition: The pre-validated package definition from a package.yaml
+
+        Returns:
+            None
+        """
+        editable_fields = ["display_name", "summary", "description", "language"]
+
+        for field in editable_fields:
+            new_value = package_definition.get(field)
+            setattr(self.package, field, new_value)
+
+        self.package.save()
 
     def update_functions(self, function_definitions: list[dict]) -> None:
         """Update the functions associated with the package
@@ -121,6 +140,7 @@ class PackageManager:
             function_parameter.parameter_type = parameter.get("type")
             function_parameter.default = parameter.get("default")
             function_parameter.required = parameter.get("required")
+            function_parameter.options = parameter.get("options")
 
             parameters.append(function_parameter)
 
@@ -322,6 +342,7 @@ def build_package(build_id: "UUID") -> None:
     try:
         _build_package(build, build_resource, log_msgs)
         build.complete()
+        _publish_pull_image_msg(build.package)
     except Exception as err:
         logger.error(f"Build {build.id} encountered error: {err}")
         log_msgs.append(str(err))
@@ -355,7 +376,7 @@ def _build_package(build: Build, build_resource: BuildResource, log: list[str]) 
     workdir = _generate_path_for_build(build)
     package = build.package
     image_name, dockerfile = build_resource.image_details
-    full_image_name = f"{settings.REGISTRY}/{image_name}"
+    full_image_name = f"{get_registry()}/{image_name}"
     package_contents = build_resource.package_contents
     package_definition: OrderedDict = build_resource.package_definition
     function_definitions: list[dict] = package_definition.get("functions")
@@ -371,6 +392,7 @@ def _build_package(build: Build, build_resource: BuildResource, log: list[str]) 
 
     package.update_image_name(image_name)
     package_manager = PackageManager(package)
+    package_manager.update_package(package_definition)
     package_manager.update_functions(function_definitions)
     _cleanup(docker_client, image, workdir, build)
 
@@ -479,7 +501,7 @@ def _load_dockerfile_template(dockerfile_template: str, workdir: str) -> None:
         logger.error(err_msg)
         raise BuilderError(err_msg)
 
-    context = {"registry": settings.REGISTRY}
+    context = {"registry": get_registry()}
 
     with open(f"{workdir}/Dockerfile", "w") as dockerfile:
         dockerfile.write(template.render(context=context))
@@ -601,14 +623,28 @@ def _get_docker_client() -> "DockerClient":
         docker_client: A new docker client
 
     Raises:
-        DockerSocketConnectionError: Raised when a connection to the Docker socket
+        DockerClientError: Raised when a connection to the Docker socket
         could not be created.
     """
+    config = get_registry_config()
+    username = config.REGISTRY_USER
+    password = config.REGISTRY_PASSWORD
+    registry = get_registry(config, with_namespace=False)
+
     try:
-        return docker.from_env()
+        client = docker.from_env()
     except DockerException as err:
-        logger.fatal("Failed to connect to the Docker socket. Unable to build.")
-        raise DockerSocketConnectionError(err)
+        logger.critical("Failed to connect to the Docker socket. Unable to build.")
+        raise DockerClientError(err)
+
+    if username and password:
+        try:
+            client.login(username=username, password=password, registry=registry)
+        except APIError as err:
+            logger.critical("Docker login failed. Check REGISTRY_* settings.")
+            raise DockerClientError(err)
+
+    return client
 
 
 def _generate_path_for_build(build: Build) -> str:
@@ -621,3 +657,14 @@ def _generate_path_for_build(build: Build) -> str:
     except OSError as err:
         logger.error(f"Error creating directory for build {build.id}. Error: {err}")
         raise BuilderError(f"Failed to generate directory: {err.filename}")
+
+
+def _publish_pull_image_msg(package: Package):
+    """Sends a message to all runners to pull the new image."""
+    exchange, routing_key = get_route(package)
+    send_message(
+        exchange,
+        routing_key,
+        "PULL_IMAGE",
+        {"id": str(package.id), "image_name": package.full_image_name},
+    )

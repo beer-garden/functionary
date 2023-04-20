@@ -48,17 +48,14 @@ def _handle_delivery(
         msg_type = properties.headers.get("x-msg-type", "__NONE__")
         msg_body = loads(body.decode())
 
-        logger.info("Received message %s", msg_type)
-
         match msg_type:
             case "PULL_IMAGE":
-                pull_image.delay(**msg_body)
+                pull_image.delay(package=msg_body)
             case "TASK_PACKAGE":
-                pull_image_s = pull_image.s(msg_body)
                 run_task_s = run_task.s(task=msg_body)
-                publish_task_s = publish_result.s()
+                publish_result_s = publish_result.s()
 
-                chain(pull_image_s, run_task_s, publish_task_s).delay()
+                chain(run_task_s, publish_result_s).delay()
             case _:
                 logger.error("Unrecognized message type: %s", msg_type)
 
@@ -83,12 +80,6 @@ def _get_current_worker_tasks(inspect: Inspect) -> list[dict]:
 
     Returns a dictionary containing the number of tasks the worker
     is currently processing.
-
-    Args:
-        None
-
-    Returns:
-        values: A list of of tasks the worker is processing
     """
     return inspect.active()[WORKER_NAME]
 

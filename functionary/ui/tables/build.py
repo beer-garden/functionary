@@ -12,7 +12,7 @@ FIELDS = ("package", "status", "creator", "created_at")
 
 class BuildFilter(django_filters.FilterSet):
     package = django_filters.Filter(
-        field_name="package__name", label="Package", lookup_expr="startswith"
+        field_name="package__display_name", label="Package", lookup_expr="icontains"
     )
     creator = django_filters.Filter(
         field_name="creator__username", label="Creator", lookup_expr="startswith"
@@ -38,7 +38,7 @@ class BuildTable(tables.Table):
     package = tables.Column(
         linkify=lambda record: reverse("ui:build-detail", kwargs={"pk": record.id}),
         verbose_name="Package",
-        accessor="package__name",
+        accessor="package__display_name",
     )
     created_at = tables.DateTimeColumn(
         format=DATETIME_FORMAT,
@@ -48,3 +48,4 @@ class BuildTable(tables.Table):
         model = Build
         fields = FIELDS
         orderable = True
+        empty_text = "No builds found"

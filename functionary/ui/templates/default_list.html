@@ -1,11 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-flex justify-content-between mb-1">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb my-1">
-                <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb }}</li>
-            </ol>
-        </nav>
+    <div class="d-flex justify-content-between">
+        {% include "partials/breadcrumb.html" %}
         {% if filter %}
             {% include "partials/list_filter_button.html" %}
         {% endif %}

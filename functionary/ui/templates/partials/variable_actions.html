@@ -1,0 +1,23 @@
+{% if request.session.user_can_update_variable %}
+    <button class="btn btn-sm btn-outline-info border-0"
+            type="button"
+            title="Edit"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
+            hx-swap="beforeend"
+            hx-get="{% url 'ui:variable-update' pk=record.id parent_id=parent_id %}">
+        <i class="fa fa-pencil-alt"></i>
+    </button>
+{% endif %}
+{% if request.session.user_can_delete_variable %}
+    <button class="btn btn-sm btn-outline-danger border-0"
+            type="button"
+            title="Delete"
+            hx-confirm="Are you sure you want to delete {{ record.name }}?"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            hx-delete="{% url 'ui:variable-delete' record.id %}">
+        <i class="fa fa-trash"></i>
+    </button>
+{% endif %}

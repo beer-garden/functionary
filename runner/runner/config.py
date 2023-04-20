@@ -1,0 +1,11 @@
+import os
+
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", 5672)
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
+RABBITMQ_TLS = str(os.getenv("RABBITMQ_TLS")).lower() == "true"
+RABBITMQ_CACERT = os.getenv("RABBITMQ_CACERT")
+RABBITMQ_CERT = os.getenv("RABBITMQ_CERT")
+RABBITMQ_KEY = os.getenv("RABBITMQ_KEY")
+RABBITMQ_VHOST = os.getenv("RUNNER_DEFAULT_VHOST", "public")

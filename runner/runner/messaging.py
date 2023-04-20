@@ -1,26 +1,52 @@
 import json
 import logging
-import os
 import ssl
 from time import sleep
 
 import pika
 from pika.exceptions import AMQPConnectionError, UnroutableError
 
+from . import config
+
 logger = logging.getLogger(__name__)
 
 
-def build_connection(ca=None, cert=None, key=None, open_callback=None):
+def _get_ssl_options() -> pika.SSLOptions | None:
+    """Builds the SSLOptions for the pika connection"""
+    ssl_options = None
+
+    if config.RABBITMQ_TLS:
+        context = ssl.create_default_context()
+
+        if config.RABBITMQ_CACERT:
+            context.load_verify_locations(cafile=config.RABBITMQ_CACERT)
+
+        if config.RABBITMQ_CERT and config.RABBITMQ_KEY:
+            context.load_cert_chain(config.RABBITMQ_CERT, config.RABBITMQ_KEY)
+
+        ssl_options = pika.SSLOptions(context, config.RABBITMQ_HOST)
+
+    return ssl_options
+
+
+def _get_credentials() -> pika.PlainCredentials | None:
+    """Builds the credentials for the pika connection"""
+    return (
+        pika.PlainCredentials(config.RABBITMQ_USER, config.RABBITMQ_PASSWORD)
+        if config.RABBITMQ_USER and config.RABBITMQ_PASSWORD
+        else None
+    )
+
+
+def build_connection(
+    open_callback=None,
+) -> pika.SelectConnection | pika.BlockingConnection:
     """Creates a connection to RabbitMQ.
 
-    This will use the RABBITMQ_[USER,PASSWORD,HOST,PORT] environment
-    variables to open a connection to RabbitMQ. Optionally pass in
-    certificate information and/or a callback function.
+    This will use the RABBITMQ_[USER,PASSWORD,HOST,PORT,CACERT,CERT,KEY] environment
+    variables to open a connection to RabbitMQ.
 
     Args:
-      ca: The path to the CA file for the SSL context
-      cert: The path to the user certifcate
-      key: The path to the keyfile for the given certificate
       open_callback: If populated, will return a select connection
         with this as the open callback.
 
@@ -28,23 +54,14 @@ def build_connection(ca=None, cert=None, key=None, open_callback=None):
       A pika.SelectConnection if open_callback is populated, otherwise
       a pika.BlockingConnection.
     """
-    host = os.getenv("RABBITMQ_HOST", "localhost")
-    port = os.getenv("RABBITMQ_PORT", 5672)
-    credentials = None
-    ssl_options = None
-
-    if cert:
-        context = ssl.create_default_context(cafile=ca)
-        context.load_cert_chain(cert, key)
-        ssl_options = pika.SSLOptions(context, "localhost")
-    else:
-        credentials = pika.PlainCredentials(
-            os.getenv("RABBITMQ_USER", "user"),
-            os.getenv("RABBITMQ_PASSWORD", "password"),
-        )
+    ssl_options = _get_ssl_options()
+    credentials = _get_credentials()
 
     parameters = pika.ConnectionParameters(
-        host=host, port=port, credentials=credentials, ssl_options=ssl_options
+        host=config.RABBITMQ_HOST,
+        port=config.RABBITMQ_PORT,
+        credentials=credentials,
+        ssl_options=ssl_options,
     )
 
     if open_callback:

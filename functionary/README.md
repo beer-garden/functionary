@@ -18,7 +18,7 @@ cd docker/
 docker compose up -d
 
 # To initialize the database with the migrations and initial users/teams/environments
-docker exec functionary-django ./init.sh
+docker exec functionary-webserver ./init.sh
 ```
 
 Authentication to these services within Functionary is not yet configurable. By
@@ -48,7 +48,8 @@ cd package_templates
 ```
 
 If your registry is not located at `localhost:5000`, you can specify the
-location using the environment variables described earlier.
+location using the `--registry` option. Full usage instructions are available
+via the `--help` option.
 
 ## Developer Setup
 
@@ -69,7 +70,7 @@ Install the requirements like so:
 
 ```shell
 # Necessary for compiling psycopg2
-sudo apt install -y python3-dev libpq-dev
+sudo apt install -y python3-dev libpq-dev libldap2-dev libsasl2-dev
 ```
 
 ```shell
@@ -131,7 +132,7 @@ When a package is published, the actual work of building the image is handed off
 to a separate builder process. To start that process:
 
 ```shell
-LOG_LEVEL=INFO ./manage.py run_build_worker
+LOG_LEVEL=INFO ./manage.py run_builder
 ```
 
 ## Start the function runner

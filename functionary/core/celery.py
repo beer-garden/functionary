@@ -5,8 +5,6 @@ from celery.signals import setup_logging
 from django.conf import settings
 
 app = Celery("core", include=["core.utils.tasking"])
-app.config_from_object("django.conf:settings", namespace="CELERY")
-app.conf.task_default_queue = "core"
 
 
 @setup_logging.connect

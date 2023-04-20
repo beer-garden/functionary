@@ -1,43 +1,39 @@
-{% extends "partials/modal.html" %}
-{% block modal_title %}
-    Update User's Role
-{% endblock modal_title %}
-{% block modal_description %}
-    Update user's role for this environment.
-{% endblock modal_description %}
-{% block modal_content %}
+{% load widget_tweaks %}
+<span id="form-modal-label" hx-swap-oob="innerHTML">Update User's Role</span>
+<div id="form-modal-body" hx-swap-oob="innerHTML">
+    <p class="lead">Update user's role for this environment.</p>
     <form hx-post="{% url 'ui:environmentuserrole-update' environmentuserrole.environment.id environmentuserrole.id %}"
           method="post"
-          id="user-update-modal-form"
-          hx-swap="outerHTML"
-          hx-target="#form-modal">
+          id="modal-form"
+          hx-target="#form-modal-content"
+          hx-swap="beforeend">
         {% csrf_token %}
-        {% if form.non_field_errors %}<div class="text-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {{ form.non_field_errors.as_text }}
         <div class="mb-3">
-            <label class="form-label" for="username-field">User</label>
+            {{ form.user.label_tag }}
             <input id="username-field"
                    class="form-control"
                    disabled
-                   placeholder="{{ environmentuserrole.user.username }}"/>
+                   placeholder="{{ environmentuserrole.user.username }}" />
             {% comment %} Username value needs to be in this hidden field, not in the above disabled field {% endcomment %}
             <input type="hidden"
                    name="user"
-                   value="{{ environmentuserrole.user.username }}"/>
+                   value="{{ environmentuserrole.user.username }}" />
             <input type="hidden"
                    name="environment"
-                   value="{{ environmentuserrole.environment.id }}"/>
-            <div class="text-danger">{{ form.user.errors }}</div>
+                   value="{{ environmentuserrole.environment.id }}" />
+            {{ form.user.errors }}
         </div>
         <div class="mb-3">
-            <label class="{% if form.role.errors %}errors{% endif %} form-label"
-                   for="{{ form.role.id_for_label }}">Role</label>
-            {{ form.role }}
+            {{ form.role.label_tag }}
+            {% render_field form.role autofocus=true %}
+            {{ form.role.errors }}
         </div>
     </form>
-{% endblock modal_content %}
-{% block modal_footer %}
+</div>
+<div id="form-modal-footer" hx-swap-oob="innerHTML">
     <button class="btn btn-primary"
             type="submit"
-            form="user-update-modal-form"
+            form="modal-form"
             title="Update Role">Update Role</button>
-{% endblock modal_footer %}
+</div>

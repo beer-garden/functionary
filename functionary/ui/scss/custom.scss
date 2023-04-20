@@ -1,4 +1,3 @@
-
 // 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
 @import "./functions";
 
@@ -7,57 +6,41 @@
  * Fonts
  * ------------------*/
 @font-face {
-    font-family: 'Playball';
-    src: url('../webfonts/Functionary_Playball.woff2');
+  font-family: 'Playball';
+  src: url('../webfonts/Functionary_Playball.woff2');
 }
+
 $display-font-family: 'Playball', cursive;
-$display-font-sizes: (1: 7rem, 2: 4rem);
+$display-font-sizes: (
+  1: 7rem,
+  2: 4rem
+);
 
 /*------------------
-  Colors
+  Colors for all themes
   ------------------*/
-// Standard colors
-$white: #FFFFFF;
-
-// Bootstrap default definitions
-$gray-200: #e9ecef;
-$gray-600: #6c757d;
-$link-hover-color: #324C72;
-
-// Custom definitions
 $primary: #3E5F8E;
-$secondary: #FFFFFF;
 $danger: #8A1B19;
 $warning: #FFA270;
 $info: #407f87;
 $success: #5A7A57;
 $light: #F7F8F8;
 $dark: #343E40;
+$shaded-light-color: #F2F2F2; // --bs-table-striped-bg over white
+$shaded-dark-color: #191B1E;
+$menu-light: #EEF1F3; // $navbar-color over white
+$nav-highlight-color: rgba(#E9ECEF, .75); // $gray-200
+$brand-color: #FFFFFF; // white
 
 /*------------------
   Options
   ------------------*/
 $enable-rfs: false; // Disable Responsive Font Sizes
-
-$navbar-dark-color: rgba($gray-200, .75);
-$navbar-dark-hover-color: $primary;
-$navbar-dark-brand-color: $secondary;
-$navbar-dark-active-color: $white;
-
-$dropdown-dark-bg: $link-hover-color;
-$dropdown-dark-link-color: $navbar-dark-color;
-$dropdown-dark-color: $navbar-dark-color;
-$dropdown-dark-header-color: $white;
-$dropdown-dark-link-hover-color: $link-hover-color;
-$dropdown-dark-link-hover-bg: $navbar-dark-color;
-$dropdown-dark-link-active-color: $white;
-$dropdown-dark-link-active-bg: $link-hover-color;
-$dropdown-dark-divider-bg: $navbar-dark-color;
-
-$offcanvas-bg-color: #F2F2F2; // --bs-table-striped-bg over white
-
 $breadcrumb-divider: quote(">");
 $link-decoration: none;
+$link-hover-decoration: underline;
+$form-switch-color: rgba($dark, .65);
+$form-check-input-border: 1px solid $form-switch-color;
 
 // 3. Include required Bootstrap stylesheets
 @import "./variables";
@@ -94,15 +77,15 @@ $font-sizes: (
 @import "./button-group";
 @import "./dropdown";
 @import "./transitions";
-// @import "./accordion";
+@import "./accordion";
 @import "./breadcrumb";
 @import "./pagination";
-// @import "./badge";
+@import "./badge";
 @import "./alert";
 // @import "./progress";
 @import "./list-group";
 @import "./close";
-// @import "./toasts";
+@import "./toasts";
 @import "./modal";
 // @import "./tooltip";
 @import "./popover";
@@ -118,3 +101,206 @@ $font-sizes: (
 @import "./utilities/api";
 
 // 8. Add additional custom code here
+
+//* Per theme definitions *//
+
+@include color-mode("light") {
+  /* custom classes */
+  $nav-menu-color: $link-hover-color;
+  --#{$prefix}sort-color: #{$gray-500}; // for fa-sort
+  --#{$prefix}archive-color: var(--#{$prefix}dark);// for archive status
+  .json-string {
+    color: #7A7A02;
+  };
+  @import './light_base.scss';
+  @include light-base();
+};
+
+@include color-mode("dark") {
+  $danger: #E2625F;
+  /* custom classes */
+  --#{$prefix}archive-color: var(--#{$prefix}light); // for archive status
+  .form-switch .form-check-input {
+    border: 1px solid rgba($light, .45);
+  }
+  .dropdown-menu {
+    --#{$prefix}dropdown-link-hover-color: #{$menu-light};
+    --#{$prefix}dropdown-link-hover-bg: #{$link-hover-color};
+  };
+  .json-key {
+    color: #D26D6D;
+  };
+  @import './dark_base.scss';
+  @include dark-base();
+  /* redefine theme color variables */
+  $custom-theme-colors: ("danger": $danger);
+  $theme-colors: map-merge($theme-colors, $custom-theme-colors);
+  @import './theme_color_remap.scss';
+  @include color-remap();
+};
+
+@include color-mode("light-hc") {
+  /* custom classes */
+  $primary: #253955;
+  $success: #40573E;
+  $info: #2D585E;
+  $menu-light: #FAF9FB;
+  $light-color: #C8CCD5;
+  $link-color: #336699;
+  $link-hover-color: #0066CC;
+  $nav-highlight-color: $light-color;
+  $nav-menu-color: #46576F;
+  $brand-color: $light-color;
+  --#{$prefix}link-color: #{$link-color};
+  --#{$prefix}link-hover-color: #{$link-hover-color};
+  --#{$prefix}link-color-rgb: #{to-rgb($link-color)};
+  --#{$prefix}link-hover-color-rgb: #{to-rgb($link-hover-color)};
+  --#{$prefix}sort-color: #8B96A2; // for fa-sort
+  --#{$prefix}archive-color: var(--#{$prefix}dark);// for archive status
+  --#{$prefix}body-color: #000023;
+  .dropdown-item.active,
+  .nav-link.active {
+    text-decoration: underline;
+  };
+  .page-link{
+    --#{$prefix}pagination-color: #{$primary};
+    --#{$prefix}pagination-active-bg: #{$primary};
+    --#{$prefix}pagination-active-border-color: #{$primary};
+  };
+  .form-switch .form-check-input:checked {
+    border-color: #{$secondary};
+    background-color: #{$secondary};
+  };
+  .toast .btn-close {   
+    filter: none;
+  }
+  .json-string {
+    color: #5C5C0B;
+  };
+  .json-boolean {
+    color: #006363;
+  };
+  .json-null {
+    color: #595959;
+  };
+  @import './light_base.scss';
+  @include light-base();
+  /* redefine theme color variables */
+  $custom-theme-colors: ("primary": $primary, "success": $success, "info": $info);
+  $theme-colors: map-merge($theme-colors, $custom-theme-colors);
+  @import './theme_color_remap.scss';
+  @include color-remap();
+};
+
+@include color-mode("dark-hc") {
+  $primary: #8DA5B9;
+  $secondary: #9BA3AB; // slightly lightened $body-secondary-color-dark
+  $info: #76B0B7;
+  $success: #92AD90;
+  $danger: #ED9197;
+  $body-bg-dark: #101213;
+  $link-color: #718EA8;
+  $link-hover-color: $link-hover-color-dark; // BS default
+  $nav-highlight-color: $body-bg-dark;
+  $brand-color: $body-bg-dark;
+  $text-color: #F1F1EF;
+
+  // _root.scss with some customizations
+  --#{$prefix}body-color: #{$text-color};
+  --#{$prefix}body-color-rgb: #{to-rgb($text-color)};
+  --#{$prefix}body-bg: #{$body-bg-dark};
+  --#{$prefix}body-bg-rgb: #{to-rgb($body-bg-dark)};
+  --#{$prefix}emphasis-color: #{$body-emphasis-color-dark};
+  --#{$prefix}emphasis-color-rgb: #{to-rgb($body-emphasis-color-dark)};
+  --#{$prefix}secondary-color: #{$secondary};
+  --#{$prefix}secondary-color-rgb: #{to-rgb($secondary)};
+  --#{$prefix}secondary-bg: #{$body-secondary-bg-dark};
+  --#{$prefix}secondary-bg-rgb: #{to-rgb($body-secondary-bg-dark)};
+  --#{$prefix}tertiary-color: #{$body-tertiary-color-dark};
+  --#{$prefix}tertiary-color-rgb: #{to-rgb($body-tertiary-color-dark)};
+  --#{$prefix}tertiary-bg: #{$body-tertiary-bg-dark};
+  --#{$prefix}tertiary-bg-rgb: #{to-rgb($body-tertiary-bg-dark)};
+  @each $color, $value in $theme-colors-text-dark {
+    --#{$prefix}#{$color}-text-emphasis: #{$value};
+  }
+  @each $color, $value in $theme-colors-bg-subtle-dark {
+    --#{$prefix}#{$color}-bg-subtle: #{$value};
+  }
+  @each $color, $value in $theme-colors-border-subtle-dark {
+    --#{$prefix}#{$color}-border-subtle: #{$value};
+  }
+  --#{$prefix}heading-color: #{$headings-color-dark};
+  --#{$prefix}link-color: #{$link-color};
+  --#{$prefix}link-color-rgb: #{to-rgb($link-color)};
+  --#{$prefix}link-hover-color: #{$link-hover-color-dark};
+  --#{$prefix}link-hover-color-rgb: #{to-rgb($link-hover-color-dark)};
+  --#{$prefix}code-color: #{$code-color-dark};
+  --#{$prefix}border-color: #{$border-color-dark};
+  --#{$prefix}border-color-translucent: #{$border-color-translucent-dark};
+  --#{$prefix}form-valid-color: #{$form-valid-color-dark};
+  --#{$prefix}form-valid-border-color: #{$form-valid-border-color-dark};
+  --#{$prefix}form-invalid-color: #{$form-invalid-color-dark};
+  --#{$prefix}form-invalid-border-color: #{$form-invalid-border-color-dark};
+
+  /* custom classes */
+  --#{$prefix}archive-color: #{$secondary}; // for archive status
+  --#{$prefix}sort-color: #{$gray-500}; // for fa-sort
+  .form-switch .form-check-input {
+    border: 1px solid #{rgba($text-color, .55)};
+    &:not(:checked):not(:focus) {
+      --#{$prefix}form-switch-bg: #{escape-svg($form-switch-bg-image-dark)};
+    }
+    &:checked {
+      border-color: #{$secondary};
+      background-color: #{$secondary};
+    }
+  };
+  .page-link{
+    --#{$prefix}pagination-color: #{$primary};
+    --#{$prefix}pagination-active-color: #{$body-bg-dark};
+    --#{$prefix}pagination-active-bg: #{$primary};
+    --#{$prefix}pagination-active-border-color: #{$primary};
+  };
+  .breadcrumb {
+    --#{$prefix}breadcrumb-item-active-color: #{$text-color};
+  };
+  // dark mode datetime-local picker
+  input {
+    color-scheme: dark;
+  };
+  .nav-link.active {
+    text-decoration: underline;
+  };
+  .dropdown-menu {
+    --#{$prefix}dropdown-link-hover-color: #{$body-bg-dark};
+    --#{$prefix}dropdown-link-hover-bg: #{$primary};
+    --#{$prefix}dropdown-link-active-color: var(--#{$prefix}navbar-color);
+    --#{$prefix}dropdown-link-active-bg: #{$primary};
+  };
+  .nav-pills {
+    --#{$prefix}nav-pills-link-active-bg: #{$primary};
+    --#{$prefix}nav-pills-link-active-color: #{$body-bg-dark};
+  };
+  .json-key {
+    color: #f59494;
+  };
+  .json-boolean {
+    color: #51C485;
+  };
+  .json-null {
+    color: #FF9513;
+  };
+  @import './dark_base.scss';
+  @include dark-base();
+  /* redefine theme color maps - from BS /source docs */
+  $custom-theme-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+    "info": $info,
+    "success": $success,
+    "danger": $danger
+  );
+  $theme-colors: map-merge($theme-colors, $custom-theme-colors);
+  @import './theme_color_remap.scss';
+  @include color-remap();
+};

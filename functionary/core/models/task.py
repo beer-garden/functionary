@@ -7,9 +7,11 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GinIndex, OpClass
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models.functions import Upper
 
 from core.utils.parameter import validate_parameters
 
@@ -66,24 +68,30 @@ class Task(models.Model):
     scheduled_task = models.ForeignKey(
         to="ScheduledTask", null=True, blank=True, on_delete=models.SET_NULL
     )
+    comment = models.TextField(null=True, blank=True)
 
     class Meta:
         indexes = [
             models.Index(
-                fields=["environment", "tasked_type", "tasked_id"],
+                fields=["environment", "tasked_type", "tasked_id", "created_at"],
                 name="task_contenttype",
             ),
             models.Index(
-                fields=["environment", "status"], name="task_environment_status"
+                fields=["environment", "status", "created_at"],
+                name="task_environment_status",
             ),
             models.Index(
-                fields=["environment", "creator"], name="task_environment_creator"
+                fields=["environment", "creator", "created_at"],
+                name="task_environment_creator",
             ),
             models.Index(
                 fields=["environment", "created_at"], name="task_environment_created_at"
             ),
             models.Index(
                 fields=["environment", "updated_at"], name="task_environment_updated_at"
+            ),
+            GinIndex(
+                OpClass(Upper("comment"), name="gin_trgm_ops"), name="task_comment"
             ),
         ]
 
@@ -180,3 +188,8 @@ class Task(models.Model):
             return self.tasked_object
         else:
             raise ObjectDoesNotExist("task_object is not a Workflow")
+
+    @property
+    def finished(self) -> bool:
+        """Helper method indicating if the task is in a final state."""
+        return self.status in [Task.COMPLETE, Task.ERROR]

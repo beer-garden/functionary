@@ -62,6 +62,11 @@ class Permission(Enum):
     USER_UPDATE = "user:update"
     USER_DELETE = "user:delete"
 
+    USERFILE_CREATE = "userfile:create"
+    USERFILE_READ = "userfile:read"
+    USERFILE_UPDATE = "userfile:update"
+    USERFILE_DELETE = "userfile:delete"
+
     USERROLE_CREATE = "userrole:create"
     USERROLE_READ = "userrole:read"
     USERROLE_UPDATE = "userrole:update"
@@ -109,6 +114,9 @@ _OPERATOR_PERMISSIONS = _READ_ONLY_PERMISSIONS + [
     Permission.SCHEDULEDTASK_UPDATE.value,
     Permission.SCHEDULEDTASK_DELETE.value,
     Permission.TASK_CREATE.value,
+    Permission.USERFILE_CREATE.value,
+    Permission.USERFILE_UPDATE.value,
+    Permission.USERFILE_DELETE.value,
     Permission.WORKFLOW_CREATE.value,
     Permission.WORKFLOW_UPDATE.value,
     Permission.WORKFLOW_DELETE.value,

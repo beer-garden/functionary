@@ -51,6 +51,8 @@ def parameter_types(
     json: dict | None = None,
     string: str | None = None,
     text: str | None = None,
+    option_string: str | None = None,
+    option_integer: int | None = None,
 ):
     return [
         {"parameter": "boolean", "type": type(boolean).__name__, "value": boolean},
@@ -66,4 +68,26 @@ def parameter_types(
         {"parameter": "json", "type": type(json).__name__, "value": json},
         {"parameter": "string", "type": type(string).__name__, "value": string},
         {"parameter": "text", "type": type(text).__name__, "value": text},
+        {
+            "parameter": "option_string",
+            "type": type(option_string).__name__,
+            "value": option_string,
+        },
+        {
+            "parameter": "option_integer",
+            "type": type(option_integer).__name__,
+            "value": option_integer,
+        },
     ]
+
+
+def download_url(url: str):
+    response = requests.get(url)
+
+    if response.ok:
+        try:
+            return response.json()
+        except Exception:
+            return response.text
+    else:
+        return f"Failed to download. Got response status {response.status_code}."

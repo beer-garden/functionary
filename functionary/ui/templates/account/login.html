@@ -2,35 +2,43 @@
 {% load socialaccount %}
 {% load social_helper %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
     <head>
-        <meta charset="UTF-8"/>
-        <meta name="description" content="Functionary Login"/>
-        <meta name="keywords" content="Functionary"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Functionary Login" />
+        <meta name="keywords" content="Functionary" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="shortcut icon"
               type="image/png"
-              href="{% static 'favicon/favicon.ico' %}"/>
+              href="{% static 'favicon/favicon.ico' %}" />
         <link rel="stylesheet"
               href="{% static 'css/custom_bootstrap.css' %}"
-              type="text/css"/>
-        <link rel="stylesheet" href="{% static 'css/brands.css' %}" type="text/css"/>
+              type="text/css" />
+        <link rel="stylesheet" href="{% static 'css/brands.css' %}" type="text/css" />
         <link rel="stylesheet"
               href="{% static 'css/fontawesome-6.2.1.min.css' %}"
-              type="text/css"/>
+              type="text/css" />
         <link rel="stylesheet"
-              href="{% static 'css/fontawesome-solid-6.2.1.min.css' %}"/>
+              href="{% static 'css/fontawesome-solid-6.2.1.min.css' %}" />
         <link rel="stylesheet"
               href="{% static 'css/functionary.css' %}"
-              type="text/css"/>
+              type="text/css" />
         <title>
             {% block title %}
                 Functionary Login
             {% endblock title %}
         </title>
         <script src="{% static 'js/htmx-1.8.6.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     </head>
-    <body class="bg-secondary">
+    <body>
+        <script type="importmap">
+            {
+                "imports": {
+                    "bootstrap": "{% static 'js/bootstrap.bundle.min.js' %}"
+                }
+            }
+        </script>
         <div class="container-fluid m-2">
             <div class="row text-center text-primary mt-3">
                 <h1>
@@ -43,39 +51,50 @@
                 <div class="col-4">
                     {% block content %}
                         {% if messages %}
-                            {% include "partials/auth_messages.html" %}
+                            {% include "partials/messages.html" %}
                         {% endif %}
                         <div class="card shadow">
-                            <h5 class="card-header text-light bg-primary">Please Sign in</h5>
+                            <h5 class="card-header text-light text-bg-primary">Please Sign in</h5>
                             <div class="card-body text-primary bg-body">
                                 <form method="post" action="{% url 'account_login' %}" id="loginForm">
+                                    {{ form.non_field_errors.as_text }}
                                     {% csrf_token %}
                                     <div class="mb-1">
-                                        <label for="id_login" class="form-label">Name</label>
+                                        <label for="id_login"
+                                               class="form-label {% if form.login.errors %}text-danger{% endif %}">
+                                            Name
+                                        </label>
                                         <input type="text"
                                                class="form-control"
                                                name="login"
                                                id="id_login"
                                                placeholder="Name"
                                                required
-                                               value="{{ form.cleaned_data.login }}"/>
+                                               value="{{ form.cleaned_data.login }}" />
+                                        {{ form.login.errors }}
                                     </div>
-                                    {{ form.login.errors }}
                                     <div class="mb-1">
-                                        <label for="id_password" class="form-label">Password</label>
+                                        <label for="id_password"
+                                               class="form-label {% if form.password.errors %}text-danger{% endif %}">
+                                            Password
+                                        </label>
                                         <input type="password"
                                                class="form-control"
                                                name="password"
                                                id="id_password"
                                                required
-                                               placeholder="Password"/>
+                                               placeholder="Password" />
+                                        {{ form.password.errors }}
                                     </div>
-                                    {{ form.password.errors }}
+                                    {% if redirect_field_value %}
+                                        <input type="hidden"
+                                               name="{{ redirect_field_name }}"
+                                               value="{{ redirect_field_value }}" />
+                                    {% endif %}
                                 </form>
-                                {{ form.non_field_errors }}
                             </div>
                             <div class="card-footer text-center bg-body">
-                                <button class="btn btn-primary text-light" form="loginForm" type="submit">Sign In</button>
+                                <button class="btn btn-primary" form="loginForm" type="submit">Sign In</button>
                             </div>
                         </div>
                     {% endblock content %}
@@ -105,9 +124,11 @@
                                                     {% csrf_token %}
                                                     <button title="{{ provider_pair.name }}"
                                                             class="btn icon-{{ provider_pair.provider.id }}"
-                                                            type="submit"
-                                                            hx-target="#show_modal"
-                                                            hx-swap="innerHTML"
+                                                            type="button"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#form-modal"
+                                                            hx-target="#form-modal-content"
+                                                            hx-swap="beforeend"
                                                             hx-get="{% provider_login_url provider_pair.provider.id process=process scope=scope auth_params=auth_params %}">
                                                         {{ provider_pair.name }}
                                                     </button>
@@ -119,10 +140,40 @@
                             </div>
                         {% endif %}
                     {% endblock extracontent %}
-                    <div id="show_modal"></div>
+                    {% include "partials/modal.html" %}
                 </div>
                 <div class="col"></div>
             </div>
         </div>
+        <script>
+            function setTheme(theme) {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    if (window.matchMedia('(prefers-contrast: more)').matches) {
+                      document.documentElement.setAttribute('data-bs-theme', 'dark-hc')
+                    } else {
+                      document.documentElement.setAttribute('data-bs-theme', 'dark')
+                    }
+                } else {
+                    if (window.matchMedia('(prefers-contrast: more)').matches) {
+                      document.documentElement.setAttribute('data-bs-theme', 'light-hc')
+                    } else {
+                      document.documentElement.setAttribute('data-bs-theme', theme)
+                    }
+                }
+            }
+            // Set light by default
+            setTheme('light')
+            // If system settings change, also change our theme
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (evt) => {
+                if (evt.matches) {
+                    setTheme('dark')
+                } else {
+                    setTheme('light')
+                }
+            })
+            window.matchMedia('(prefers-contrast: more)').addEventListener('change', (evt) => {
+                setTheme('light')
+            })
+        </script>
     </body>
 </html>

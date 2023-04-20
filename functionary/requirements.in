@@ -6,17 +6,21 @@ django-constance
 django-constance[database]
 django-htmx
 django-filter
+django-storages
+django-storages[boto3]
 django-tables2
 django-widget-tweaks
 docker
+gunicorn
 jsonschema
-minio
 pika
 psycopg2
 pydantic
+python-ldap
 pyyaml
 redis
 rapidfuzz
+whitenoise
 
 # drf and optional dependencies
 djangorestframework

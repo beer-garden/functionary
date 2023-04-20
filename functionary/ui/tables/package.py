@@ -5,15 +5,15 @@ from django.urls import reverse
 from core.models import Package
 from ui.tables.meta import BaseMeta
 
-FIELDS = ("name", "summary")
+FIELDS = ("display_name", "summary")
 
 
 class PackageFilter(django_filters.FilterSet):
-    name = django_filters.Filter(label="Package", lookup_expr="startswith")
+    display_name = django_filters.Filter(label="Package", lookup_expr="icontains")
 
 
 class PackageTable(tables.Table):
-    name = tables.Column(
+    display_name = tables.Column(
         linkify=lambda record: reverse("ui:package-detail", kwargs={"pk": record.id}),
         verbose_name="Package",
         orderable=True,
@@ -22,3 +22,4 @@ class PackageTable(tables.Table):
     class Meta(BaseMeta):
         model = Package
         fields = FIELDS
+        empty_text = "No packages found"

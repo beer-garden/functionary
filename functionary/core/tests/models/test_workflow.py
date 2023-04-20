@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from core.models import Function, Package, Task, Team, User, Workflow
+from core.models import Function, Package, ScheduledTask, Task, Team, User, Workflow
 from core.utils.parameter import PARAMETER_TYPE
 
 
@@ -49,26 +49,37 @@ def workflow(function, environment, user):
 
     last = _workflow.steps.create(
         name="last",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 3}',
         next=None,
     )
 
     middle = _workflow.steps.create(
         name="middle",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 2}',
         next=last,
     )
 
     _ = _workflow.steps.create(
         name="first",
-        function=function,
+        tasked_object=function,
         parameter_template='{"prop1": 1}',
         next=middle,
     )
 
     return _workflow
+
+
+@pytest.fixture
+def scheduled_task(workflow):
+    return ScheduledTask.objects.create(
+        tasked_object=workflow,
+        environment=workflow.environment,
+        creator=workflow.creator,
+        parameters={},
+        status=ScheduledTask.ACTIVE,
+    )
 
 
 @pytest.mark.django_db
@@ -103,3 +114,16 @@ def test_workflow_task_parameters_validation(workflow):
 
     with pytest.raises(ValidationError):
         run.clean()
+
+
+@pytest.mark.django_db
+def test_deactivate(workflow, scheduled_task):
+    """Deactivating a workflow pauses active scheduled tasks"""
+    assert workflow.active
+    assert scheduled_task.status == ScheduledTask.ACTIVE
+
+    workflow.deactivate()
+    scheduled_task.refresh_from_db()
+
+    assert workflow.active is False
+    assert scheduled_task.status == ScheduledTask.PAUSED

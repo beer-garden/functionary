@@ -1,6 +1,7 @@
 from os import getenv
 
 LOG_LEVEL = getenv("LOG_LEVEL", "INFO").upper()
+CELERY_LOG_LEVEL = getenv("CELERY_LOG_LEVEL", "WARNING").upper()
 
 
 formatters = {
@@ -21,6 +22,12 @@ handlers = {
         "formatter": "minimal",
         "stream": "ext://sys.stdout",
     },
+    "celery_console": {
+        "level": CELERY_LOG_LEVEL,
+        "class": "logging.StreamHandler",
+        "formatter": "minimal",
+        "stream": "ext://sys.stdout",
+    },
 }
 
 
@@ -30,7 +37,7 @@ CELERY_LOGGING = {
     "formatters": formatters,
     "handlers": handlers,
     "loggers": {
-        "celery": {"handlers": ["console"], "propagate": False},
+        "celery": {"handlers": ["celery_console"], "propagate": False},
         "docker": {"propagate": False},
         "kombu": {"propagate": False},
         "urllib3": {"propagate": False},

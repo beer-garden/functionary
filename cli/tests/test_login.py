@@ -1,5 +1,6 @@
-import pytest
-import requests
+from unittest.mock import Mock
+
+import urllib3
 from click.testing import CliRunner
 
 from functionary.config import get_config_value
@@ -7,25 +8,24 @@ from functionary.login import login_cmd
 
 
 def response_200(*args, **kwargs):
-    response = requests.Response()
-    response.status_code = 200
-    response._content = b'{"token": "somegreattoken"}'
+    response = Mock()
+    response.status = 200
+    response.data = b'{"token": "somegreattoken"}'
 
     return response
 
 
 def response_400(*args, **kwargs):
-    response = requests.Response()
-    response.status_code = 400
-    response._content = b'{"details": "invalid username or password"}'
+    response = Mock()
+    response.status = 400
+    response.data = b'{"details": "invalid username or password"}'
 
     return response
 
 
-@pytest.mark.usefixtures("config")
 def test_login(monkeypatch):
     """Successful login should update the config"""
-    monkeypatch.setattr(requests, "post", response_200)
+    monkeypatch.setattr(urllib3.PoolManager, "request", response_200)
     host = "http://test:1234"
 
     assert get_config_value("host") != host
@@ -38,10 +38,9 @@ def test_login(monkeypatch):
     assert get_config_value("host") == host
 
 
-@pytest.mark.usefixtures("config")
 def test_login_failed(monkeypatch):
     """A failed login attempt should not update the config"""
-    monkeypatch.setattr(requests, "post", response_400)
+    monkeypatch.setattr(urllib3.PoolManager, "request", response_400)
     existing_host = get_config_value("host")
 
     runner = CliRunner()

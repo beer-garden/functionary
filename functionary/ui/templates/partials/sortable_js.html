@@ -1,0 +1,13 @@
+{% load static %}
+<script src="{% static 'js/Sortable.min.js' %}"></script>
+<script>
+    htmx.onLoad(function(content) {
+        var sortables = content.querySelectorAll(".sortable");
+        for (var i = 0; i < sortables.length; i++) {
+            var sortable = sortables[i];
+            new Sortable(sortable, {
+                ghostClass: 'sortablejs-background-class',
+            });
+        }
+    })
+</script>

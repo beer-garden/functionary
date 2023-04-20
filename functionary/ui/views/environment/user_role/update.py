@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django_htmx.http import HttpResponseClientRedirect
 
 from core.models import EnvironmentUserRole
 from ui.forms.environments import EnvironmentUserRoleForm
@@ -15,3 +16,8 @@ class EnvironmentUserRoleUpdateView(PermissionedUpdateView):
         return reverse(
             "ui:environment-detail", kwargs={"pk": self.kwargs.get("environment_pk")}
         )
+
+    def form_valid(self, form):
+        """Valid form handler"""
+        form.save()
+        return HttpResponseClientRedirect(self.get_success_url())

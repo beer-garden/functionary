@@ -21,6 +21,7 @@ class Parameter(models.Model):
     description = models.TextField(blank=True, null=True)
     parameter_type = models.CharField(max_length=64, choices=PARAMETER_TYPE_CHOICES)
     default = models.CharField(max_length=128, blank=True, null=True)
+    options = models.JSONField(default=list, null=True)
     required = models.BooleanField(default=False)
 
     class Meta:

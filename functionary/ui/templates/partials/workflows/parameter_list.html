@@ -1,45 +1,12 @@
-<div id="tableParameter" class="ms-4 m2-2 mb-4">
-    <div class="table-container">
-        <table class="table table-striped table-sm">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Type</th>
-                    <th scope="col" class="text-center">Required</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody id="parameters">
-                {% for parameter in workflow.parameters.all %}
-                    <tr>
-                        <td>{{ parameter.name }}</td>
-                        <td>{{ parameter.description }}</td>
-                        <td>{{ parameter.parameter_type }}</td>
-                        <td class="text-center">
-                            {% if parameter.required %}<i class="fa fa-check"/>{% endif %}
-                        </td>
-                        <td hx-target="closest tr" hx-swap="outerHTML">
-                            <button class="btn btn-small text-info fa fa-pencil-alt"
-                                    type="button"
-                                    title="Edit"
-                                    hx-target="body"
-                                    hx-swap="beforeend"
-                                    hx-get="{% url 'ui:workflowparameter-edit' workflow.pk parameter.pk %}"/>
-                            <button class="btn btn-small text-danger fa fa-trash"
-                                    type="button"
-                                    title="Delete"
-                                    hx-delete="{% url 'ui:workflowparameter-delete' workflow.pk parameter.pk %}"/>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+{% load renderers %}
+<div id="tableParameter" class="mt-1 mb-4">
+    {% render_table parameter_table 'partials/table_template.html' %}
     <button class="btn btn-primary fa-plus"
             type="button"
             title="Add Parameter"
-            hx-target="body"
+            data-bs-toggle="modal"
+            data-bs-target="#form-modal"
+            hx-target="#form-modal-content"
             hx-swap="beforeend"
             hx-get="{% url 'ui:workflowparameter-create' workflow.pk %}">
         Add

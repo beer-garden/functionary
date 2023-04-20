@@ -1,17 +1,23 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Union
+from uuid import UUID
 
 from django.db import transaction
+from django.db.models import Case, When
 
-from core.models import WorkflowStep
+from core.models import WorkflowRunStep, WorkflowStep
 
 if TYPE_CHECKING:
-    from core.models import Function, Workflow
+    from core.models import Function, Task, Workflow
+
+
+class InvalidSteps(Exception):
+    pass
 
 
 def add_step(
     workflow: "Workflow",
     name: str,
-    function: "Function",
+    tasked_object: Union["Function", "Workflow"],
     parameter_template: str,
     next: WorkflowStep | None = None,
 ) -> WorkflowStep:
@@ -20,9 +26,9 @@ def add_step(
     Args:
         workflow: Workflow to add a step to
         name: Name of the WorkflowStep
-        function: Function to task
+        tasked_object: The Function or Workflow to task
         parameter_template: Template string that will be rendered to form the
-            parameter json for the function
+            parameter json for the tasked object
         next: The WorkflowStep to insert the new step before. The default value
             of None will insert at the end of the Workflow.
 
@@ -41,7 +47,7 @@ def add_step(
         new_step = WorkflowStep.objects.create(
             workflow=workflow,
             name=name,
-            function=function,
+            tasked_object=tasked_object,
             parameter_template=parameter_template,
             next=before_step.next if before_step else None,
         )
@@ -70,6 +76,36 @@ def remove_step(step: WorkflowStep) -> None:
             before.save()
 
         step.delete()
+
+
+def reorder_steps(step_ids: List[UUID], workflow: "Workflow") -> None:
+    """Reorders WorkflowSteps to match the order of step_ids
+
+    Args:
+        step_ids: A list of WorkflowStep ids
+        workflow_pk: Workflow pk of that the step_ids are accosiated with
+
+    Returns:
+        None
+
+    Raises:
+        InvalidSteps: Provided step ids do not match workflow steps
+    """
+    step: WorkflowStep = None
+    steps = WorkflowStep.objects.filter(workflow=workflow, pk__in=step_ids)
+
+    step_order = Case(*[When(id=id, then=pos) for pos, id in enumerate(step_ids)])
+    steps = workflow.steps.filter(id__in=step_ids).order_by(step_order)
+
+    ordered_steps = workflow.ordered_steps
+    if set(steps) != set(ordered_steps) or len(step_ids) != len(ordered_steps):
+        raise InvalidSteps("Provided step ids do not match workflow steps")
+
+    with transaction.atomic():
+        max_index = len(steps) - 1
+        for index, step in enumerate(steps):
+            step.next = steps[index + 1] if index != max_index else None
+            step.save()
 
 
 def move_step(step: WorkflowStep, next: WorkflowStep | None = None) -> None:
@@ -105,3 +141,29 @@ def move_step(step: WorkflowStep, next: WorkflowStep | None = None) -> None:
 
         step.next = next
         step.save()
+
+
+def generate_run_steps(task: "Task") -> List[WorkflowRunStep]:
+    """Generates the WorkflowRunStep instances for an execution of a Workflow.
+
+    Args:
+        task: Task for the execution of a Workflow
+
+    Returns:
+        The list of WorkflowRunSteps that were created
+    """
+    workflow = task.workflow
+    run_steps = []
+
+    for order, step in enumerate(workflow.ordered_steps):
+        run_steps.append(
+            WorkflowRunStep.objects.create(
+                workflow_step=step,
+                step_name=step.name,
+                step_order=order + 1,
+                step_task=None,
+                workflow_task=task,
+            )
+        )
+
+    return run_steps

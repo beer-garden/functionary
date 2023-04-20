@@ -1,0 +1,20 @@
+{% include "partials/task/task_status_block.html" %}
+{% if task.tasked_type.model == "workflow" %}
+    {% for step in steps %}
+        {% if step.step.step_order >= last and step.step.step_order <= poll_step %}
+            <div class="accordion-item"
+                 id="step_{{ step.step.step_order }}"
+                 {% if not step.finished and not task.finished %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true&last={{ poll_step }}" hx-trigger="every 5s" {% endif %}
+                 hx-swap-oob="true">
+                {% include "partials/task/workflow_result.html" %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <div id="block-{{ task.id }}"
+         hx-target="this"
+         hx-swap="outerHTML"
+         {% if not task.finished %} hx-get="{% url 'ui:task-results' task.id %}?output=display_raw&poll=true" hx-trigger="every 5s"{% endif %}>
+        {% include "partials/task/task_result_block.html" %}
+    </div>
+{% endif %}
